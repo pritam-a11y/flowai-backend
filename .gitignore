@@ -53,3 +53,5 @@ Thumbs.db
 *.temp
 
 .replit
+
+*keyjwk*

@@ -297,6 +297,7 @@ class RedoxTransformer {
     // Extract appointment details if available
     let appointmentType = "";
     let appointmentStatus = "";
+    let appointmentStartTime = "";
     
     if (appointmentResponse && appointmentResponse.entry && appointmentResponse.entry.length > 0) {
       const appointmentEntry = appointmentResponse.entry.find(
@@ -307,6 +308,7 @@ class RedoxTransformer {
         const appointment = appointmentEntry.resource;
         appointmentType = appointment.appointmentType?.coding?.[0]?.code || "";
         appointmentStatus = appointment.status || "";
+        appointmentStartTime = appointment.start || "";
       }
     }
 
@@ -318,6 +320,7 @@ class RedoxTransformer {
       patient_insurance_name: insuranceName || "",
       patient_appointment_type: appointmentType,
       patient_appointment_status: appointmentStatus,
+      patient_appointment_start_time: appointmentStartTime,
       provider_location: "Plantation, Florida",
       alternate_location: ""
     };
