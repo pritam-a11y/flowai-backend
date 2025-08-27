@@ -23,9 +23,9 @@ async function forwardToCekuraObservability(eventData) {
           "Content-Type": "application/json",
         },
         timeout: 5000, // 5 second timeout
-      }
+      },
     );
-    
+
     logger.info("Event forwarded to Cekura observability", {
       status: response.status,
       timestamp: new Date().toISOString(),
@@ -70,7 +70,7 @@ router.post("/webhook", async (req, res, next) => {
   try {
     // Forward a copy of the event to Cekura observability (non-blocking)
     forwardToCekuraObservability(req.body);
-    
+
     // Log complete webhook request body
     logger.info("=== RETELL WEBHOOK RECEIVED ===", {
       requestBody: JSON.stringify(req.body, null, 2),
@@ -170,7 +170,8 @@ router.post("/webhook", async (req, res, next) => {
     if (appointments.length > 0) {
       const appointment = appointments[0];
       dynamicVariables.patient_appointment_id = appointment.appointmentId || "";
-      dynamicVariables.patient_appointment_type = appointment.appointmentType || "";
+      dynamicVariables.patient_appointment_type =
+        appointment.appointmentType || "";
       dynamicVariables.appointment_start = appointment.startTime || "";
       dynamicVariables.patient_appointment_status = appointment.status || "";
       dynamicVariables.appointment_description = appointment.description || "";
@@ -251,7 +252,7 @@ router.post("/function-call", async (req, res, next) => {
   try {
     // Forward a copy of the event to Cekura observability (non-blocking)
     forwardToCekuraObservability(req.body);
-    
+
     // Log function call request body (excluding transcript and transcript_object for cleaner logs)
     const logBody = {
       ...req.body,
@@ -502,16 +503,18 @@ router.post("/function-call", async (req, res, next) => {
           });
           return res.status(400).json({
             success: false,
-            error: "Missing required fields: birth_date, given, and family are required",
+            error:
+              "Missing required fields: birth_date, given, and family are required",
           });
         }
 
         // Create search parameters
-        const searchParams = RedoxTransformer.createPatientSearchByDobNameParams(
-          birth_date,
-          given,
-          family,
-        );
+        const searchParams =
+          RedoxTransformer.createPatientSearchByDobNameParams(
+            birth_date,
+            given,
+            family,
+          );
 
         // Execute patient search through Redox API
         const searchResponse = await RedoxAPIService.makeRequest(
@@ -519,43 +522,49 @@ router.post("/function-call", async (req, res, next) => {
           "/Patient/_search",
           null,
           searchParams,
-          accessToken
+          accessToken,
         );
 
         // Check if patient found
-        if (!searchResponse || !searchResponse.entry || searchResponse.entry.length === 0) {
+        if (
+          !searchResponse ||
+          !searchResponse.entry ||
+          searchResponse.entry.length === 0
+        ) {
           logger.info("No patient found", {
             birth_date,
             given,
             family,
           });
-          
+
           result = {
             success: true,
             patient_found: false,
-            patient: null
+            patient: null,
           };
           break;
         }
 
         // Get the first patient's ID for appointment search
         const firstPatientEntry = searchResponse.entry.find(
-          (entry) => entry.resource && entry.resource.resourceType === "Patient"
+          (entry) =>
+            entry.resource && entry.resource.resourceType === "Patient",
         );
         const patientId = firstPatientEntry?.resource?.id;
 
         let appointmentResponse = null;
-        
+
         // Search for appointments if patient found
         if (patientId) {
           try {
-            const appointmentSearchParams = RedoxTransformer.createAppointmentSearchParams(patientId);
+            const appointmentSearchParams =
+              RedoxTransformer.createAppointmentSearchParams(patientId);
             appointmentResponse = await RedoxAPIService.makeRequest(
               "POST",
               "/Appointment/_search",
               null,
               appointmentSearchParams,
-              accessToken
+              accessToken,
             );
           } catch (appointmentError) {
             logger.warn("Failed to fetch appointments for patient", {
@@ -567,10 +576,11 @@ router.post("/function-call", async (req, res, next) => {
         }
 
         // Transform patient and appointment data into the required format
-        const patientData = RedoxTransformer.transformPatientWithAppointmentDetails(
-          searchResponse,
-          appointmentResponse
-        );
+        const patientData =
+          RedoxTransformer.transformPatientWithAppointmentDetails(
+            searchResponse,
+            appointmentResponse,
+          );
 
         logger.info("Patient search by DOB and name completed", {
           patientFound: patientData !== null,
@@ -583,7 +593,7 @@ router.post("/function-call", async (req, res, next) => {
         result = {
           success: true,
           patient_found: patientData !== null,
-          patient: patientData
+          patient: patientData,
         };
         break;
       }
@@ -658,10 +668,11 @@ router.post("/function-call", async (req, res, next) => {
 router.post("/call/update", async (req, res, next) => {
   try {
     // Forward a copy of the event to Cekura observability (non-blocking)
-    forwardToCekuraObservability(req.body);
-    
+
     console.log("hit");
     const { event, call } = req.body;
+
+    console.log("hit2");
 
     // Only process if event is 'call_analyzed'
     if (event !== "call_analyzed") {
@@ -671,6 +682,8 @@ router.post("/call/update", async (req, res, next) => {
       });
     }
 
+    console.log("hit3");
+
     if (!call || !call.call_id) {
       return res.status(400).json({
         success: false,
@@ -678,32 +691,59 @@ router.post("/call/update", async (req, res, next) => {
       });
     }
 
+    console.log("hit4");
+
     // Send confirmation email if patient email is available (non-blocking)
     try {
-      const recepientEmail = call.retell_llm_dynamic_variables?.patient_email;
-      
+      console.log("in send email");
+      const recepientEmail =
+        call.call_analysis?.custom_analysis_data?.patient_email;
+
       if (recepientEmail) {
+        const data = {
+          patient_first_name:
+            call.call_analysis?.custom_analysis_data?.patient_first_name ||
+            "Patient",
+          date_str: call.call_analysis?.custom_analysis_data?.appointment_date,
+          time_str: call.call_analysis?.custom_analysis_data?.appointment_time,
+          location_line: "1216 N University Dr Plantation FL 33322",
+          map_url:
+            "https://maps.google.com/?q=1216+N+University+Dr+Plantation+FL+33322",
+          office_phone: "(954) 472 4072",
+          main_phone: "(954) 472 4072",
+          logo_url:
+            "https://static.wixstatic.com/media/98ad52_10ebfcb7845c4b399bc2dca33938370c~mv2_d_4267_4000_s_4_2.jpg/v1/fill/w_272,h_248,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/EU-Final-Logo%5B1%5D.jpg", // optional
+        };
+
+        const subject = `Appointment Confirmation — Dr. Ead Urology`;
+        const html = renderAppointmentConfirmationHTML(data);
+
+        // const html = "hello";
+
         const emailData = {
           from: "myflow@no-reply.vexalink.com",
           to: recepientEmail,
-          subject: `Appointment Confirmation`,
-          text: `Your appointment has been confirmed`,
+          subject: subject,
+          html: html,
         };
 
         // Send email using Resend (non-blocking)
-        resend.emails.send(emailData).catch(emailError => {
+        const resp = resend.emails.send(emailData).catch((emailError) => {
           logger.error("Failed to send confirmation email", {
             error: emailError.message,
             recipient: recepientEmail,
-            call_id: call.call_id
+            call_id: call.call_id,
           });
         });
+
+        console.log("Email has been sent");
+        console.log(resp);
       }
     } catch (emailError) {
       // Log error but don't fail the request
       logger.error("Error processing confirmation email", {
         error: emailError.message,
-        call_id: call.call_id
+        call_id: call.call_id,
       });
     }
 
@@ -942,8 +982,10 @@ router.post("/call/update", async (req, res, next) => {
       }
 
       // 4. Check for transfer attempts and scheduled callbacks
-      const isTransferAttempted = call.call_analysis?.custom_analysis_data?.is_transfer_attempted;
-      const scheduledCallbackTime = call.call_analysis?.custom_analysis_data?.scheduled_callback_time;
+      const isTransferAttempted =
+        call.call_analysis?.custom_analysis_data?.is_transfer_attempted;
+      const scheduledCallbackTime =
+        call.call_analysis?.custom_analysis_data?.scheduled_callback_time;
       const patientId = call.retell_llm_dynamic_variables?.patient_id;
 
       console.log("isTransferAttempted", isTransferAttempted);
@@ -952,9 +994,9 @@ router.post("/call/update", async (req, res, next) => {
 
       if (scheduledCallbackTime && patientId) {
         // Determine agent callback number from call numbers
-        const agentNumbers = ['+16018846979', '+14088728200'];
+        const agentNumbers = ["+16018846979", "+14088728200"];
         let agentCallbackNumber = null;
-        
+
         if (agentNumbers.includes(call.to_number)) {
           agentCallbackNumber = call.to_number;
         } else if (agentNumbers.includes(call.from_number)) {
@@ -962,11 +1004,14 @@ router.post("/call/update", async (req, res, next) => {
         }
 
         if (!agentCallbackNumber) {
-          logger.warn("Cannot determine agent callback number - skipping callback processing", {
-            call_id: call.call_id,
-            to_number: call.to_number,
-            from_number: call.from_number,
-          });
+          logger.warn(
+            "Cannot determine agent callback number - skipping callback processing",
+            {
+              call_id: call.call_id,
+              to_number: call.to_number,
+              from_number: call.from_number,
+            },
+          );
         } else {
           logger.info("Processing callback request", {
             call_id: call.call_id,
@@ -1018,11 +1063,14 @@ router.post("/call/update", async (req, res, next) => {
                 scheduled_callback_time: scheduledCallbackTime,
               });
             } catch (docError) {
-              logger.error("Error creating DocumentReference for transfer attempt", {
-                call_id: call.call_id,
-                patient_id: patientId,
-                error: docError.message,
-              });
+              logger.error(
+                "Error creating DocumentReference for transfer attempt",
+                {
+                  call_id: call.call_id,
+                  patient_id: patientId,
+                  error: docError.message,
+                },
+              );
             }
           } else {
             // is_transfer_attempted is false, store in scheduled_callbacks table
@@ -1148,6 +1196,140 @@ router.post("/call/update", async (req, res, next) => {
  *       500:
  *         description: Internal server error
  */
+
+function escapeHTML(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function renderAppointmentConfirmationHTML(d) {
+  return `
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width">
+    <meta charset="utf-8">
+    <title>Appointment Confirmation</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f5f7fb;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f5f7fb;">
+      <tr>
+        <td align="center" style="padding:24px;">
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:100%;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e6eaf2;">
+            <tr>
+              <td style="padding:24px 24px 8px 24px;text-align:left;">
+                ${d.logo_url ? `<img src="${d.logo_url}" alt="EAD Urology" style="display:block;max-width:160px;height:auto;margin-bottom:12px;">` : ""}
+                <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;">
+                  <div style="font-size:14px;">Hi ${escapeHTML(d.patient_first_name)},</div>
+                  <div style="margin-top:8px;">Thanks for scheduling with Ead Urology. Your appointment is confirmed.</div>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:8px 24px 0 24px;">
+                <div style="font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#111827;">Appointment Confirmation</div>
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:8px;">
+                  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Date &amp; Time:</strong> ${escapeHTML(d.date_str)} at ${escapeHTML(d.time_str)}. Please arrive 10–15 minutes early.</td>
+                  </tr>
+                  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Location:</strong> ${escapeHTML(d.location_line)}<br>
+                      Map: <a href="${d.map_url}" style="color:#2563eb;text-decoration:underline;">Open map</a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:16px 24px 0 24px;">
+                <div style="font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#111827;">Before You Arrive</div>
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:8px;">
+                  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">
+                      • <strong>Please Note:</strong> You will receive a ~10-minute Intake Call 24–48 hours before the appointment. Please make time for this call so you don't have to wait when you arrive.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">
+                      • <strong>Please Bring:</strong> Photo ID, insurance card(s), payment method for copay, referral/order (if applicable), medication list, and prior records/imaging (if any).
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">
+                      • If you need language or accessibility support, please call ${escapeHTML(d.office_phone)}. We're glad to help.
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:16px 24px 0 24px;">
+                <div style="font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#111827;">Appointment Preparation Instructions</div>
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:8px;">
+                  <tr>
+                  </tr>
+                  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">
+                      • If your clinician advised changes to medicines or diet, please follow their guidance.
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:16px 24px 0 24px;">
+                <div style="font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#111827;">Appointment Changes or Questions</div>
+                <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;margin-top:8px;">
+                  • To reschedule or cancel, please call ${escapeHTML(d.office_phone)}.<br>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:24px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                  <tr>
+                    <td style="vertical-align:top;">
+                      <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;">We look forward to seeing you soon.</div>
+                      <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;margin-top:16px;">
+                        Best Regards,<br><br>
+                        <strong>Dr. Daniel Ead</strong><br>
+                        Ead Urology<br>
+                        1216 N University Dr<br>
+                        Plantation FL 33322<br>
+                        T: ${escapeHTML(d.office_phone)}
+                      </div>
+                      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6b7280;margin-top:16px;line-height:1.4;">
+                        This message may include protected health information meant only for ${escapeHTML(d.patient_first_name)}. 
+                        If you received it in error, please delete and call ${escapeHTML(d.main_phone)}.
+                      </div>
+                    </td>
+                    <td style="vertical-align:bottom;text-align:right;padding-left:20px;">
+                      ${d.bottom_right_image_url ? `<img src="${d.bottom_right_image_url}" alt="${d.bottom_right_image_alt || "Footer Image"}" style="display:block;max-width:150px;max-height:150px;width:auto;height:auto;">` : ""}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
 router.post("/trigger-intake-call", authMiddleware, async (req, res, next) => {
   try {
     const retellService = require("../services/retellService");
@@ -1467,7 +1649,7 @@ router.get("/callbacks/scheduler/status", authMiddleware, (req, res) => {
 router.get("/callbacks/list", authMiddleware, async (req, res, next) => {
   try {
     const { status, patient_id, limit = 100 } = req.query;
-    
+
     let query = "SELECT * FROM scheduled_callbacks WHERE 1=1";
     const params = [];
     let paramCount = 0;
