@@ -33,7 +33,9 @@
     "dotenv": "^16.3.1",
     "retell-sdk": "^4.40.0",
     "pg": "^8.11.3",
-    "resend": "^2.0.0"
+    "resend": "^2.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "bcrypt": "^5.1.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",

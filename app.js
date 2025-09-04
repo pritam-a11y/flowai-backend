@@ -7,6 +7,7 @@ const rateLimit = require("express-rate-limit");
 const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const { v4: uuidv4 } = require("uuid");
+const authRoutes = require("./routes/auth");
 
 const logger = require("./utils/logger");
 const errorHandler = require("./middleware/errorHandler");
@@ -22,6 +23,8 @@ const oauthRoutes = require("./routes/oauth");
 const callbackScheduler = require("./services/callbackScheduler");
 
 const app = express();
+
+app.set("trust proxy", true);
 const PORT = process.env.PORT || 3002;
 
 // Request logging middleware
@@ -130,6 +133,7 @@ app.use("/api/v1/retell", retellWebhookRoutes);
 app.use("/api/v1/retell/agent", retellAgentRoutes);
 app.use("/api/v1/redox", redoxWebhookRoutes);
 app.use("/api/v1/document-reference", documentReferenceRoutes);
+app.use("/auth", authRoutes);
 
 // OAuth Routes (no prefix as per standard OAuth conventions)
 app.use("/oauth", oauthRoutes);
@@ -171,7 +175,7 @@ app.listen(PORT, () => {
   logger.info(`Flow AI API running on port ${PORT}`);
   logger.info(`API Documentation: http://localhost:${PORT}/api-docs`);
   logger.info(`Health Check: http://localhost:${PORT}/health`);
-  
+
   // Start the callback scheduler
   callbackScheduler.start();
   logger.info("Callback scheduler started");
