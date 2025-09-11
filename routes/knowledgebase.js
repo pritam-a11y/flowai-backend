@@ -149,7 +149,7 @@ router.post(
   "/:org_id/fetch-data",
   jwtMiddleware,
   validateOrgAccess,
-  requireFeaturePermission("launchpad", "read"), // Using launchpad permissions as specified
+  requireFeaturePermission("knowledgebase", "read"), // Using launchpad permissions as specified
   async (req, res) => {
     try {
       const workspaceId = req.workspaceId;
@@ -271,7 +271,7 @@ router.post(
   "/:org_id/update",
   jwtMiddleware,
   validateOrgAccess,
-  requireFeaturePermission("launchpad", "write"),
+  requireFeaturePermission("knowledgebase", "write"),
   async (req, res) => {
     try {
       const workspaceId = req.workspaceId;
@@ -383,7 +383,7 @@ router.post(
   "/:org_id/upload-document",
   jwtMiddleware,
   validateOrgAccess,
-  requireFeaturePermission("launchpad", "write"),
+  requireFeaturePermission("knowledgebase", "write"),
   upload.single("file"),
   async (req, res) => {
     try {
@@ -517,7 +517,7 @@ router.post(
   "/:org_id/delete-document",
   jwtMiddleware,
   validateOrgAccess,
-  requireFeaturePermission("launchpad", "write"),
+  requireFeaturePermission("knowledgebase", "write"),
   async (req, res) => {
     try {
       const workspaceId = req.workspaceId;
@@ -667,7 +667,7 @@ router.post(
   "/:org_id/create-curated-kb",
   jwtMiddleware,
   validateOrgAccess,
-  requireFeaturePermission("launchpad", "write"),
+  requireFeaturePermission("knowledgebase", "write"),
   async (req, res) => {
     try {
       const workspaceId = req.workspaceId;
@@ -1004,7 +1004,7 @@ router.post(
   "/:org_id/delete-curated-kb",
   jwtMiddleware,
   validateOrgAccess,
-  requireFeaturePermission("launchpad", "write"),
+  requireFeaturePermission("knowledgebase", "write"),
   async (req, res) => {
     try {
       const workspaceId = req.workspaceId;
