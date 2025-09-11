@@ -16,6 +16,14 @@ const FEATURE_PERMISSIONS = {
     "core-team-member": { read: true, write: false },
     "analytics-user": { read: false, write: false },
   },
+  knowledgebase: {
+    "super-admin": { read: true, write: true, delete: true },
+    observer: { read: true, write: false, delete: false },
+    member: { read: true, write: true, delete: true },
+    "customer-admin": { read: true, write: true, delete: true },
+    "core-team-member": { read: true, write: false, delete: false },
+    "analytics-user": { read: false, write: false, delete: false },
+  },
   agents: {
     "super-admin": { read: true, write: true, delete: true },
     observer: { read: true, write: false, delete: false },
