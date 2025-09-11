@@ -258,6 +258,14 @@ router.post(
  *                       type: string
  *                     zip:
  *                       type: string
+ *                     parking_directions:
+ *                       type: string
+ *                     inpatient:
+ *                       type: boolean
+ *                     services_provided:
+ *                       type: array
+ *                       items:
+ *                         type: string
  *     responses:
  *       200:
  *         description: Updated launchpad data
@@ -272,9 +280,9 @@ router.post(
   async (req, res) => {
     try {
       const { data } = req.body;
-      const workspaceId = req.workspaceId; // Set by validateOrgAccess
+      const workspaceId = req.workspaceId;
 
-      // Validate and format locations data
+      // Validate and format locations data with new fields
       const locations = {
         locations: Array.isArray(data)
           ? data.map((loc) => ({
@@ -284,6 +292,13 @@ router.post(
               city: loc.city || "",
               state: loc.state || "",
               zip: loc.zip || "",
+              // New fields
+              parking_directions: loc.parking_directions || "",
+              inpatient:
+                typeof loc.inpatient === "boolean" ? loc.inpatient : false,
+              services_provided: Array.isArray(loc.services_provided)
+                ? loc.services_provided
+                : [],
             }))
           : [],
       };
@@ -642,6 +657,12 @@ router.post(
                   city: loc.city || "",
                   state: loc.state || "",
                   zip: loc.zip || "",
+                  parking_directions: loc.parking_directions || "",
+                  inpatient:
+                    typeof loc.inpatient === "boolean" ? loc.inpatient : false,
+                  services_provided: Array.isArray(loc.services_provided)
+                    ? loc.services_provided
+                    : [],
                 }))
               : [],
           }
