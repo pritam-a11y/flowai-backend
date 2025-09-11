@@ -9,6 +9,8 @@ const AWS = require("aws-sdk");
 const multer = require("multer");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
+const OpenAI = require("openai");
+const { Document, Packer, Paragraph, HeadingLevel } = require("docx");
 
 // Configure AWS S3
 const s3 = new AWS.S3({
@@ -838,7 +840,7 @@ ${JSON.stringify(gptPromptData, null, 2)}`;
       logger.info("Calling OpenAI to generate curated KB");
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4-turbo-preview",
         messages: [
           {
             role: "system",
