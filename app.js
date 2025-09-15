@@ -23,6 +23,7 @@ const oauthRoutes = require("./routes/oauth");
 const callbackScheduler = require("./services/callbackScheduler");
 const launchpadRoutes = require("./routes/launchpad");
 const knowledgebaseRoutes = require("./routes/knowledgebase");
+const sheetRoutes = require("./routes/sheets");
 
 const app = express();
 
@@ -138,6 +139,7 @@ app.use("/api/v1/document-reference", documentReferenceRoutes);
 app.use("/auth", authRoutes);
 app.use("/api/v1/launchpad", launchpadRoutes);
 app.use("/api/v1/knowledgebase", knowledgebaseRoutes);
+app.use("/api/v1/sheet", sheetRoutes);
 
 // OAuth Routes (no prefix as per standard OAuth conventions)
 app.use("/oauth", oauthRoutes);
