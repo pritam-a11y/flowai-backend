@@ -10,6 +10,7 @@ const { Resend } = require("resend");
 const callIdStorage = require("../utils/callIdStorage");
 const axios = require("axios");
 const LocationSorter = require("../utils/locationSorter");
+const { getProviderConfig, getDefaultProviderConfig } = require("../config/providers");
 
 const authService = new AuthService();
 
@@ -723,28 +724,36 @@ router.post("/call/update", async (req, res, next) => {
         call.call_analysis?.custom_analysis_data?.patient_email;
 
       if (recepientEmail) {
+        // Get provider configuration
+        const providerName = call.call_analysis?.custom_analysis_data?.provider_name;
+        const providerConfig = getProviderConfig(providerName) || getDefaultProviderConfig();
+        
+        logger.info("Email provider config selected", {
+          call_id: call.call_id,
+          provider_name: providerName,
+          selected_provider: providerConfig.provider_id,
+        });
+
         const data = {
           patient_first_name:
             call.call_analysis?.custom_analysis_data?.patient_first_name ||
             "Patient",
           date_str: call.call_analysis?.custom_analysis_data?.appointment_date,
           time_str: call.call_analysis?.custom_analysis_data?.appointment_time,
-          location_line: "1216 N University Dr Plantation FL 33322",
-          map_url:
-            "https://maps.google.com/?q=1216+N+University+Dr+Plantation+FL+33322",
-          office_phone: "(954) 472 4072",
-          main_phone: "(954) 472 4072",
-          logo_url:
-            "https://static.wixstatic.com/media/98ad52_10ebfcb7845c4b399bc2dca33938370c~mv2_d_4267_4000_s_4_2.jpg/v1/fill/w_272,h_248,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/EU-Final-Logo%5B1%5D.jpg", // optional
+          appointment_location: call.call_analysis?.custom_analysis_data?.appointment_location,
+          provider_name: providerConfig.name,
+          business_name: providerConfig.business_name,
+          doctor_name: providerConfig.doctor_name,
+          office_phone: providerConfig.office_phone,
+          logo_url: providerConfig.logo_url,
+          default_location: providerConfig.default_location,
         };
 
-        const subject = `Appointment Confirmation — Dr. Ead Urology`;
+        const subject = `Appointment Confirmation — ${providerConfig.name}`;
         const html = renderAppointmentConfirmationHTML(data);
 
-        // const html = "hello";
-
         const emailData = {
-          from: "myflow@no-reply.vexalink.com",
+          from: providerConfig.from_email,
           to: recepientEmail,
           subject: subject,
           html: html,
@@ -756,6 +765,7 @@ router.post("/call/update", async (req, res, next) => {
             error: emailError.message,
             recipient: recepientEmail,
             call_id: call.call_id,
+            provider: providerConfig.provider_id,
           });
         });
 
@@ -1231,6 +1241,11 @@ function escapeHTML(str) {
 }
 
 function renderAppointmentConfirmationHTML(d) {
+  // Handle location display
+  const locationDisplay = d.appointment_location 
+    ? escapeHTML(d.appointment_location)
+    : "To be confirmed";
+    
   return `
 <!doctype html>
 <html>
@@ -1247,10 +1262,10 @@ function renderAppointmentConfirmationHTML(d) {
           <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:100%;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e6eaf2;">
             <tr>
               <td style="padding:24px 24px 8px 24px;text-align:left;">
-                ${d.logo_url ? `<img src="${d.logo_url}" alt="EAD Urology" style="display:block;max-width:160px;height:auto;margin-bottom:12px;">` : ""}
+                ${d.logo_url ? `<img src="${d.logo_url}" alt="${escapeHTML(d.provider_name)}" style="display:block;max-width:160px;height:auto;margin-bottom:12px;">` : ""}
                 <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;">
                   <div style="font-size:14px;">Hi ${escapeHTML(d.patient_first_name)},</div>
-                  <div style="margin-top:8px;">Thanks for scheduling with Ead Urology. Your appointment is confirmed.</div>
+                  <div style="margin-top:8px;">Thanks for scheduling with ${escapeHTML(d.provider_name)}. Your appointment is confirmed.</div>
                 </div>
               </td>
             </tr>
@@ -1263,9 +1278,7 @@ function renderAppointmentConfirmationHTML(d) {
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Date &amp; Time:</strong> ${escapeHTML(d.date_str)} at ${escapeHTML(d.time_str)}. Please arrive 10–15 minutes early.</td>
                   </tr>
                   <tr>
-                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Location:</strong> ${escapeHTML(d.location_line)}<br>
-                      Map: <a href="${d.map_url}" style="color:#2563eb;text-decoration:underline;">Open map</a>
-                    </td>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Location:</strong> ${locationDisplay}</td>
                   </tr>
                 </table>
               </td>
@@ -1326,15 +1339,14 @@ function renderAppointmentConfirmationHTML(d) {
                       <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;">We look forward to seeing you soon.</div>
                       <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;margin-top:16px;">
                         Best Regards,<br><br>
-                        <strong>Dr. Daniel Ead</strong><br>
-                        Ead Urology<br>
-                        1216 N University Dr<br>
-                        Plantation FL 33322<br>
+                        <strong>${escapeHTML(d.doctor_name)}</strong><br>
+                        ${escapeHTML(d.business_name)}<br>
+                        ${d.appointment_location ? escapeHTML(d.appointment_location) : (d.default_location ? escapeHTML(d.default_location) : "")}<br>
                         T: ${escapeHTML(d.office_phone)}
                       </div>
                       <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6b7280;margin-top:16px;line-height:1.4;">
                         This message may include protected health information meant only for ${escapeHTML(d.patient_first_name)}. 
-                        If you received it in error, please delete and call ${escapeHTML(d.main_phone)}.
+                        If you received it in error, please delete and call ${escapeHTML(d.office_phone)}.
                       </div>
                     </td>
                     <td style="vertical-align:bottom;text-align:right;padding-left:20px;">
