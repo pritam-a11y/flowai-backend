@@ -606,10 +606,7 @@ router.post("/function-call", async (req, res, next) => {
             error: sortResult.error,
           });
           
-          result = {
-            success: false,
-            error: sortResult.error
-          };
+          result = sortResult.error;
         } else {
           logger.info("sort_locations completed successfully", {
             address,

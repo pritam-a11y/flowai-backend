@@ -56,6 +56,12 @@ class LocationSorter {
 
       return results;
     } catch (error) {
+      console.error('Google Maps API detailed error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        apiKey: this.apiKey ? 'present' : 'missing'
+      });
       throw new Error(`Google Maps API error: ${error.message}`);
     }
   }
