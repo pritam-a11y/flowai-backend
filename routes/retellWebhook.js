@@ -9,35 +9,9 @@ const db = require("../db/connection");
 const { Resend } = require("resend");
 const callIdStorage = require("../utils/callIdStorage");
 const axios = require("axios");
+const LocationSorter = require("../utils/locationSorter");
 
 const authService = new AuthService();
-
-// Helper function to forward events to Cekura observability
-async function forwardToCekuraObservability(eventData) {
-  try {
-    const response = await axios.post(
-      "https://api.cekura.ai/observability/v1/retell/observe/",
-      eventData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        timeout: 5000, // 5 second timeout
-      },
-    );
-
-    logger.info("Event forwarded to Cekura observability", {
-      status: response.status,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    // Log error but don't fail the main request
-    logger.error("Failed to forward event to Cekura observability", {
-      error: error.message,
-      timestamp: new Date().toISOString(),
-    });
-  }
-}
 
 // Initialize Resend with API key
 const resend = new Resend("re_RqyutRoZ_FzgFQ1SVV8qd7RAUmjX4o79B");
@@ -68,8 +42,6 @@ const resend = new Resend("re_RqyutRoZ_FzgFQ1SVV8qd7RAUmjX4o79B");
  */
 router.post("/webhook", async (req, res, next) => {
   try {
-    // Forward a copy of the event to Cekura observability (non-blocking)
-    forwardToCekuraObservability(req.body);
 
     // Log complete webhook request body
     logger.info("=== RETELL WEBHOOK RECEIVED ===", {
@@ -226,7 +198,7 @@ router.post("/webhook", async (req, res, next) => {
  *                     description: Access token from call context
  *               name:
  *                 type: string
- *                 enum: [check_availability, book_appointment, update_appointment, create_patient, find_patient]
+ *                 enum: [check_availability, book_appointment, update_appointment, create_patient, find_patient, sort_locations]
  *                 description: Function name
  *               args:
  *                 type: object
@@ -244,14 +216,18 @@ router.post("/webhook", async (req, res, next) => {
  *                   family:
  *                     type: string
  *                     description: Patient's last name (for find_patient)
+ *                   zip_code:
+ *                     type: string
+ *                     description: 5-digit ZIP code (for sort_locations)
+ *                   appointmentType:
+ *                     type: string
+ *                     description: Type of appointment (for sort_locations)
  *     responses:
  *       200:
  *         description: Function call result
  */
 router.post("/function-call", async (req, res, next) => {
   try {
-    // Forward a copy of the event to Cekura observability (non-blocking)
-    forwardToCekuraObservability(req.body);
 
     // Log function call request body (excluding transcript and transcript_object for cleaner logs)
     const logBody = {
@@ -595,6 +571,53 @@ router.post("/function-call", async (req, res, next) => {
           patient_found: patientData !== null,
           patient: patientData,
         };
+        break;
+      }
+
+      case "sort_locations": {
+        logger.info("Processing sort_locations function call");
+
+        // Extract parameters from args
+        const { zip_code, appointmentType } = args;
+
+        // Validate required fields
+        if (!zip_code || !appointmentType) {
+          logger.warn("sort_locations failed: missing required fields", {
+            zip_code,
+            appointmentType,
+          });
+          return res.status(400).json({
+            success: false,
+            error: "Missing required fields: zip_code and appointmentType are required",
+          });
+        }
+
+        // Use LocationSorter to get sorted locations
+        const sortResult = LocationSorter.sortLocationsByDistance(
+          zip_code,
+          appointmentType
+        );
+
+        if (!sortResult.success) {
+          logger.info("sort_locations - no locations found", {
+            zip_code,
+            appointmentType,
+            error: sortResult.error,
+          });
+          
+          result = {
+            success: false,
+            error: sortResult.error
+          };
+        } else {
+          logger.info("sort_locations completed successfully", {
+            zip_code,
+            appointmentType,
+            locationsFound: Object.keys(sortResult.result).length,
+          });
+
+          result = sortResult.result;
+        }
         break;
       }
 
