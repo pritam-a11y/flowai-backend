@@ -217,9 +217,9 @@ router.post("/webhook", async (req, res, next) => {
  *                   family:
  *                     type: string
  *                     description: Patient's last name (for find_patient)
- *                   zip_code:
+ *                   address:
  *                     type: string
- *                     description: 5-digit ZIP code (for sort_locations)
+ *                     description: Full address string (for sort_locations)
  *                   appointmentType:
  *                     type: string
  *                     description: Type of appointment (for sort_locations)
@@ -579,29 +579,29 @@ router.post("/function-call", async (req, res, next) => {
         logger.info("Processing sort_locations function call");
 
         // Extract parameters from args
-        const { zip_code, appointmentType } = args;
+        const { address, appointmentType } = args;
 
         // Validate required fields
-        if (!zip_code || !appointmentType) {
+        if (!address || !appointmentType) {
           logger.warn("sort_locations failed: missing required fields", {
-            zip_code,
+            address,
             appointmentType,
           });
           return res.status(400).json({
             success: false,
-            error: "Missing required fields: zip_code and appointmentType are required",
+            error: "Missing required fields: address and appointmentType are required",
           });
         }
 
-        // Use LocationSorter to get sorted locations
-        const sortResult = LocationSorter.sortLocationsByDistance(
-          zip_code,
+        // Use LocationSorter to get sorted locations (now async)
+        const sortResult = await LocationSorter.sortLocationsByDistance(
+          address,
           appointmentType
         );
 
         if (!sortResult.success) {
           logger.info("sort_locations - no locations found", {
-            zip_code,
+            address,
             appointmentType,
             error: sortResult.error,
           });
@@ -612,7 +612,7 @@ router.post("/function-call", async (req, res, next) => {
           };
         } else {
           logger.info("sort_locations completed successfully", {
-            zip_code,
+            address,
             appointmentType,
             locationsFound: Object.keys(sortResult.result).length,
           });

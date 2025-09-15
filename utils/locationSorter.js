@@ -1,53 +1,63 @@
+require('dotenv').config();
 const { locations } = require('../config/locations');
-const zipcodes = require('zipcodes');
+const { Client } = require('@googlemaps/google-maps-services-js');
 
 class LocationSorter {
-  /**
-   * Calculate distance between two coordinates using Haversine formula
-   * @param {number} lat1 - Latitude of first point
-   * @param {number} lng1 - Longitude of first point
-   * @param {number} lat2 - Latitude of second point
-   * @param {number} lng2 - Longitude of second point
-   * @returns {number} Distance in miles
-   */
-  static calculateDistance(lat1, lng1, lat2, lng2) {
-    const R = 3959; // Earth's radius in miles
-    const dLat = this.toRadians(lat2 - lat1);
-    const dLng = this.toRadians(lng2 - lng1);
-    
-    const a = 
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.toRadians(lat1)) * Math.cos(this.toRadians(lat2)) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2);
-    
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-    
-    return Math.round(distance * 10) / 10; // Round to 1 decimal place
+  constructor() {
+    this.googleMapsClient = new Client({});
+    this.apiKey = process.env.GOOGLE_MAPS_API_KEY;
   }
-
-  static toRadians(degrees) {
-    return degrees * (Math.PI / 180);
-  }
-
   /**
-   * Get coordinates for a ZIP code
-   * @param {string} zipCode - 5-digit ZIP code
-   * @returns {object|null} Coordinates object or null if not found
+   * Get distances from user address to all eligible locations using Google Maps Distance Matrix API
+   * @param {string} userAddress - Full address string
+   * @param {Array} eligibleLocations - Array of location objects
+   * @returns {Promise<Array>} Array of locations with distance and duration data
    */
-  static getZipCodeCoordinates(zipCode) {
-    // Use the zipcodes package to lookup any US ZIP code
-    const zipInfo = zipcodes.lookup(zipCode);
-    
-    if (zipInfo && zipInfo.latitude && zipInfo.longitude) {
-      return {
-        lat: zipInfo.latitude,
-        lng: zipInfo.longitude
-      };
+  async getDistancesFromGoogle(userAddress, eligibleLocations) {
+    if (!this.apiKey) {
+      throw new Error('Google Maps API key not configured');
     }
-    
-    // If not found, return null
-    return null;
+
+    try {
+      // Prepare destination addresses
+      const destinations = eligibleLocations.map(location => location.address);
+
+      // Make Distance Matrix API call
+      const response = await this.googleMapsClient.distancematrix({
+        params: {
+          key: this.apiKey,
+          origins: [userAddress],
+          destinations: destinations,
+          units: 'imperial', // miles
+          mode: 'driving',
+          avoid: ['tolls'], // Optional: avoid tolls for more accurate general routing
+        },
+      });
+
+      const results = [];
+      const elements = response.data.rows[0]?.elements || [];
+
+      eligibleLocations.forEach((location, index) => {
+        const element = elements[index];
+        
+        if (element && element.status === 'OK') {
+          results.push({
+            ...location,
+            distance: element.distance.text,
+            duration: element.duration.text,
+            distance_value: element.distance.value, // in meters for sorting
+            duration_value: element.duration.value, // in seconds for sorting
+          });
+        } else {
+          // If Google can't calculate distance, skip this location
+          console.warn(`Could not calculate distance to ${location.name}: ${element?.status}`);
+        }
+      });
+
+      return results;
+    } catch (error) {
+      throw new Error(`Google Maps API error: ${error.message}`);
+    }
   }
 
   /**
@@ -55,7 +65,7 @@ class LocationSorter {
    * @param {string} appointmentType - The appointment type string
    * @returns {string} Normalized appointment type
    */
-  static normalizeAppointmentType(appointmentType) {
+  normalizeAppointmentType(appointmentType) {
     return appointmentType.toLowerCase().trim();
   }
 
@@ -65,7 +75,7 @@ class LocationSorter {
    * @param {string} appointmentType - Appointment type to check
    * @returns {boolean} True if location offers the service
    */
-  static locationOffersService(location, appointmentType) {
+  locationOffersService(location, appointmentType) {
     const normalizedType = this.normalizeAppointmentType(appointmentType);
     
     // Special handling for MRI types
@@ -97,75 +107,74 @@ class LocationSorter {
   }
 
   /**
-   * Sort locations by distance from a ZIP code for a specific appointment type
-   * @param {string} zipCode - 5-digit ZIP code
+   * Sort locations by distance from an address for a specific appointment type
+   * @param {string} address - Full address string
    * @param {string} appointmentType - Type of appointment
-   * @returns {object} Sorted locations or error message
+   * @returns {Promise<object>} Sorted locations or error message
    */
-  static sortLocationsByDistance(zipCode, appointmentType) {
-    // Validate ZIP code format
-    if (!zipCode || !/^\d{5}$/.test(zipCode)) {
+  async sortLocationsByDistance(address, appointmentType) {
+    // Validate address
+    if (!address || typeof address !== 'string' || !address.trim()) {
       return {
         success: false,
-        error: "Invalid ZIP code format. Please provide a 5-digit ZIP code."
+        error: "Please provide a valid address."
       };
     }
 
-    // Get coordinates for the provided ZIP code
-    const userCoordinates = this.getZipCodeCoordinates(zipCode);
-    if (!userCoordinates) {
-      return {
-        success: false,
-        error: "Unable to determine location for the provided ZIP code. Please verify the ZIP code is correct."
-      };
-    }
-
-    // Filter locations that offer the requested service
-    const eligibleLocations = [];
-    for (const key in locations) {
-      const location = locations[key];
-      if (this.locationOffersService(location, appointmentType)) {
-        // Calculate distance
-        const distance = this.calculateDistance(
-          userCoordinates.lat,
-          userCoordinates.lng,
-          location.coordinates.lat,
-          location.coordinates.lng
-        );
-        
-        eligibleLocations.push({
-          ...location,
-          distance: distance
-        });
+    try {
+      // Filter locations that offer the requested service
+      const eligibleLocations = [];
+      for (const key in locations) {
+        const location = locations[key];
+        if (this.locationOffersService(location, appointmentType)) {
+          eligibleLocations.push(location);
+        }
       }
-    }
 
-    // Check if any locations were found
-    if (eligibleLocations.length === 0) {
+      // Check if any locations were found
+      if (eligibleLocations.length === 0) {
+        return {
+          success: false,
+          error: `No locations found offering ${appointmentType} services.`
+        };
+      }
+
+      // Get distances using Google Maps API
+      const locationsWithDistances = await this.getDistancesFromGoogle(address.trim(), eligibleLocations);
+
+      // Check if we got any valid distance calculations
+      if (locationsWithDistances.length === 0) {
+        return {
+          success: false,
+          error: "Issue while fetching closest locations. Please verify the address is correct."
+        };
+      }
+
+      // Sort by distance (using distance_value which is in meters)
+      locationsWithDistances.sort((a, b) => a.distance_value - b.distance_value);
+
+      // Format the response
+      const result = {};
+      locationsWithDistances.forEach((location, index) => {
+        result[`Preference ${index + 1}`] = {
+          name: location.name,
+          address: location.address,
+          distance: location.distance,
+          duration: location.duration
+        };
+      });
+
+      return {
+        success: true,
+        result: result
+      };
+    } catch (error) {
       return {
         success: false,
-        error: `No locations found offering ${appointmentType} services.`
+        error: "Issue while fetching closest locations. Please try again."
       };
     }
-
-    // Sort by distance
-    eligibleLocations.sort((a, b) => a.distance - b.distance);
-
-    // Format the response
-    const result = {};
-    eligibleLocations.forEach((location, index) => {
-      result[`Preference ${index + 1}`] = {
-        name: location.name,
-        address: location.address,
-        distance: `${location.distance} miles`
-      };
-    });
-
-    return {
-      success: true,
-      result: result
-    };
   }
 }
 
-module.exports = LocationSorter;
+module.exports = new LocationSorter();

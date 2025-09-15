@@ -22,6 +22,7 @@
   "author": "Chirag Gupta",
   "license": "MIT",
   "dependencies": {
+    "@googlemaps/google-maps-services-js": "^3.4.2",
     "aws-sdk": "^2.1468.0",
     "axios": "^1.6.0",
     "bcrypt": "^5.1.1",
