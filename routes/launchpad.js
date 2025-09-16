@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const jwtMiddleware = require("../middleware/jwt");
-const { validateOrgAccess } = require("../middleware/workspaceAccess");
+const { validateOrgAccess } = require("../middleware/orgAccess");
 const requireFeaturePermission = require("../middleware/featureAccess");
 const logger = require("../utils/logger");
 const db = require("../db/connection");
@@ -10,59 +10,118 @@ const db = require("../db/connection");
  * @swagger
  * tags:
  *   name: Launchpad
- *   description: Practice launchpad configuration endpoints
+ *   description: Organization launchpad configuration endpoints
  */
 
 /**
- * Fetch current launchpad data from database
+ * Fetch complete organization data from new database structure
  */
-const fetchLaunchpadData = async (workspaceId, userRole) => {
-  const result = await db.query(
-    `SELECT basic_info, locations, providers, hours 
-     FROM workspaces 
-     WHERE id = $1`,
-    [workspaceId],
-  );
+const fetchOrganizationData = async (orgId, userRole) => {
+  try {
+    // Fetch organization basic info
+    const orgResult = await db.query(
+      `SELECT org_id, org_name, created_at, updated_at
+       FROM organisations 
+       WHERE org_id = $1`,
+      [orgId],
+    );
 
-  if (result.rows.length === 0) {
-    throw new Error("Workspace not found");
+    if (orgResult.rows.length === 0) {
+      throw new Error("Organization not found");
+    }
+
+    const organization = orgResult.rows[0];
+
+    // Fetch account details
+    const accountDetailsResult = await db.query(
+      `SELECT id, org_id, account_name, website_address, headquarters_address,
+              decision_makers, influencers, scheduling_structure, rcm_structure,
+              order_entry_team, scheduling_team, patient_intake_team, rcm_team,
+              order_entry_team_size, scheduling_team_size, 
+              patient_intake_team_size, rcm_team_size,
+              monthly_orders_count, monthly_patients_scheduled, 
+              monthly_patients_checked_in,
+              emr_ris_systems, telephony_ccas_systems, 
+              scheduling_phone_numbers,
+              insurance_verification_system, insurance_verification_details,
+              additional_info, clinical_notes, documents,
+              created_at, updated_at
+       FROM org_account_details 
+       WHERE org_id = $1`,
+      [orgId],
+    );
+
+    // Fetch locations
+    const locationsResult = await db.query(
+      `SELECT id, org_id, name, address_line1, address_line2, 
+              city, state, zip_code,
+              weekday_hours, weekend_hours, location_id, 
+              specialties_services, parking_directions, documents,
+              is_active, created_at, updated_at
+       FROM org_locations 
+       WHERE org_id = $1 AND is_active = true
+       ORDER BY name`,
+      [orgId],
+    );
+
+    // Fetch specialty services
+    const specialtyResult = await db.query(
+      `SELECT id, org_id, specialty_name, location_ids, 
+              physician_names_source, physician_names_source_other,
+              new_patients_source, new_patients_source_other,
+              physician_locations_source, physician_locations_source_other,
+              physician_credentials_source, physician_credentials_source_other,
+              services, services_offered_source, services_offered_source_other,
+              patient_prep_source, patient_prep_source_other,
+              patient_faqs_source, patient_faqs_source_other,
+              documents, is_active, created_at, updated_at
+       FROM org_speciality_services 
+       WHERE org_id = $1 AND is_active = true
+       ORDER BY specialty_name`,
+      [orgId],
+    );
+
+    // Fetch insurance info
+    const insuranceResult = await db.query(
+      `SELECT id, org_id, accepted_payers_source, accepted_payers_source_details,
+              insurance_verification_source, insurance_verification_source_details,
+              patient_copay_source, patient_copay_source_details,
+              documents, is_active, created_at, updated_at
+       FROM org_insurance 
+       WHERE org_id = $1 AND is_active = true`,
+      [orgId],
+    );
+
+    // Build response with new structure
+    const organizationData = {
+      organization: organization,
+      account_details: accountDetailsResult.rows[0] || null,
+      locations: locationsResult.rows,
+      speciality_services: specialtyResult.rows,
+      insurance: insuranceResult.rows[0] || null,
+      metadata: {
+        last_updated: organization.updated_at || new Date().toISOString(),
+        org_id: orgId,
+        user_role: userRole,
+        can_edit: requireFeaturePermission("launchpad", "write"),
+      },
+    };
+
+    return organizationData;
+  } catch (error) {
+    logger.error("Error fetching organization data", {
+      error: error.message,
+      orgId: orgId,
+    });
+    throw error;
   }
-
-  const workspace = result.rows[0];
-
-  // Extract hours data with proper defaults
-  const hoursData = workspace.hours || {
-    hours: [],
-    emergency_instructions: "",
-    after_hours_instructions: "",
-  };
-
-  // Build launchpad data with proper null checks and formatting
-  return {
-    basicInfo: workspace.basic_info || {
-      primaryPracticeName: "",
-      alternativeNames: [],
-    },
-    locations: workspace.locations?.locations || [],
-    providers: {
-      providers: workspace.providers?.providers || [],
-      supported_language: workspace.providers?.supported_language || [],
-    },
-    hours: hoursData, // Return the entire hours object
-    metadata: {
-      lastUpdated: new Date().toISOString(),
-      workspaceId: workspaceId,
-      userRole: userRole,
-      canEdit: requireFeaturePermission("launchpad", "write"),
-    },
-  };
 };
 
 /**
  * @swagger
  * /api/v1/launchpad/{org_id}/fetch-data:
  *   post:
- *     summary: Fetch launchpad configuration data for an organization
+ *     summary: Fetch complete organization launchpad data
  *     tags: [Launchpad]
  *     security:
  *       - bearerAuth: []
@@ -72,14 +131,34 @@ const fetchLaunchpadData = async (workspaceId, userRole) => {
  *         required: true
  *         schema:
  *           type: integer
- *         description: Organization/Workspace ID
+ *         description: Organization ID
  *     responses:
  *       200:
- *         description: Launchpad configuration data
+ *         description: Organization launchpad data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     organization:
+ *                       type: object
+ *                     account_details:
+ *                       type: object
+ *                     locations:
+ *                       type: array
+ *                     speciality_services:
+ *                       type: array
+ *                     insurance:
+ *                       type: object
  *       403:
  *         description: Access denied
  *       404:
- *         description: Workspace not found
+ *         description: Organization not found
  */
 router.post(
   "/:org_id/fetch-data",
@@ -88,38 +167,38 @@ router.post(
   requireFeaturePermission("launchpad", "read"),
   async (req, res) => {
     try {
-      const workspaceId = req.workspaceId; // Set by validateOrgAccess
+      const orgId = parseInt(req.params.org_id);
 
-      logger.info("Fetching launchpad data", {
-        workspaceId: workspaceId,
-        userId: req.user.userId,
+      logger.info("Fetching organization launchpad data", {
+        org_id: orgId,
+        user_id: req.user.userId,
       });
 
-      const launchpadData = await fetchLaunchpadData(
-        workspaceId,
+      const organizationData = await fetchOrganizationData(
+        orgId,
         req.user.role,
       );
 
       res.json({
         success: true,
-        data: launchpadData,
+        data: organizationData,
       });
     } catch (error) {
-      logger.error("Error fetching launchpad data", {
+      logger.error("Error fetching organization data", {
         error: error.message,
-        userId: req.user.userId,
+        user_id: req.user.userId,
       });
 
-      if (error.message === "Workspace not found") {
+      if (error.message === "Organization not found") {
         return res.status(404).json({
           success: false,
-          error: "Workspace not found",
+          error: "Organization not found",
         });
       }
 
       res.status(500).json({
         success: false,
-        error: "Failed to fetch launchpad data",
+        error: "Failed to fetch organization data",
       });
     }
   },
@@ -127,91 +206,171 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/launchpad/{org_id}/update-basic-info:
+ * /api/v1/launchpad/{org_id}/update-account-details:
  *   post:
- *     summary: Update basic info section for an organization
+ *     summary: Update organization account details
  *     tags: [Launchpad]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: org_id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Organization/Workspace ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - data
- *             properties:
- *               data:
- *                 type: object
- *                 properties:
- *                   primaryPracticeName:
- *                     type: string
- *                   alternativeNames:
- *                     type: array
- *                     items:
- *                       type: string
- *     responses:
- *       200:
- *         description: Updated launchpad data
- *       403:
- *         description: Access denied
  */
 router.post(
-  "/:org_id/update-basic-info",
+  "/:org_id/update-account-details",
   jwtMiddleware,
   validateOrgAccess,
   requireFeaturePermission("launchpad", "write"),
   async (req, res) => {
     try {
       const { data } = req.body;
-      const workspaceId = req.workspaceId; // Set by validateOrgAccess
+      const orgId = parseInt(req.params.org_id);
 
-      // Validate data structure
-      const basicInfo = {
-        primary_practice_name: data?.primaryPracticeName || "",
-        alternative_names: Array.isArray(data?.alternativeNames)
-          ? data.alternativeNames
-          : [],
-      };
-
-      logger.info("Updating basic info", {
-        workspaceId: workspaceId,
-        userId: req.user.userId,
+      logger.info("Updating organization account details", {
+        org_id: orgId,
+        user_id: req.user.userId,
       });
 
-      await db.query(
-        `UPDATE workspaces 
-         SET basic_info = $2, updated_at = NOW() 
-         WHERE id = $1`,
-        [workspaceId, JSON.stringify(basicInfo)],
+      // Check if account details exist
+      const existingResult = await db.query(
+        `SELECT id FROM org_account_details WHERE org_id = $1`,
+        [orgId],
       );
 
+      if (existingResult.rows.length === 0) {
+        // Insert new record
+        await db.query(
+          `INSERT INTO org_account_details (
+            org_id, account_name, website_address, headquarters_address,
+            decision_makers, influencers, 
+            scheduling_structure, rcm_structure,
+            order_entry_team, scheduling_team, patient_intake_team, rcm_team,
+            order_entry_team_size, scheduling_team_size, 
+            patient_intake_team_size, rcm_team_size,
+            monthly_orders_count, monthly_patients_scheduled, 
+            monthly_patients_checked_in,
+            emr_ris_systems, telephony_ccas_systems, 
+            scheduling_phone_numbers,
+            insurance_verification_system, insurance_verification_details,
+            additional_info, clinical_notes, documents,
+            created_by, updated_by
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 
+            $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, 
+            $23, $24, $25, $26, $27, $28, $28
+          )`,
+          [
+            orgId,
+            data.account_name,
+            data.website_address,
+            data.headquarters_address,
+            JSON.stringify(data.decision_makers || []),
+            JSON.stringify(data.influencers || []),
+            data.scheduling_structure,
+            data.rcm_structure,
+            JSON.stringify(data.order_entry_team || []),
+            JSON.stringify(data.scheduling_team || []),
+            JSON.stringify(data.patient_intake_team || []),
+            JSON.stringify(data.rcm_team || []),
+            data.order_entry_team_size,
+            data.scheduling_team_size,
+            data.patient_intake_team_size,
+            data.rcm_team_size,
+            data.monthly_orders_count,
+            data.monthly_patients_scheduled,
+            data.monthly_patients_checked_in,
+            JSON.stringify(data.emr_ris_systems || []),
+            JSON.stringify(data.telephony_ccas_systems || []),
+            JSON.stringify(data.scheduling_phone_numbers || []),
+            data.insurance_verification_system,
+            data.insurance_verification_details,
+            data.additional_info,
+            data.clinical_notes,
+            JSON.stringify(data.documents || []),
+            req.user.userId,
+          ],
+        );
+      } else {
+        // Update existing record
+        await db.query(
+          `UPDATE org_account_details SET
+            account_name = $2,
+            website_address = $3,
+            headquarters_address = $4,
+            decision_makers = $5,
+            influencers = $6,
+            scheduling_structure = $7,
+            rcm_structure = $8,
+            order_entry_team = $9,
+            scheduling_team = $10,
+            patient_intake_team = $11,
+            rcm_team = $12,
+            order_entry_team_size = $13,
+            scheduling_team_size = $14,
+            patient_intake_team_size = $15,
+            rcm_team_size = $16,
+            monthly_orders_count = $17,
+            monthly_patients_scheduled = $18,
+            monthly_patients_checked_in = $19,
+            emr_ris_systems = $20,
+            telephony_ccas_systems = $21,
+            scheduling_phone_numbers = $22,
+            insurance_verification_system = $23,
+            insurance_verification_details = $24,
+            additional_info = $25,
+            clinical_notes = $26,
+            documents = $27,
+            updated_by = $28,
+            updated_at = CURRENT_TIMESTAMP
+          WHERE org_id = $1`,
+          [
+            orgId,
+            data.account_name,
+            data.website_address,
+            data.headquarters_address,
+            JSON.stringify(data.decision_makers || []),
+            JSON.stringify(data.influencers || []),
+            data.scheduling_structure,
+            data.rcm_structure,
+            JSON.stringify(data.order_entry_team || []),
+            JSON.stringify(data.scheduling_team || []),
+            JSON.stringify(data.patient_intake_team || []),
+            JSON.stringify(data.rcm_team || []),
+            data.order_entry_team_size,
+            data.scheduling_team_size,
+            data.patient_intake_team_size,
+            data.rcm_team_size,
+            data.monthly_orders_count,
+            data.monthly_patients_scheduled,
+            data.monthly_patients_checked_in,
+            JSON.stringify(data.emr_ris_systems || []),
+            JSON.stringify(data.telephony_ccas_systems || []),
+            JSON.stringify(data.scheduling_phone_numbers || []),
+            data.insurance_verification_system,
+            data.insurance_verification_details,
+            data.additional_info,
+            data.clinical_notes,
+            JSON.stringify(data.documents || []),
+            req.user.userId,
+          ],
+        );
+      }
+
       // Fetch and return updated data
-      const launchpadData = await fetchLaunchpadData(
-        workspaceId,
+      const organizationData = await fetchOrganizationData(
+        orgId,
         req.user.role,
       );
 
       res.json({
         success: true,
-        data: launchpadData,
+        data: organizationData,
       });
     } catch (error) {
-      logger.error("Error updating basic info", {
+      logger.error("Error updating account details", {
         error: error.message,
-        userId: req.user.userId,
+        user_id: req.user.userId,
       });
       res.status(500).json({
         success: false,
-        error: "Failed to update basic info",
+        error: "Failed to update account details",
       });
     }
   },
@@ -221,56 +380,10 @@ router.post(
  * @swagger
  * /api/v1/launchpad/{org_id}/update-locations:
  *   post:
- *     summary: Update locations section for an organization
+ *     summary: Update organization locations
  *     tags: [Launchpad]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: org_id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Organization/Workspace ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - data
- *             properties:
- *               data:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     location_name:
- *                       type: string
- *                     street_address:
- *                       type: string
- *                     phone:
- *                       type: string
- *                     city:
- *                       type: string
- *                     state:
- *                       type: string
- *                     zip:
- *                       type: string
- *                     parking_directions:
- *                       type: string
- *                     inpatient:
- *                       type: boolean
- *                     services_provided:
- *                       type: array
- *                       items:
- *                         type: string
- *     responses:
- *       200:
- *         description: Updated launchpad data
- *       403:
- *         description: Access denied
  */
 router.post(
   "/:org_id/update-locations",
@@ -279,57 +392,84 @@ router.post(
   requireFeaturePermission("launchpad", "write"),
   async (req, res) => {
     try {
-      const { data } = req.body;
-      const workspaceId = req.workspaceId;
+      const { locations } = req.body;
+      const orgId = parseInt(req.params.org_id);
 
-      // Validate and format locations data with new fields
-      const locations = {
-        locations: Array.isArray(data)
-          ? data.map((loc) => ({
-              location_name: loc.location_name || "",
-              street_address: loc.street_address || "",
-              phone: loc.phone || "",
-              city: loc.city || "",
-              state: loc.state || "",
-              zip: loc.zip || "",
-              // New fields
-              parking_directions: loc.parking_directions || "",
-              inpatient:
-                typeof loc.inpatient === "boolean" ? loc.inpatient : false,
-              services_provided: Array.isArray(loc.services_provided)
-                ? loc.services_provided
-                : [],
-            }))
-          : [],
-      };
-
-      logger.info("Updating locations", {
-        workspaceId: workspaceId,
-        userId: req.user.userId,
-        locationCount: locations.locations.length,
+      logger.info("Updating organization locations", {
+        org_id: orgId,
+        user_id: req.user.userId,
+        location_count: locations?.length || 0,
       });
 
-      await db.query(
-        `UPDATE workspaces 
-         SET locations = $2, updated_at = NOW() 
-         WHERE id = $1`,
-        [workspaceId, JSON.stringify(locations)],
-      );
+      // Start transaction
+      await db.query("BEGIN");
+
+      try {
+        // Soft delete existing locations
+        await db.query(
+          `UPDATE org_locations 
+           SET is_active = false, 
+               updated_by = $2,
+               updated_at = CURRENT_TIMESTAMP
+           WHERE org_id = $1 AND is_active = true`,
+          [orgId, req.user.userId],
+        );
+
+        // Insert new locations
+        if (Array.isArray(locations) && locations.length > 0) {
+          for (const location of locations) {
+            await db.query(
+              `INSERT INTO org_locations (
+                org_id, name, address_line1, address_line2, 
+                city, state, zip_code, 
+                weekday_hours, weekend_hours, location_id,
+                specialties_services, parking_directions, documents,
+                is_active, created_by, updated_by
+              ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 
+                $11, $12, $13, $14, $15, $15
+              )`,
+              [
+                orgId,
+                location.name,
+                location.address_line1,
+                location.address_line2,
+                location.city,
+                location.state,
+                location.zip_code,
+                location.weekday_hours,
+                location.weekend_hours,
+                location.location_id,
+                JSON.stringify(location.specialties_services || []),
+                location.parking_directions,
+                JSON.stringify(location.documents || []),
+                true,
+                req.user.userId,
+              ],
+            );
+          }
+        }
+
+        await db.query("COMMIT");
+      } catch (error) {
+        await db.query("ROLLBACK");
+        throw error;
+      }
 
       // Fetch and return updated data
-      const launchpadData = await fetchLaunchpadData(
-        workspaceId,
+      const organizationData = await fetchOrganizationData(
+        orgId,
         req.user.role,
       );
 
       res.json({
         success: true,
-        data: launchpadData,
+        data: organizationData,
       });
     } catch (error) {
       logger.error("Error updating locations", {
         error: error.message,
-        userId: req.user.userId,
+        user_id: req.user.userId,
       });
       res.status(500).json({
         success: false,
@@ -341,118 +481,115 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/launchpad/{org_id}/update-providers:
+ * /api/v1/launchpad/{org_id}/update-specialties:
  *   post:
- *     summary: Update providers section for an organization
+ *     summary: Update organization specialty services
  *     tags: [Launchpad]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: org_id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Organization/Workspace ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - data
- *             properties:
- *               data:
- *                 type: object
- *                 properties:
- *                   providers:
- *                     type: array
- *                     items:
- *                       type: object
- *                       properties:
- *                         first_name:
- *                           type: string
- *                         last_name:
- *                           type: string
- *                         specialty:
- *                           type: string
- *                         npi_number:
- *                           type: string
- *                         clinic_locations:
- *                           type: array
- *                           items:
- *                             type: string
- *                   supported_language:
- *                     type: array
- *                     items:
- *                       type: string
- *     responses:
- *       200:
- *         description: Updated launchpad data
- *       403:
- *         description: Access denied
  */
 router.post(
-  "/:org_id/update-providers",
+  "/:org_id/update-specialties",
   jwtMiddleware,
   validateOrgAccess,
   requireFeaturePermission("launchpad", "write"),
   async (req, res) => {
     try {
-      const { data } = req.body;
-      const workspaceId = req.workspaceId; // Set by validateOrgAccess
+      const { speciality_services } = req.body;
+      const orgId = parseInt(req.params.org_id);
 
-      // Validate and format providers data
-      const providers = {
-        providers: Array.isArray(data?.providers)
-          ? data.providers.map((provider) => ({
-              first_name: provider.first_name || "",
-              last_name: provider.last_name || "",
-              specialty: provider.specialty || "",
-              npi_number: provider.npi_number || "",
-              clinic_locations: Array.isArray(provider.clinic_locations)
-                ? provider.clinic_locations
-                : [],
-            }))
-          : [],
-        supported_language: Array.isArray(data?.supported_language)
-          ? data.supported_language
-          : [],
-      };
-
-      logger.info("Updating providers", {
-        workspaceId: workspaceId,
-        userId: req.user.userId,
-        providerCount: providers.providers.length,
-        languageCount: providers.supported_language.length,
+      logger.info("Updating organization specialty services", {
+        org_id: orgId,
+        user_id: req.user.userId,
       });
 
-      await db.query(
-        `UPDATE workspaces 
-         SET providers = $2, updated_at = NOW() 
-         WHERE id = $1`,
-        [workspaceId, JSON.stringify(providers)],
-      );
+      // Start transaction
+      await db.query("BEGIN");
+
+      try {
+        // Soft delete existing specialties
+        await db.query(
+          `UPDATE org_speciality_services 
+           SET is_active = false, 
+               updated_by = $2,
+               updated_at = CURRENT_TIMESTAMP
+           WHERE org_id = $1 AND is_active = true`,
+          [orgId, req.user.userId],
+        );
+
+        // Insert new specialties
+        if (
+          Array.isArray(speciality_services) &&
+          speciality_services.length > 0
+        ) {
+          for (const specialty of speciality_services) {
+            await db.query(
+              `INSERT INTO org_speciality_services (
+                org_id, specialty_name, location_ids,
+                physician_names_source, physician_names_source_other,
+                new_patients_source, new_patients_source_other,
+                physician_locations_source, physician_locations_source_other,
+                physician_credentials_source, physician_credentials_source_other,
+                services, services_offered_source, services_offered_source_other,
+                patient_prep_source, patient_prep_source_other,
+                patient_faqs_source, patient_faqs_source_other,
+                documents, is_active, created_by, updated_by
+              ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 
+                $11, $12, $13, $14, $15, $16, $17, $18, $19, 
+                $20, $21, $21
+              )`,
+              [
+                orgId,
+                specialty.specialty_name,
+                specialty.location_ids || [],
+                specialty.physician_names_source,
+                specialty.physician_names_source_other,
+                specialty.new_patients_source,
+                specialty.new_patients_source_other,
+                specialty.physician_locations_source,
+                specialty.physician_locations_source_other,
+                specialty.physician_credentials_source,
+                specialty.physician_credentials_source_other,
+                JSON.stringify(specialty.services || []),
+                specialty.services_offered_source,
+                specialty.services_offered_source_other,
+                specialty.patient_prep_source,
+                specialty.patient_prep_source_other,
+                specialty.patient_faqs_source,
+                specialty.patient_faqs_source_other,
+                JSON.stringify(specialty.documents || []),
+                true,
+                req.user.userId,
+              ],
+            );
+          }
+        }
+
+        await db.query("COMMIT");
+      } catch (error) {
+        await db.query("ROLLBACK");
+        throw error;
+      }
 
       // Fetch and return updated data
-      const launchpadData = await fetchLaunchpadData(
-        workspaceId,
+      const organizationData = await fetchOrganizationData(
+        orgId,
         req.user.role,
       );
 
       res.json({
         success: true,
-        data: launchpadData,
+        data: organizationData,
       });
     } catch (error) {
-      logger.error("Error updating providers", {
+      logger.error("Error updating specialty services", {
         error: error.message,
-        userId: req.user.userId,
+        user_id: req.user.userId,
       });
       res.status(500).json({
         success: false,
-        error: "Failed to update providers",
+        error: "Failed to update specialty services",
       });
     }
   },
@@ -460,115 +597,103 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/launchpad/{org_id}/update-hours:
+ * /api/v1/launchpad/{org_id}/update-insurance:
  *   post:
- *     summary: Update hours section for an organization
+ *     summary: Update organization insurance information
  *     tags: [Launchpad]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: org_id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Organization/Workspace ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - data
- *             properties:
- *               data:
- *                 type: object
- *                 properties:
- *                   hours:
- *                     type: array
- *                     items:
- *                       type: object
- *                       properties:
- *                         location_name:
- *                           type: string
- *                         is_scheduling_same_as_clinical:
- *                           type: boolean
- *                         holidays:
- *                           type: string
- *                         clinic_hours:
- *                           type: object
- *                         scheduling_hours:
- *                           type: object
- *                   emergency_instructions:
- *                     type: string
- *                   after_hours_instructions:
- *                     type: string
- *     responses:
- *       200:
- *         description: Updated launchpad data
- *       403:
- *         description: Access denied
  */
 router.post(
-  "/:org_id/update-hours",
+  "/:org_id/update-insurance",
   jwtMiddleware,
   validateOrgAccess,
   requireFeaturePermission("launchpad", "write"),
   async (req, res) => {
     try {
-      const { data } = req.body;
-      const workspaceId = req.workspaceId; // Set by validateOrgAccess
+      const { insurance } = req.body;
+      const orgId = parseInt(req.params.org_id);
 
-      // Validate and format hours data
-      const hours = {
-        hours: Array.isArray(data?.hours)
-          ? data.hours.map((location) => ({
-              location_name: location.location_name || "",
-              is_scheduling_same_as_clinical:
-                typeof location.is_scheduling_same_as_clinical === "boolean"
-                  ? location.is_scheduling_same_as_clinical
-                  : true,
-              holidays: location.holidays || "",
-              clinic_hours: location.clinic_hours || {},
-              scheduling_hours: location.scheduling_hours || {},
-            }))
-          : [],
-        emergency_instructions: data?.emergency_instructions || "",
-        after_hours_instructions: data?.after_hours_instructions || "",
-      };
-
-      logger.info("Updating hours", {
-        workspaceId: workspaceId,
-        userId: req.user.userId,
-        locationCount: hours.hours.length,
+      logger.info("Updating organization insurance info", {
+        org_id: orgId,
+        user_id: req.user.userId,
       });
 
-      await db.query(
-        `UPDATE workspaces 
-         SET hours = $2, updated_at = NOW() 
-         WHERE id = $1`,
-        [workspaceId, JSON.stringify(hours)],
+      // Check if insurance record exists
+      const existingResult = await db.query(
+        `SELECT id FROM org_insurance WHERE org_id = $1`,
+        [orgId],
       );
 
+      if (existingResult.rows.length === 0) {
+        // Insert new record
+        await db.query(
+          `INSERT INTO org_insurance (
+            org_id, 
+            accepted_payers_source, accepted_payers_source_details,
+            insurance_verification_source, insurance_verification_source_details,
+            patient_copay_source, patient_copay_source_details,
+            documents, is_active, created_by, updated_by
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10)`,
+          [
+            orgId,
+            insurance.accepted_payers_source,
+            insurance.accepted_payers_source_details,
+            insurance.insurance_verification_source,
+            insurance.insurance_verification_source_details,
+            insurance.patient_copay_source,
+            insurance.patient_copay_source_details,
+            JSON.stringify(insurance.documents || []),
+            true,
+            req.user.userId,
+          ],
+        );
+      } else {
+        // Update existing record
+        await db.query(
+          `UPDATE org_insurance SET
+            accepted_payers_source = $2,
+            accepted_payers_source_details = $3,
+            insurance_verification_source = $4,
+            insurance_verification_source_details = $5,
+            patient_copay_source = $6,
+            patient_copay_source_details = $7,
+            documents = $8,
+            updated_by = $9,
+            updated_at = CURRENT_TIMESTAMP
+          WHERE org_id = $1`,
+          [
+            orgId,
+            insurance.accepted_payers_source,
+            insurance.accepted_payers_source_details,
+            insurance.insurance_verification_source,
+            insurance.insurance_verification_source_details,
+            insurance.patient_copay_source,
+            insurance.patient_copay_source_details,
+            JSON.stringify(insurance.documents || []),
+            req.user.userId,
+          ],
+        );
+      }
+
       // Fetch and return updated data
-      const launchpadData = await fetchLaunchpadData(
-        workspaceId,
+      const organizationData = await fetchOrganizationData(
+        orgId,
         req.user.role,
       );
 
       res.json({
         success: true,
-        data: launchpadData,
+        data: organizationData,
       });
     } catch (error) {
-      logger.error("Error updating hours", {
+      logger.error("Error updating insurance info", {
         error: error.message,
-        userId: req.user.userId,
+        user_id: req.user.userId,
       });
       res.status(500).json({
         success: false,
-        error: "Failed to update hours",
+        error: "Failed to update insurance info",
       });
     }
   },
@@ -578,49 +703,10 @@ router.post(
  * @swagger
  * /api/v1/launchpad/{org_id}/save-all:
  *   post:
- *     summary: Save all launchpad sections at once for an organization
+ *     summary: Save all organization launchpad sections at once
  *     tags: [Launchpad]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: org_id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Organization/Workspace ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - data
- *             properties:
- *               data:
- *                 type: object
- *                 properties:
- *                   basicInfo:
- *                     type: object
- *                   locations:
- *                     type: array
- *                   providers:
- *                     type: object
- *                   hours:
- *                     type: object
- *                     properties:
- *                       hours:
- *                         type: array
- *                       emergency_instructions:
- *                         type: string
- *                       after_hours_instructions:
- *                         type: string
- *     responses:
- *       200:
- *         description: Updated launchpad data
- *       403:
- *         description: Access denied
  */
 router.post(
   "/:org_id/save-all",
@@ -629,138 +715,326 @@ router.post(
   requireFeaturePermission("launchpad", "write"),
   async (req, res) => {
     try {
-      const { data } = req.body;
-      const workspaceId = req.workspaceId; // Set by validateOrgAccess
+      const { account_details, locations, speciality_services, insurance } =
+        req.body;
+      const orgId = parseInt(req.params.org_id);
 
-      logger.info("Updating all launchpad sections", {
-        workspaceId: workspaceId,
-        userId: req.user.userId,
+      logger.info("Updating all organization launchpad sections", {
+        org_id: orgId,
+        user_id: req.user.userId,
       });
 
-      // Format all sections
-      const basicInfo = data?.basicInfo
-        ? {
-            primary_practice_name: data.basicInfo.primaryPracticeName || "",
-            alternative_names: Array.isArray(data.basicInfo.alternativeNames)
-              ? data.basicInfo.alternativeNames
-              : [],
+      // Start transaction
+      await db.query("BEGIN");
+
+      try {
+        // Update account details if provided
+        if (account_details) {
+          const existingAccount = await db.query(
+            `SELECT id FROM org_account_details WHERE org_id = $1`,
+            [orgId],
+          );
+
+          if (existingAccount.rows.length === 0) {
+            // Insert new
+            await db.query(
+              `INSERT INTO org_account_details (
+                org_id, account_name, website_address, headquarters_address,
+                decision_makers, influencers, scheduling_structure, rcm_structure,
+                order_entry_team, scheduling_team, patient_intake_team, rcm_team,
+                order_entry_team_size, scheduling_team_size, 
+                patient_intake_team_size, rcm_team_size,
+                monthly_orders_count, monthly_patients_scheduled, 
+                monthly_patients_checked_in,
+                emr_ris_systems, telephony_ccas_systems, scheduling_phone_numbers,
+                insurance_verification_system, insurance_verification_details,
+                additional_info, clinical_notes, documents,
+                created_by, updated_by
+              ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 
+                $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, 
+                $23, $24, $25, $26, $27, $28, $28
+              )`,
+              [
+                orgId,
+                account_details.account_name,
+                account_details.website_address,
+                account_details.headquarters_address,
+                JSON.stringify(account_details.decision_makers || []),
+                JSON.stringify(account_details.influencers || []),
+                account_details.scheduling_structure,
+                account_details.rcm_structure,
+                JSON.stringify(account_details.order_entry_team || []),
+                JSON.stringify(account_details.scheduling_team || []),
+                JSON.stringify(account_details.patient_intake_team || []),
+                JSON.stringify(account_details.rcm_team || []),
+                account_details.order_entry_team_size,
+                account_details.scheduling_team_size,
+                account_details.patient_intake_team_size,
+                account_details.rcm_team_size,
+                account_details.monthly_orders_count,
+                account_details.monthly_patients_scheduled,
+                account_details.monthly_patients_checked_in,
+                JSON.stringify(account_details.emr_ris_systems || []),
+                JSON.stringify(account_details.telephony_ccas_systems || []),
+                JSON.stringify(account_details.scheduling_phone_numbers || []),
+                account_details.insurance_verification_system,
+                account_details.insurance_verification_details,
+                account_details.additional_info,
+                account_details.clinical_notes,
+                JSON.stringify(account_details.documents || []),
+                req.user.userId,
+              ],
+            );
+          } else {
+            // Update existing
+            await db.query(
+              `UPDATE org_account_details SET
+                account_name = $2,
+                website_address = $3,
+                headquarters_address = $4,
+                decision_makers = $5,
+                influencers = $6,
+                scheduling_structure = $7,
+                rcm_structure = $8,
+                order_entry_team = $9,
+                scheduling_team = $10,
+                patient_intake_team = $11,
+                rcm_team = $12,
+                order_entry_team_size = $13,
+                scheduling_team_size = $14,
+                patient_intake_team_size = $15,
+                rcm_team_size = $16,
+                monthly_orders_count = $17,
+                monthly_patients_scheduled = $18,
+                monthly_patients_checked_in = $19,
+                emr_ris_systems = $20,
+                telephony_ccas_systems = $21,
+                scheduling_phone_numbers = $22,
+                insurance_verification_system = $23,
+                insurance_verification_details = $24,
+                additional_info = $25,
+                clinical_notes = $26,
+                documents = $27,
+                updated_by = $28,
+                updated_at = CURRENT_TIMESTAMP
+              WHERE org_id = $1`,
+              [
+                orgId,
+                account_details.account_name,
+                account_details.website_address,
+                account_details.headquarters_address,
+                JSON.stringify(account_details.decision_makers || []),
+                JSON.stringify(account_details.influencers || []),
+                account_details.scheduling_structure,
+                account_details.rcm_structure,
+                JSON.stringify(account_details.order_entry_team || []),
+                JSON.stringify(account_details.scheduling_team || []),
+                JSON.stringify(account_details.patient_intake_team || []),
+                JSON.stringify(account_details.rcm_team || []),
+                account_details.order_entry_team_size,
+                account_details.scheduling_team_size,
+                account_details.patient_intake_team_size,
+                account_details.rcm_team_size,
+                account_details.monthly_orders_count,
+                account_details.monthly_patients_scheduled,
+                account_details.monthly_patients_checked_in,
+                JSON.stringify(account_details.emr_ris_systems || []),
+                JSON.stringify(account_details.telephony_ccas_systems || []),
+                JSON.stringify(account_details.scheduling_phone_numbers || []),
+                account_details.insurance_verification_system,
+                account_details.insurance_verification_details,
+                account_details.additional_info,
+                account_details.clinical_notes,
+                JSON.stringify(account_details.documents || []),
+                req.user.userId,
+              ],
+            );
           }
-        : null;
+        }
 
-      const locations = data?.locations
-        ? {
-            locations: Array.isArray(data.locations)
-              ? data.locations.map((loc) => ({
-                  location_name: loc.location_name || "",
-                  street_address: loc.street_address || "",
-                  phone: loc.phone || "",
-                  city: loc.city || "",
-                  state: loc.state || "",
-                  zip: loc.zip || "",
-                  parking_directions: loc.parking_directions || "",
-                  inpatient:
-                    typeof loc.inpatient === "boolean" ? loc.inpatient : false,
-                  services_provided: Array.isArray(loc.services_provided)
-                    ? loc.services_provided
-                    : [],
-                }))
-              : [],
+        // Update locations if provided
+        if (locations && Array.isArray(locations)) {
+          // Soft delete existing
+          await db.query(
+            `UPDATE org_locations 
+             SET is_active = false, updated_by = $2, updated_at = CURRENT_TIMESTAMP
+             WHERE org_id = $1 AND is_active = true`,
+            [orgId, req.user.userId],
+          );
+
+          // Insert new
+          for (const location of locations) {
+            await db.query(
+              `INSERT INTO org_locations (
+                org_id, name, address_line1, address_line2, 
+                city, state, zip_code, 
+                weekday_hours, weekend_hours, location_id,
+                specialties_services, parking_directions, documents,
+                is_active, created_by, updated_by
+              ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 
+                $11, $12, $13, $14, $15, $15
+              )`,
+              [
+                orgId,
+                location.name,
+                location.address_line1,
+                location.address_line2,
+                location.city,
+                location.state,
+                location.zip_code,
+                location.weekday_hours,
+                location.weekend_hours,
+                location.location_id,
+                JSON.stringify(location.specialties_services || []),
+                location.parking_directions,
+                JSON.stringify(location.documents || []),
+                true,
+                req.user.userId,
+              ],
+            );
           }
-        : null;
+        }
 
-      const providers = data?.providers
-        ? {
-            providers: Array.isArray(data.providers.providers)
-              ? data.providers.providers.map((provider) => ({
-                  first_name: provider.first_name || "",
-                  last_name: provider.last_name || "",
-                  specialty: provider.specialty || "",
-                  npi_number: provider.npi_number || "",
-                  clinic_locations: Array.isArray(provider.clinic_locations)
-                    ? provider.clinic_locations
-                    : [],
-                }))
-              : [],
-            supported_language: Array.isArray(data.providers.supported_language)
-              ? data.providers.supported_language
-              : [],
+        // Update specialty services if provided
+        if (speciality_services && Array.isArray(speciality_services)) {
+          // Soft delete existing
+          await db.query(
+            `UPDATE org_speciality_services 
+             SET is_active = false, updated_by = $2, updated_at = CURRENT_TIMESTAMP
+             WHERE org_id = $1 AND is_active = true`,
+            [orgId, req.user.userId],
+          );
+
+          // Insert new
+          for (const specialty of speciality_services) {
+            await db.query(
+              `INSERT INTO org_speciality_services (
+                org_id, specialty_name, location_ids,
+                physician_names_source, physician_names_source_other,
+                new_patients_source, new_patients_source_other,
+                physician_locations_source, physician_locations_source_other,
+                physician_credentials_source, physician_credentials_source_other,
+                services, services_offered_source, services_offered_source_other,
+                patient_prep_source, patient_prep_source_other,
+                patient_faqs_source, patient_faqs_source_other,
+                documents, is_active, created_by, updated_by
+              ) VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 
+                $11, $12, $13, $14, $15, $16, $17, $18, $19, 
+                $20, $21, $21
+              )`,
+              [
+                orgId,
+                specialty.specialty_name,
+                specialty.location_ids || [],
+                specialty.physician_names_source,
+                specialty.physician_names_source_other,
+                specialty.new_patients_source,
+                specialty.new_patients_source_other,
+                specialty.physician_locations_source,
+                specialty.physician_locations_source_other,
+                specialty.physician_credentials_source,
+                specialty.physician_credentials_source_other,
+                JSON.stringify(specialty.services || []),
+                specialty.services_offered_source,
+                specialty.services_offered_source_other,
+                specialty.patient_prep_source,
+                specialty.patient_prep_source_other,
+                specialty.patient_faqs_source,
+                specialty.patient_faqs_source_other,
+                JSON.stringify(specialty.documents || []),
+                true,
+                req.user.userId,
+              ],
+            );
           }
-        : null;
+        }
 
-      // Hours is now an object with hours array and instructions
-      const hours = data?.hours
-        ? {
-            hours: Array.isArray(data.hours.hours)
-              ? data.hours.hours.map((location) => ({
-                  location_name: location.location_name || "",
-                  is_scheduling_same_as_clinical:
-                    typeof location.is_scheduling_same_as_clinical === "boolean"
-                      ? location.is_scheduling_same_as_clinical
-                      : true,
-                  holidays: location.holidays || "",
-                  clinic_hours: location.clinic_hours || {},
-                  scheduling_hours: location.scheduling_hours || {},
-                }))
-              : [],
-            emergency_instructions: data.hours.emergency_instructions || "",
-            after_hours_instructions: data.hours.after_hours_instructions || "",
+        // Update insurance if provided
+        if (insurance) {
+          const existingInsurance = await db.query(
+            `SELECT id FROM org_insurance WHERE org_id = $1`,
+            [orgId],
+          );
+
+          if (existingInsurance.rows.length === 0) {
+            // Insert new
+            await db.query(
+              `INSERT INTO org_insurance (
+                org_id, 
+                accepted_payers_source, accepted_payers_source_details,
+                insurance_verification_source, insurance_verification_source_details,
+                patient_copay_source, patient_copay_source_details,
+                documents, is_active, created_by, updated_by
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10)`,
+              [
+                orgId,
+                insurance.accepted_payers_source,
+                insurance.accepted_payers_source_details,
+                insurance.insurance_verification_source,
+                insurance.insurance_verification_source_details,
+                insurance.patient_copay_source,
+                insurance.patient_copay_source_details,
+                JSON.stringify(insurance.documents || []),
+                true,
+                req.user.userId,
+              ],
+            );
+          } else {
+            // Update existing
+            await db.query(
+              `UPDATE org_insurance SET
+                accepted_payers_source = $2,
+                accepted_payers_source_details = $3,
+                insurance_verification_source = $4,
+                insurance_verification_source_details = $5,
+                patient_copay_source = $6,
+                patient_copay_source_details = $7,
+                documents = $8,
+                updated_by = $9,
+                updated_at = CURRENT_TIMESTAMP
+              WHERE org_id = $1`,
+              [
+                orgId,
+                insurance.accepted_payers_source,
+                insurance.accepted_payers_source_details,
+                insurance.insurance_verification_source,
+                insurance.insurance_verification_source_details,
+                insurance.patient_copay_source,
+                insurance.patient_copay_source_details,
+                JSON.stringify(insurance.documents || []),
+                req.user.userId,
+              ],
+            );
           }
-        : null;
+        }
 
-      // Build update query dynamically based on provided sections
-      const updates = [];
-      const values = [workspaceId];
-      let paramCount = 1;
-
-      if (basicInfo) {
-        paramCount++;
-        updates.push(`basic_info = $${paramCount}`);
-        values.push(JSON.stringify(basicInfo));
-      }
-
-      if (locations) {
-        paramCount++;
-        updates.push(`locations = $${paramCount}`);
-        values.push(JSON.stringify(locations));
-      }
-
-      if (providers) {
-        paramCount++;
-        updates.push(`providers = $${paramCount}`);
-        values.push(JSON.stringify(providers));
-      }
-
-      if (hours) {
-        paramCount++;
-        updates.push(`hours = $${paramCount}`);
-        values.push(JSON.stringify(hours));
-      }
-
-      if (updates.length > 0) {
-        updates.push("updated_at = NOW()");
-        const updateQuery = `UPDATE workspaces SET ${updates.join(", ")} WHERE id = $1`;
-
-        await db.query(updateQuery, values);
+        await db.query("COMMIT");
+      } catch (error) {
+        await db.query("ROLLBACK");
+        throw error;
       }
 
       // Fetch and return updated data
-      const launchpadData = await fetchLaunchpadData(
-        workspaceId,
+      const organizationData = await fetchOrganizationData(
+        orgId,
         req.user.role,
       );
 
       res.json({
         success: true,
-        data: launchpadData,
+        data: organizationData,
       });
     } catch (error) {
       logger.error("Error updating all sections", {
         error: error.message,
-        userId: req.user.userId,
+        user_id: req.user.userId,
       });
       res.status(500).json({
         success: false,
-        error: "Failed to update launchpad data",
+        error: "Failed to update organization data",
       });
     }
   },
