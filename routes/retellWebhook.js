@@ -716,13 +716,15 @@ router.post("/call/update", async (req, res, next) => {
 
     console.log("hit4");
 
-    // Send confirmation email if patient email is available (non-blocking)
+    // Send confirmation email if patient email is available and send_email is true (non-blocking)
     try {
       console.log("in send email");
       const recepientEmail =
         call.call_analysis?.custom_analysis_data?.patient_email;
+      const sendEmail =
+        call.call_analysis?.custom_analysis_data?.send_email;
 
-      if (recepientEmail) {
+      if (recepientEmail && sendEmail === true) {
         // Get provider configuration
         const providerName =
           call.call_analysis?.custom_analysis_data?.provider_name;
@@ -1248,6 +1250,11 @@ function renderAppointmentConfirmationHTML(d) {
     ? escapeHTML(d.appointment_location)
     : "To be confirmed";
 
+  // Create Google Maps URL if location is provided
+  const mapUrl = d.appointment_location 
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.appointment_location)}`
+    : null;
+
   return `
 <!doctype html>
 <html>
@@ -1280,7 +1287,10 @@ function renderAppointmentConfirmationHTML(d) {
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Date &amp; Time:</strong> ${escapeHTML(d.date_str)} at ${escapeHTML(d.time_str)}. Please arrive 10–15 minutes early.</td>
                   </tr>
                   <tr>
-                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Location:</strong> ${locationDisplay}</td>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">
+                      • <strong>Location:</strong> ${locationDisplay}
+                      ${mapUrl ? `<br>&nbsp;&nbsp;<a href="${mapUrl}" target="_blank" style="color:#2563eb;text-decoration:underline;font-size:13px;">📍 View on Google Maps</a>` : ''}
+                    </td>
                   </tr>
                 </table>
               </td>
