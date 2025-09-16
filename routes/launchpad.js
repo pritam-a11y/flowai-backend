@@ -1,10 +1,45 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
 const jwtMiddleware = require("../middleware/jwt");
 const { validateOrgAccess } = require("../middleware/orgAccess");
 const requireFeaturePermission = require("../middleware/featureAccess");
 const logger = require("../utils/logger");
 const db = require("../db/connection");
+const s3DocumentService = require("../services/s3DocumentService");
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB max file size
+  },
+  fileFilter: (req, file, cb) => {
+    // Allowed file types
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "text/plain",
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(
+        new Error(
+          `File type ${file.mimetype} not allowed. Allowed types: PDF, DOC, DOCX, XLS, XLSX, TXT, JPEG, PNG, GIF, WEBP`,
+        ),
+      );
+    }
+  },
+});
 
 /**
  * @swagger
@@ -1035,6 +1070,446 @@ router.post(
       res.status(500).json({
         success: false,
         error: "Failed to update organization data",
+      });
+    }
+  },
+);
+
+// ============= DOCUMENT UPLOAD ENDPOINTS =============
+
+/**
+ * @swagger
+ * /api/v1/launchpad/{org_id}/upload-document:
+ *   post:
+ *     summary: Upload a document for any launchpad section
+ *     tags: [Launchpad]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: org_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Organization ID
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file
+ *               - section
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Document file to upload
+ *               section:
+ *                 type: string
+ *                 enum: [account_details, locations, speciality_services, insurance]
+ *                 description: Section where document belongs
+ *               location_id:
+ *                 type: integer
+ *                 description: Location ID (required for locations section)
+ *               specialty_id:
+ *                 type: integer
+ *                 description: Specialty ID (required for speciality_services section)
+ *               document_name:
+ *                 type: string
+ *                 description: Optional custom name for the document
+ *               description:
+ *                 type: string
+ *                 description: Optional description of the document
+ *     responses:
+ *       200:
+ *         description: Document uploaded successfully
+ *       400:
+ *         description: Bad request
+ *       403:
+ *         description: Access denied
+ *       500:
+ *         description: Server error
+ */
+router.post(
+  "/:org_id/upload-document",
+  jwtMiddleware,
+  validateOrgAccess,
+  requireFeaturePermission("launchpad", "write"),
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const orgId = parseInt(req.params.org_id);
+      const { section, location_id, specialty_id, document_name, description } =
+        req.body;
+      const file = req.file;
+
+      // Validate required fields
+      if (!file) {
+        return res.status(400).json({
+          success: false,
+          error: "No file uploaded",
+        });
+      }
+
+      if (!section) {
+        return res.status(400).json({
+          success: false,
+          error: "Section is required",
+        });
+      }
+
+      // Validate section
+      const validSections = [
+        "account_details",
+        "locations",
+        "speciality_services",
+        "insurance",
+      ];
+      if (!validSections.includes(section)) {
+        return res.status(400).json({
+          success: false,
+          error: `Invalid section. Must be one of: ${validSections.join(", ")}`,
+        });
+      }
+
+      logger.info("Processing document upload", {
+        org_id: orgId,
+        section: section,
+        filename: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype,
+        user_id: req.user.userId,
+      });
+
+      // Upload to S3
+      const uploadResult = await s3DocumentService.uploadDocument(file.buffer, {
+        filename: document_name || file.originalname,
+        mimetype: file.mimetype,
+        orgId: orgId,
+        section: section,
+        uploadedBy: req.user.userId,
+      });
+
+      if (!uploadResult.success) {
+        throw new Error(uploadResult.error || "Failed to upload document");
+      }
+
+      // Prepare document object for database
+      const documentData = {
+        ...uploadResult.document,
+        custom_name: document_name || null,
+        description: description || null,
+      };
+
+      // Update the appropriate table based on section
+      await db.query("BEGIN");
+
+      try {
+        let updateSuccess = false;
+
+        if (section === "locations" && location_id) {
+          // Update specific location
+          const locResult = await db.query(
+            `SELECT documents FROM org_locations WHERE org_id = $1 AND id = $2 AND is_active = true`,
+            [orgId, parseInt(location_id)],
+          );
+
+          if (locResult.rows.length > 0) {
+            const existingDocs = locResult.rows[0].documents || [];
+            const updatedDocs = [...existingDocs, documentData];
+
+            await db.query(
+              `UPDATE org_locations 
+               SET documents = $1, updated_by = $2, updated_at = CURRENT_TIMESTAMP
+               WHERE org_id = $3 AND id = $4`,
+              [
+                JSON.stringify(updatedDocs),
+                req.user.userId,
+                orgId,
+                parseInt(location_id),
+              ],
+            );
+            updateSuccess = true;
+          }
+        } else if (section === "speciality_services" && specialty_id) {
+          // Update specific specialty
+          const specResult = await db.query(
+            `SELECT documents FROM org_speciality_services WHERE org_id = $1 AND id = $2 AND is_active = true`,
+            [orgId, parseInt(specialty_id)],
+          );
+
+          if (specResult.rows.length > 0) {
+            const existingDocs = specResult.rows[0].documents || [];
+            const updatedDocs = [...existingDocs, documentData];
+
+            await db.query(
+              `UPDATE org_speciality_services 
+               SET documents = $1, updated_by = $2, updated_at = CURRENT_TIMESTAMP
+               WHERE org_id = $3 AND id = $4`,
+              [
+                JSON.stringify(updatedDocs),
+                req.user.userId,
+                orgId,
+                parseInt(specialty_id),
+              ],
+            );
+            updateSuccess = true;
+          }
+        } else if (section === "account_details" || section === "insurance") {
+          // Update account_details or insurance table
+          const tableName =
+            section === "account_details"
+              ? "org_account_details"
+              : "org_insurance";
+
+          const checkResult = await db.query(
+            `SELECT documents FROM ${tableName} WHERE org_id = $1`,
+            [orgId],
+          );
+
+          if (checkResult.rows.length === 0) {
+            // Create new record
+            if (section === "account_details") {
+              await db.query(
+                `INSERT INTO org_account_details (org_id, documents, created_by, updated_by) 
+                 VALUES ($1, $2, $3, $3)`,
+                [orgId, JSON.stringify([documentData]), req.user.userId],
+              );
+            } else {
+              await db.query(
+                `INSERT INTO org_insurance (org_id, documents, is_active, created_by, updated_by) 
+                 VALUES ($1, $2, true, $3, $3)`,
+                [orgId, JSON.stringify([documentData]), req.user.userId],
+              );
+            }
+            updateSuccess = true;
+          } else {
+            const existingDocs = checkResult.rows[0].documents || [];
+            const updatedDocs = [...existingDocs, documentData];
+
+            await db.query(
+              `UPDATE ${tableName} 
+               SET documents = $1, updated_by = $2, updated_at = CURRENT_TIMESTAMP
+               WHERE org_id = $3`,
+              [JSON.stringify(updatedDocs), req.user.userId, orgId],
+            );
+            updateSuccess = true;
+          }
+        }
+
+        if (!updateSuccess) {
+          throw new Error(
+            `Cannot update documents for ${section}. Missing required IDs or record not found.`,
+          );
+        }
+
+        await db.query("COMMIT");
+
+        logger.info("Document uploaded and linked successfully", {
+          org_id: orgId,
+          section: section,
+          document_id: documentData.id,
+        });
+
+        res.json({
+          success: true,
+          message: "Document uploaded successfully",
+          document: documentData,
+        });
+      } catch (dbError) {
+        await db.query("ROLLBACK");
+        // Try to clean up S3 upload if DB update failed
+        try {
+          await s3DocumentService.deleteDocument(uploadResult.document.s3_key);
+        } catch (cleanupError) {
+          logger.error("Failed to cleanup S3 after DB error", {
+            error: cleanupError.message,
+          });
+        }
+        throw dbError;
+      }
+    } catch (error) {
+      logger.error("Error uploading document", {
+        error: error.message,
+        stack: error.stack,
+        org_id: req.params.org_id,
+        user_id: req.user.userId,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: error.message || "Failed to upload document",
+      });
+    }
+  },
+);
+
+/**
+ * @swagger
+ * /api/v1/launchpad/{org_id}/delete-document:
+ *   post:
+ *     summary: Delete a document from any launchpad section
+ *     tags: [Launchpad]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post(
+  "/:org_id/delete-document",
+  jwtMiddleware,
+  validateOrgAccess,
+  requireFeaturePermission("launchpad", "write"),
+  async (req, res) => {
+    try {
+      const orgId = parseInt(req.params.org_id);
+      const { section, document_id, location_id, specialty_id } = req.body;
+
+      if (!section || !document_id) {
+        return res.status(400).json({
+          success: false,
+          error: "Section and document_id are required",
+        });
+      }
+
+      logger.info("Processing document deletion", {
+        org_id: orgId,
+        section: section,
+        document_id: document_id,
+        user_id: req.user.userId,
+      });
+
+      await db.query("BEGIN");
+
+      try {
+        let documentToDelete = null;
+        let updateSuccess = false;
+
+        if (section === "locations" && location_id) {
+          const locResult = await db.query(
+            `SELECT documents FROM org_locations WHERE org_id = $1 AND id = $2`,
+            [orgId, parseInt(location_id)],
+          );
+
+          if (locResult.rows.length > 0) {
+            const documents = locResult.rows[0].documents || [];
+            documentToDelete = documents.find((doc) => doc.id === document_id);
+
+            if (documentToDelete) {
+              const updatedDocs = documents.filter(
+                (doc) => doc.id !== document_id,
+              );
+              await db.query(
+                `UPDATE org_locations 
+                 SET documents = $1, updated_by = $2, updated_at = CURRENT_TIMESTAMP
+                 WHERE org_id = $3 AND id = $4`,
+                [
+                  JSON.stringify(updatedDocs),
+                  req.user.userId,
+                  orgId,
+                  parseInt(location_id),
+                ],
+              );
+              updateSuccess = true;
+            }
+          }
+        } else if (section === "speciality_services" && specialty_id) {
+          const specResult = await db.query(
+            `SELECT documents FROM org_speciality_services WHERE org_id = $1 AND id = $2`,
+            [orgId, parseInt(specialty_id)],
+          );
+
+          if (specResult.rows.length > 0) {
+            const documents = specResult.rows[0].documents || [];
+            documentToDelete = documents.find((doc) => doc.id === document_id);
+
+            if (documentToDelete) {
+              const updatedDocs = documents.filter(
+                (doc) => doc.id !== document_id,
+              );
+              await db.query(
+                `UPDATE org_speciality_services 
+                 SET documents = $1, updated_by = $2, updated_at = CURRENT_TIMESTAMP
+                 WHERE org_id = $3 AND id = $4`,
+                [
+                  JSON.stringify(updatedDocs),
+                  req.user.userId,
+                  orgId,
+                  parseInt(specialty_id),
+                ],
+              );
+              updateSuccess = true;
+            }
+          }
+        } else if (section === "account_details" || section === "insurance") {
+          const tableName =
+            section === "account_details"
+              ? "org_account_details"
+              : "org_insurance";
+
+          const result = await db.query(
+            `SELECT documents FROM ${tableName} WHERE org_id = $1`,
+            [orgId],
+          );
+
+          if (result.rows.length > 0) {
+            const documents = result.rows[0].documents || [];
+            documentToDelete = documents.find((doc) => doc.id === document_id);
+
+            if (documentToDelete) {
+              const updatedDocs = documents.filter(
+                (doc) => doc.id !== document_id,
+              );
+              await db.query(
+                `UPDATE ${tableName} 
+                 SET documents = $1, updated_by = $2, updated_at = CURRENT_TIMESTAMP
+                 WHERE org_id = $3`,
+                [JSON.stringify(updatedDocs), req.user.userId, orgId],
+              );
+              updateSuccess = true;
+            }
+          }
+        }
+
+        if (!documentToDelete) {
+          throw new Error("Document not found");
+        }
+
+        // Delete from S3
+        try {
+          await s3DocumentService.deleteDocument(documentToDelete.s3_key);
+        } catch (s3Error) {
+          logger.error("Error deleting from S3, continuing with DB removal", {
+            error: s3Error.message,
+            s3_key: documentToDelete.s3_key,
+          });
+        }
+
+        await db.query("COMMIT");
+
+        logger.info("Document deleted successfully", {
+          org_id: orgId,
+          section: section,
+          document_id: document_id,
+        });
+
+        res.json({
+          success: true,
+          message: "Document deleted successfully",
+        });
+      } catch (dbError) {
+        await db.query("ROLLBACK");
+        throw dbError;
+      }
+    } catch (error) {
+      logger.error("Error deleting document", {
+        error: error.message,
+        org_id: req.params.org_id,
+        user_id: req.user.userId,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: error.message || "Failed to delete document",
       });
     }
   },
