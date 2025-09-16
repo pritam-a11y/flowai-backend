@@ -280,6 +280,18 @@ class RedoxTransformer {
       ? `${name.given?.[0] || ""} ${name.family || ""}`.trim()
       : "Unknown";
 
+    // Extract patient address
+    const address = patient.address?.[0];
+    const fullAddress = address
+      ? `${address.line?.[0] || ""}, ${address.city || ""}, ${address.state || ""} ${address.postalCode || ""}`.trim()
+      : "";
+
+    // Extract patient email
+    const emailContact = patient.telecom?.find(
+      (contact) => contact.system === "email"
+    );
+    const patientEmail = emailContact?.value || "";
+
     // Extract insurance information
     const insuranceContact = patient.contact?.find(
       (contact) => contact.relationship?.[0]?.coding?.[0]?.code === "I"
@@ -316,6 +328,8 @@ class RedoxTransformer {
     return {
       patient_id: patient.id,
       patient_name: fullName,
+      patient_email: patientEmail,
+      patient_address: fullAddress,
       patient_insurance_member_id: insuranceMemberId || "",
       patient_insurance_name: insuranceName || "",
       patient_appointment_type: appointmentType,
