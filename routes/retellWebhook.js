@@ -10,12 +10,15 @@ const { Resend } = require("resend");
 const callIdStorage = require("../utils/callIdStorage");
 const axios = require("axios");
 const LocationSorter = require("../utils/locationSorter");
-const { getProviderConfig, getDefaultProviderConfig } = require("../config/providers");
+const {
+  getProviderConfig,
+  getDefaultProviderConfig,
+} = require("../config/providers");
 
 const authService = new AuthService();
 
 // Initialize Resend with API key
-const resend = new Resend("re_RqyutRoZ_FzgFQ1SVV8qd7RAUmjX4o79B");
+const resend = new Resend("re_DXtS219b_C9LEPwDvBsy2ZMmEKZGh8yYx");
 
 /**
  * @swagger
@@ -43,7 +46,6 @@ const resend = new Resend("re_RqyutRoZ_FzgFQ1SVV8qd7RAUmjX4o79B");
  */
 router.post("/webhook", async (req, res, next) => {
   try {
-
     // Log complete webhook request body
     logger.info("=== RETELL WEBHOOK RECEIVED ===", {
       requestBody: JSON.stringify(req.body, null, 2),
@@ -229,7 +231,6 @@ router.post("/webhook", async (req, res, next) => {
  */
 router.post("/function-call", async (req, res, next) => {
   try {
-
     // Log function call request body (excluding transcript and transcript_object for cleaner logs)
     const logBody = {
       ...req.body,
@@ -589,14 +590,15 @@ router.post("/function-call", async (req, res, next) => {
           });
           return res.status(400).json({
             success: false,
-            error: "Missing required fields: address and appointmentType are required",
+            error:
+              "Missing required fields: address and appointmentType are required",
           });
         }
 
         // Use LocationSorter to get sorted locations (now async)
         const sortResult = await LocationSorter.sortLocationsByDistance(
           address,
-          appointmentType
+          appointmentType,
         );
 
         if (!sortResult.success) {
@@ -605,7 +607,7 @@ router.post("/function-call", async (req, res, next) => {
             appointmentType,
             error: sortResult.error,
           });
-          
+
           result = sortResult.error;
         } else {
           logger.info("sort_locations completed successfully", {
@@ -722,9 +724,11 @@ router.post("/call/update", async (req, res, next) => {
 
       if (recepientEmail) {
         // Get provider configuration
-        const providerName = call.call_analysis?.custom_analysis_data?.provider_name;
-        const providerConfig = getProviderConfig(providerName) || getDefaultProviderConfig();
-        
+        const providerName =
+          call.call_analysis?.custom_analysis_data?.provider_name;
+        const providerConfig =
+          getProviderConfig(providerName) || getDefaultProviderConfig();
+
         logger.info("Email provider config selected", {
           call_id: call.call_id,
           provider_name: providerName,
@@ -737,7 +741,8 @@ router.post("/call/update", async (req, res, next) => {
             "Patient",
           date_str: call.call_analysis?.custom_analysis_data?.appointment_date,
           time_str: call.call_analysis?.custom_analysis_data?.appointment_time,
-          appointment_location: call.call_analysis?.custom_analysis_data?.appointment_location,
+          appointment_location:
+            call.call_analysis?.custom_analysis_data?.appointment_location,
           provider_name: providerConfig.name,
           business_name: providerConfig.business_name,
           doctor_name: providerConfig.doctor_name,
@@ -1239,10 +1244,10 @@ function escapeHTML(str) {
 
 function renderAppointmentConfirmationHTML(d) {
   // Handle location display
-  const locationDisplay = d.appointment_location 
+  const locationDisplay = d.appointment_location
     ? escapeHTML(d.appointment_location)
     : "To be confirmed";
-    
+
   return `
 <!doctype html>
 <html>
@@ -1338,7 +1343,7 @@ function renderAppointmentConfirmationHTML(d) {
                         Best Regards,<br><br>
                         <strong>${escapeHTML(d.doctor_name)}</strong><br>
                         ${escapeHTML(d.business_name)}<br>
-                        ${d.appointment_location ? escapeHTML(d.appointment_location) : (d.default_location ? escapeHTML(d.default_location) : "")}<br>
+                        ${d.appointment_location ? escapeHTML(d.appointment_location) : d.default_location ? escapeHTML(d.default_location) : ""}<br>
                         T: ${escapeHTML(d.office_phone)}
                       </div>
                       <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6b7280;margin-top:16px;line-height:1.4;">
