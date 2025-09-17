@@ -750,6 +750,8 @@ router.post("/call/update", async (req, res, next) => {
             "Patient",
           date_str: call.call_analysis?.custom_analysis_data?.appointment_date,
           time_str: call.call_analysis?.custom_analysis_data?.appointment_time,
+          appointment_department:
+            call.call_analysis?.custom_analysis_data?.appointment_department,
           appointment_location:
             call.call_analysis?.custom_analysis_data?.appointment_location,
           provider_name: providerConfig.name,
@@ -1293,6 +1295,10 @@ function renderAppointmentConfirmationHTML(d) {
                   <tr>
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Date &amp; Time:</strong> ${escapeHTML(d.date_str)} at ${escapeHTML(d.time_str)}. Please arrive 10–15 minutes early.</td>
                   </tr>
+                  ${d.appointment_department && d.appointment_department.trim() ? `
+                  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Department:</strong> ${escapeHTML(d.appointment_department)}</td>
+                  </tr>` : ''}
                   <tr>
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">
                       • <strong>Location:</strong> ${locationDisplay}
