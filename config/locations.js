@@ -129,6 +129,7 @@ const uchicagoLocations = {
       "Neurology",
       "Oncology",
       "Gastroenterology",
+      "Radiology",
       "Orthopedics",
       "Obstetrics and Gynecology"
     ]
@@ -142,7 +143,9 @@ const uchicagoLocations = {
       lng: -87.604903
     },
     services: [
-      "Gastroenterology"
+      "Gastroenterology",
+      "Radiology",
+      "Obstetrics and Gynecology"
     ]
   },
   southLoop: {
@@ -159,6 +162,7 @@ const uchicagoLocations = {
       "Neurology", 
       "Oncology",
       "Gastroenterology",
+      "Radiology",
       "Orthopedics",
       "Obstetrics and Gynecology"
     ]
@@ -177,6 +181,7 @@ const uchicagoLocations = {
       "Neurology",
       "Oncology", 
       "Gastroenterology",
+      "Radiology",
       "Orthopedics",
       "Obstetrics and Gynecology"
     ]
@@ -195,6 +200,7 @@ const uchicagoLocations = {
       "Neurology",
       "Oncology",
       "Gastroenterology",
+      "Radiology",
       "Orthopedics",
       "Obstetrics and Gynecology"
     ]
