@@ -1,4 +1,4 @@
-const locations = {
+const precisionLocations = {
   jacksonville: {
     name: "Jacksonville",
     address: "7860 Gate Pkwy, Unit 123, Jacksonville, FL 32256",
@@ -114,6 +114,124 @@ const locations = {
   }
 };
 
+const uchicagoLocations = {
+  hydeParkDCAM: {
+    name: "Hyde Park — Duchossois Center for Advanced Medicine (DCAM)",
+    address: "5758 S. Maryland Ave., Chicago, IL 60637",
+    zipCode: "60637",
+    coordinates: {
+      lat: 41.7902987,
+      lng: -87.6053771
+    },
+    services: [
+      "Cardiology",
+      "Urology", 
+      "Neurology",
+      "Oncology",
+      "Gastroenterology",
+      "Orthopedics",
+      "Obstetrics and Gynecology"
+    ]
+  },
+  hydeParkCCD: {
+    name: "Center for Care & Discovery (CCD)",
+    address: "5700 S. Maryland Ave., Chicago, IL 60637", 
+    zipCode: "60637",
+    coordinates: {
+      lat: 41.7910241,
+      lng: -87.604903
+    },
+    services: [
+      "Gastroenterology"
+    ]
+  },
+  southLoop: {
+    name: "South Loop",
+    address: "1101 S. Canal St., Suite 201 & 202, Chicago, IL 60607",
+    zipCode: "60607",
+    coordinates: {
+      lat: 41.8688617,
+      lng: -87.63889259999999
+    },
+    services: [
+      "Cardiology",
+      "Urology",
+      "Neurology", 
+      "Oncology",
+      "Gastroenterology",
+      "Orthopedics",
+      "Obstetrics and Gynecology"
+    ]
+  },
+  orlandPark: {
+    name: "Orland Park — Center for Advanced Care",
+    address: "14290 S. La Grange Rd., Orland Park, IL 60462",
+    zipCode: "60462",
+    coordinates: {
+      lat: 41.6308805,
+      lng: -87.8545918
+    },
+    services: [
+      "Cardiology",
+      "Urology",
+      "Neurology",
+      "Oncology", 
+      "Gastroenterology",
+      "Orthopedics",
+      "Obstetrics and Gynecology"
+    ]
+  },
+  tinleyPark: {
+    name: "Tinley Park — UChicago Medicine at Ingalls",
+    address: "6701 W. 159th St., Tinley Park, IL 60477",
+    zipCode: "60477",
+    coordinates: {
+      lat: 41.60168729999999,
+      lng: -87.7818673
+    },
+    services: [
+      "Cardiology",
+      "Urology", 
+      "Neurology",
+      "Oncology",
+      "Gastroenterology",
+      "Orthopedics",
+      "Obstetrics and Gynecology"
+    ]
+  },
+  laGrange: {
+    name: "La Grange — UChicago Medicine Orthopaedics (AdventHealth Campus)",
+    address: "5201 South Willow Springs Rd., Suite 340, La Grange, IL 60525",
+    zipCode: "60525",
+    coordinates: {
+      lat: 41.7956417,
+      lng: -87.8867673
+    },
+    services: [
+      "Orthopedics"
+    ]
+  },
+  comerChildrens: {
+    name: "Comer Children's Hospital",
+    address: "5721 S. Maryland Ave., Chicago, IL 60637",
+    zipCode: "60637", 
+    coordinates: {
+      lat: 41.7901847,
+      lng: -87.60458489999999
+    },
+    services: [
+      "Pediatric Orthopedics"
+    ]
+  }
+};
+
+const locations = {
+  precision: precisionLocations,
+  uchicago: uchicagoLocations
+};
+
 module.exports = {
-  locations
+  locations,
+  precisionLocations,
+  uchicagoLocations
 };

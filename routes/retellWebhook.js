@@ -225,6 +225,9 @@ router.post("/webhook", async (req, res, next) => {
  *                   appointmentType:
  *                     type: string
  *                     description: Type of appointment (for sort_locations)
+ *                   provider:
+ *                     type: string
+ *                     description: Provider identifier - precision or uchicago (for sort_locations)
  *     responses:
  *       200:
  *         description: Function call result
@@ -580,18 +583,19 @@ router.post("/function-call", async (req, res, next) => {
         logger.info("Processing sort_locations function call");
 
         // Extract parameters from args
-        const { address, appointmentType } = args;
+        const { address, appointmentType, provider } = args;
 
         // Validate required fields
-        if (!address || !appointmentType) {
+        if (!address || !appointmentType || !provider) {
           logger.warn("sort_locations failed: missing required fields", {
             address,
             appointmentType,
+            provider,
           });
           return res.status(400).json({
             success: false,
             error:
-              "Missing required fields: address and appointmentType are required",
+              "Missing required fields: address, appointmentType, and provider are required",
           });
         }
 
@@ -599,12 +603,14 @@ router.post("/function-call", async (req, res, next) => {
         const sortResult = await LocationSorter.sortLocationsByDistance(
           address,
           appointmentType,
+          provider,
         );
 
         if (!sortResult.success) {
           logger.info("sort_locations - no locations found", {
             address,
             appointmentType,
+            provider,
             error: sortResult.error,
           });
 
@@ -613,6 +619,7 @@ router.post("/function-call", async (req, res, next) => {
           logger.info("sort_locations completed successfully", {
             address,
             appointmentType,
+            provider,
             locationsFound: Object.keys(sortResult.result).length,
           });
 

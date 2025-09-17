@@ -113,12 +113,13 @@ class LocationSorter {
   }
 
   /**
-   * Sort locations by distance from an address for a specific appointment type
+   * Sort locations by distance from an address for a specific appointment type and provider
    * @param {string} address - Full address string
    * @param {string} appointmentType - Type of appointment
+   * @param {string} provider - Provider identifier (precision/uchicago)
    * @returns {Promise<object>} Sorted locations or error message
    */
-  async sortLocationsByDistance(address, appointmentType) {
+  async sortLocationsByDistance(address, appointmentType, provider) {
     // Validate address
     if (!address || typeof address !== 'string' || !address.trim()) {
       return {
@@ -127,11 +128,28 @@ class LocationSorter {
       };
     }
 
+    // Validate provider
+    if (!provider || typeof provider !== 'string') {
+      return {
+        success: false,
+        error: "Please provide a valid provider."
+      };
+    }
+
+    // Get provider-specific locations
+    const providerLocations = locations[provider.toLowerCase()];
+    if (!providerLocations) {
+      return {
+        success: false,
+        error: `Provider '${provider}' not found.`
+      };
+    }
+
     try {
       // Filter locations that offer the requested service
       const eligibleLocations = [];
-      for (const key in locations) {
-        const location = locations[key];
+      for (const key in providerLocations) {
+        const location = providerLocations[key];
         if (this.locationOffersService(location, appointmentType)) {
           eligibleLocations.push(location);
         }
