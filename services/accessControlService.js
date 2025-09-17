@@ -7,59 +7,54 @@ const {
 
 class AccessControlService {
   /**
-   * Check if user has access to a specific workspace based on role
+   * Check if user has access to a specific organisation based on role
    * @param {number} userId - User ID
    * @param {string} userRole - User role
-   * @param {number} userWorkspaceId - User's primary workspace ID
-   * @param {number} requestedWorkspaceId - Workspace being accessed
+   * @param {number} userOrgId - User's primary organisation ID
+   * @param {number} requestedOrgId - Organisation being accessed
    * @returns {Promise<boolean>} - True if user has access
    */
-  static async checkWorkspaceAccess(
-    userId,
-    userRole,
-    userWorkspaceId,
-    requestedWorkspaceId,
-  ) {
+  static async checkOrgAccess(userId, userRole, userOrgId, requestedOrgId) {
     const accessRule = WORKSPACE_ACCESS_RULES[userRole];
 
     if (!accessRule) {
-      logger.warn("Unknown role attempted workspace access", { userRole });
+      logger.warn("Unknown role attempted organisation access", { userRole });
       return false;
     }
 
-    // Super-admin and observer have access to all workspaces
+    // Super-admin and observer have access to all organisations
     if (accessRule === "all") {
       return true;
     }
 
-    // Check if it's the user's own workspace
-    if (userWorkspaceId === requestedWorkspaceId) {
+    // Check if it's the user's own organisation
+    if (userOrgId === requestedOrgId) {
       return true;
     }
 
-    // For members, check assigned workspaces array
+    // For members, check assigned workspaces array (still named assigned_workspace in DB)
     if (userRole === "member" && accessRule === "own_and_assigned") {
       try {
-        // Check if the requested workspace ID is in the assigned_workspace array
+        // Check if the requested org ID is in the assigned_workspace array
         const result = await db.query(
           `SELECT 1 FROM users 
            WHERE id = $1 
            AND $2 = ANY(assigned_workspace)`,
-          [userId, requestedWorkspaceId],
+          [userId, requestedOrgId],
         );
 
         return result.rows.length > 0;
       } catch (error) {
-        logger.error("Error checking assigned workspaces", {
+        logger.error("Error checking assigned organisations", {
           error: error.message,
           userId,
-          requestedWorkspaceId,
+          requestedOrgId,
         });
         return false;
       }
     }
 
-    // All other roles with "own" access rule can only access their own workspace
+    // All other roles with "own" access rule can only access their own organisation
     return false;
   }
 
@@ -87,33 +82,33 @@ class AccessControlService {
   }
 
   /**
-   * Get all accessible workspace IDs for a user
+   * Get all accessible organisation IDs for a user
    * @param {number} userId - User ID
    * @param {string} userRole - User role
-   * @param {number} userWorkspaceId - User's primary workspace ID
-   * @returns {Promise<number[]>} - Array of accessible workspace IDs
+   * @param {number} userOrgId - User's primary organisation ID
+   * @returns {Promise<number[]>} - Array of accessible organisation IDs
    */
-  static async getAccessibleWorkspaces(userId, userRole, userWorkspaceId) {
+  static async getAccessibleOrgs(userId, userRole, userOrgId) {
     const accessRule = WORKSPACE_ACCESS_RULES[userRole];
 
     if (!accessRule) {
       return [];
     }
 
-    // Super-admin and observer can access all workspaces
+    // Super-admin and observer can access all organisations
     if (accessRule === "all") {
       try {
-        const result = await db.query(
-          "SELECT id FROM workspaces WHERE is_active = true",
-        );
-        return result.rows.map((row) => row.id);
+        const result = await db.query("SELECT org_id FROM organisations");
+        return result.rows.map((row) => row.org_id);
       } catch (error) {
-        logger.error("Error fetching all workspaces", { error: error.message });
-        return [userWorkspaceId]; // Fallback to own workspace
+        logger.error("Error fetching all organisations", {
+          error: error.message,
+        });
+        return [userOrgId]; // Fallback to own organisation
       }
     }
 
-    // Members can access own + assigned workspaces
+    // Members can access own + assigned organisations
     if (userRole === "member" && accessRule === "own_and_assigned") {
       try {
         const result = await db.query(
@@ -121,42 +116,37 @@ class AccessControlService {
           [userId],
         );
 
-        const assignedWorkspaces = result.rows[0]?.assigned_workspace || [];
-        const allWorkspaces = [userWorkspaceId, ...assignedWorkspaces];
+        const assignedOrgs = result.rows[0]?.assigned_workspace || [];
+        const allOrgs = [userOrgId, ...assignedOrgs];
 
         // Remove duplicates and return
-        return [...new Set(allWorkspaces)];
+        return [...new Set(allOrgs)];
       } catch (error) {
-        logger.error("Error fetching assigned workspaces", {
+        logger.error("Error fetching assigned organisations", {
           error: error.message,
         });
-        return [userWorkspaceId]; // Fallback to own workspace
+        return [userOrgId]; // Fallback to own organisation
       }
     }
 
-    // All other roles can only access their own workspace
-    return [userWorkspaceId];
+    // All other roles can only access their own organisation
+    return [userOrgId];
   }
 
   /**
-   * Validate workspace access and get workspace details
+   * Validate organisation access and get organisation details
    * @param {number} userId - User ID
    * @param {string} userRole - User role
-   * @param {number} userWorkspaceId - User's primary workspace ID
-   * @param {number} requestedWorkspaceId - Workspace being accessed
-   * @returns {Promise<object|null>} - Workspace details if accessible, null otherwise
+   * @param {number} userOrgId - User's primary organisation ID
+   * @param {number} requestedOrgId - Organisation being accessed
+   * @returns {Promise<object|null>} - Organisation details if accessible, null otherwise
    */
-  static async validateAndGetWorkspace(
-    userId,
-    userRole,
-    userWorkspaceId,
-    requestedWorkspaceId,
-  ) {
-    const hasAccess = await this.checkWorkspaceAccess(
+  static async validateAndGetOrg(userId, userRole, userOrgId, requestedOrgId) {
+    const hasAccess = await this.checkOrgAccess(
       userId,
       userRole,
-      userWorkspaceId,
-      requestedWorkspaceId,
+      userOrgId,
+      requestedOrgId,
     );
 
     if (!hasAccess) {
@@ -164,13 +154,14 @@ class AccessControlService {
     }
 
     try {
-      const result = await db.query("SELECT * FROM workspaces WHERE id = $1", [
-        requestedWorkspaceId,
-      ]);
+      const result = await db.query(
+        "SELECT * FROM organisations WHERE org_id = $1",
+        [requestedOrgId],
+      );
 
       return result.rows[0] || null;
     } catch (error) {
-      logger.error("Error fetching workspace details", {
+      logger.error("Error fetching organisation details", {
         error: error.message,
       });
       return null;

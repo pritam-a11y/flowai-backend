@@ -55,7 +55,7 @@ const fetchOrganizationData = async (orgId, userRole) => {
   try {
     // Fetch organization basic info
     const orgResult = await db.query(
-      `SELECT org_id, org_name, created_at, updated_at
+      `SELECT org_id, name, created_at, updated_at
        FROM organisations 
        WHERE org_id = $1`,
       [orgId],
