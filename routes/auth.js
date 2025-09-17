@@ -33,7 +33,7 @@ const userAuthService = new UserAuthService();
  *                 example: "qwertyuiop"
  *     responses:
  *       200:
- *         description: Login successful (single workspace)
+ *         description: Login successful (single organisation)
  *         content:
  *           application/json:
  *             schema:
@@ -51,7 +51,7 @@ const userAuthService = new UserAuthService();
  *                 user:
  *                   type: object
  *       300:
- *         description: Multiple workspaces found - selection required
+ *         description: Multiple organisations found - selection required
  *         content:
  *           application/json:
  *             schema:
@@ -60,13 +60,13 @@ const userAuthService = new UserAuthService();
  *                 success:
  *                   type: boolean
  *                   example: false
- *                 requireWorkspaceSelection:
+ *                 requireOrgSelection:
  *                   type: boolean
  *                   example: true
  *                 email:
  *                   type: string
  *                   example: "chirag.gupta@myflowai.com"
- *                 workspaces:
+ *                 organisations:
  *                   type: array
  *                   items:
  *                     type: object
@@ -107,32 +107,32 @@ router.post("/login", async (req, res) => {
     // Authenticate user
     const authResult = await userAuthService.authenticateUser(email, password);
 
-    // Check if workspace selection is required
-    if (authResult.requireWorkspaceSelection) {
-      logger.info("Multiple workspaces found for user", {
+    // Check if organisation selection is required
+    if (authResult.requireOrgSelection) {
+      logger.info("Multiple organisations found for user", {
         email,
-        workspaceCount: authResult.workspaces.length,
+        orgCount: authResult.organisations.length,
       });
 
       return res.status(300).json({
         success: false,
-        requireWorkspaceSelection: true,
+        requireOrgSelection: true,
         email: authResult.email,
-        workspaces: authResult.workspaces,
+        organisations: authResult.organisations,
       });
     }
 
-    // Single workspace - generate tokens
+    // Single organisation - generate tokens
     const token = userAuthService.generateJWT(authResult);
     const refreshToken = userAuthService.generateRefreshToken(
       authResult.userId,
-      authResult.workspaceId,
+      authResult.orgId,
     );
 
     logger.info("Login successful", {
       userId: authResult.userId,
       email: authResult.email,
-      workspaceId: authResult.workspaceId,
+      orgId: authResult.orgId,
     });
 
     res.json({
@@ -144,8 +144,8 @@ router.post("/login", async (req, res) => {
         username: authResult.username,
         email: authResult.email,
         role: authResult.role,
-        workspace_id: authResult.workspaceId,
-        workspace_name: authResult.workspaceName,
+        org_id: authResult.orgId,
+        org_name: authResult.orgName,
         is_active: authResult.isActive,
         last_login: authResult.lastLogin,
       },
@@ -182,9 +182,9 @@ router.post("/login", async (req, res) => {
 
 /**
  * @swagger
- * /auth/select-workspace:
+ * /auth/select-org:
  *   post:
- *     summary: Select workspace after initial login (for users with multiple workspaces)
+ *     summary: Select organisation after initial login (for users with multiple organisations)
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -194,20 +194,20 @@ router.post("/login", async (req, res) => {
  *             type: object
  *             required:
  *               - email
- *               - workspaceId
+ *               - orgId
  *             properties:
  *               email:
  *                 type: string
  *                 format: email
  *                 description: User's email address
  *                 example: "chirag.gupta@myflowai.com"
- *               workspaceId:
+ *               orgId:
  *                 type: integer
- *                 description: Selected workspace ID
+ *                 description: Selected organisation ID
  *                 example: 1
  *     responses:
  *       200:
- *         description: Workspace selected successfully
+ *         description: Organisation selected successfully
  *         content:
  *           application/json:
  *             schema:
@@ -227,35 +227,35 @@ router.post("/login", async (req, res) => {
  *       400:
  *         description: Invalid request
  *       401:
- *         description: Invalid workspace selection
+ *         description: Invalid organisation selection
  */
-router.post("/select-workspace", async (req, res) => {
+router.post("/select-org", async (req, res) => {
   try {
-    const { email, workspaceId } = req.body;
+    const { email, orgId } = req.body;
 
-    logger.info("Workspace selection", { email, workspaceId });
+    logger.info("Organisation selection", { email, orgId });
 
-    if (!email || !workspaceId) {
+    if (!email || !orgId) {
       return res.status(400).json({
         success: false,
-        error: "Email and workspaceId are required",
+        error: "Email and orgId are required",
       });
     }
 
-    // Select workspace for user
-    const userData = await userAuthService.selectWorkspace(email, workspaceId);
+    // Select organisation for user
+    const userData = await userAuthService.selectOrganisation(email, orgId);
 
     // Generate tokens
     const token = userAuthService.generateJWT(userData);
     const refreshToken = userAuthService.generateRefreshToken(
       userData.userId,
-      userData.workspaceId,
+      userData.orgId,
     );
 
-    logger.info("Workspace selected successfully", {
+    logger.info("Organisation selected successfully", {
       userId: userData.userId,
       email: userData.email,
-      workspaceId: userData.workspaceId,
+      orgId: userData.orgId,
     });
 
     res.json({
@@ -267,15 +267,15 @@ router.post("/select-workspace", async (req, res) => {
         username: userData.username,
         email: userData.email,
         role: userData.role,
-        workspace_id: userData.workspaceId,
-        workspace_name: userData.workspaceName,
+        org_id: userData.orgId,
+        org_name: userData.orgName,
         is_active: userData.isActive,
       },
     });
   } catch (error) {
-    logger.error("Workspace selection error", { error: error.message });
+    logger.error("Organisation selection error", { error: error.message });
 
-    if (error.message === "Invalid workspace selection") {
+    if (error.message === "Invalid organisation selection") {
       return res.status(401).json({
         success: false,
         error: error.message,
@@ -284,7 +284,7 @@ router.post("/select-workspace", async (req, res) => {
 
     res.status(500).json({
       success: false,
-      error: "An error occurred during workspace selection",
+      error: "An error occurred during organisation selection",
     });
   }
 });
@@ -337,7 +337,7 @@ router.post("/logout", async (req, res) => {
       // Invalidate refresh token
       await userAuthService.invalidateRefreshToken(
         decoded.userId,
-        decoded.workspaceId,
+        decoded.orgId,
       );
 
       logger.info("User logout", {
@@ -592,9 +592,9 @@ router.post("/change-password", async (req, res) => {
 
 /**
  * @swagger
- * /auth/workspaces:
+ * /auth/organisations:
  *   get:
- *     summary: Get user's workspaces by email
+ *     summary: Get user's organisations by email
  *     tags: [Authentication]
  *     parameters:
  *       - in: query
@@ -605,13 +605,13 @@ router.post("/change-password", async (req, res) => {
  *         description: User's email address
  *     responses:
  *       200:
- *         description: List of user's workspaces
+ *         description: List of user's organisations
  *       400:
  *         description: Email is required
  *       500:
  *         description: Internal server error
  */
-router.get("/workspaces", async (req, res) => {
+router.get("/organisations", async (req, res) => {
   try {
     const { email } = req.query;
 
@@ -622,20 +622,21 @@ router.get("/workspaces", async (req, res) => {
       });
     }
 
-    const workspaces = await userAuthService.getUserWorkspaces(email);
+    const organisations = await userAuthService.getUserOrganisations(email);
 
     res.json({
       success: true,
-      workspaces,
+      organisations,
     });
   } catch (error) {
-    logger.error("Get workspaces error", { error: error.message });
+    logger.error("Get organisations error", { error: error.message });
     res.status(500).json({
       success: false,
-      error: "An error occurred while fetching workspaces",
+      error: "An error occurred while fetching organisations",
     });
   }
 });
+
 router.get("/db-debug", async (req, res) => {
   try {
     // Check current database and user
@@ -665,7 +666,7 @@ router.get("/db-debug", async (req, res) => {
 
     // Check if we can see the specific tables
     const tableChecks = {};
-    const tablesToCheck = ["users", "workspaces"];
+    const tablesToCheck = ["users", "organisations"];
 
     for (const table of tablesToCheck) {
       try {

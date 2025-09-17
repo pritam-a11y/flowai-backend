@@ -14,20 +14,20 @@ class UserAuthService {
    * Authenticate user with email and password
    * @param {string} email - User email
    * @param {string} password - User password
-   * @returns {Promise<object>} - User data or workspace selection required
+   * @returns {Promise<object>} - User data or organisation selection required
    */
   async authenticateUser(email, password) {
     try {
       logger.info("Authenticating user", { email });
 
-      // Get all workspaces for this email
+      // Get all orgs for this email
       const query = `
         SELECT u.id, u.username, u.email, u.password_hash, u.role, 
-               u.workspace_id, u.is_active, u.failed_login_attempts,
-               u.last_login, w.name as workspace_name, w.api_key as workspace_api_key,
-               w.retell_workspace_id
+               u.org_id, u.is_active, u.failed_login_attempts,
+               u.last_login, o.name as org_name, o.api_key as org_api_key,
+               o.retell_workspace_id
         FROM users u
-        JOIN workspaces w ON u.workspace_id = w.id
+        JOIN organisations o ON u.org_id = o.org_id
         WHERE u.email = $1
         ORDER BY u.last_login DESC NULLS LAST
       `;
@@ -46,7 +46,7 @@ class UserAuthService {
       logger.info("User found", {
         // Add debug log
         userId: user.id,
-        workspaceId: user.workspace_id,
+        orgId: user.org_id,
         isActive: user.is_active,
       });
 
@@ -83,23 +83,23 @@ class UserAuthService {
         [email],
       );
 
-      // If user has multiple workspaces, return them for selection
+      // If user has multiple organisations, return them for selection
       if (result.rows.length > 1) {
-        logger.info("Multiple workspaces found"); // Add debug log
+        logger.info("Multiple orgs found"); // Add debug log
         return {
-          requireWorkspaceSelection: true,
+          requireOrgSelection: true,
           email: email,
-          workspaces: result.rows.map((r) => ({
-            id: r.workspace_id,
-            key: r.workspace_api_key,
-            name: r.workspace_name,
+          organisations: result.rows.map((r) => ({
+            id: r.org_id,
+            key: r.org_api_key,
+            name: r.org_name,
             role: r.role,
             lastLogin: r.last_login,
           })),
         };
       }
 
-      // Single workspace - proceed with login
+      // Single organisation - proceed with login
       await db.query("UPDATE users SET last_login = NOW() WHERE id = $1", [
         user.id,
       ]);
@@ -122,9 +122,9 @@ class UserAuthService {
         username: user.username,
         email: user.email,
         role: user.role,
-        workspaceId: user.workspace_id,
-        workspaceKey: user.workspace_api_key,
-        workspaceName: user.workspace_name,
+        orgId: user.org_id,
+        orgKey: user.org_api_key,
+        orgName: user.org_name,
         retellWorkspaceId: user.retell_workspace_id,
         permissions: permissions,
         lastLogin: user.last_login,
@@ -137,34 +137,34 @@ class UserAuthService {
   }
 
   /**
-   * Select workspace for authenticated user
+   * Select organisation for authenticated user
    * @param {string} email - User email
-   * @param {number} workspaceId - Selected workspace ID
-   * @returns {Promise<object>} - User data for selected workspace
+   * @param {number} orgId - Selected organisation ID
+   * @returns {Promise<object>} - User data for selected organisation
    */
-  async selectWorkspace(email, workspaceId) {
+  async selectOrganisation(email, orgId) {
     try {
-      logger.info("Selecting workspace for user", { email, workspaceId });
+      logger.info("Selecting organisation for user", { email, orgId });
 
       const query = `
         SELECT u.id, u.username, u.email, u.role, 
-               u.workspace_id, u.is_active,
-               w.name as workspace_name, w.api_key as workspace_api_key,
-               w.retell_workspace_id
+               u.org_id, u.is_active,
+               o.name as org_name, o.api_key as org_api_key,
+               o.retell_workspace_id
         FROM users u
-        JOIN workspaces w ON u.workspace_id = w.id
-        WHERE u.email = $1 AND u.workspace_id = $2 AND u.is_active = true
+        JOIN organisations o ON u.org_id = o.org_id
+        WHERE u.email = $1 AND u.org_id = $2 AND u.is_active = true
       `;
 
-      const result = await db.query(query, [email, workspaceId]);
+      const result = await db.query(query, [email, orgId]);
 
       if (result.rows.length === 0) {
-        throw new Error("Invalid workspace selection");
+        throw new Error("Invalid organisation selection");
       }
 
       const user = result.rows[0];
 
-      // Update last login for this specific user-workspace record
+      // Update last login for this specific user-organisation record
       await db.query("UPDATE users SET last_login = NOW() WHERE id = $1", [
         user.id,
       ]);
@@ -185,15 +185,15 @@ class UserAuthService {
         username: user.username,
         email: user.email,
         role: user.role,
-        workspaceId: user.workspace_id,
-        workspaceKey: user.workspace_api_key,
-        workspaceName: user.workspace_name,
+        orgId: user.org_id,
+        orgKey: user.org_api_key,
+        orgName: user.org_name,
         retellWorkspaceId: user.retell_workspace_id,
         permissions: permissions,
         isActive: user.is_active,
       };
     } catch (error) {
-      logger.error("Workspace selection error", { error: error.message });
+      logger.error("Organisation selection error", { error: error.message });
       throw error;
     }
   }
@@ -209,9 +209,9 @@ class UserAuthService {
       email: userData.email,
       username: userData.username,
       role: userData.role,
-      workspaceId: userData.workspaceId,
-      workspaceKey: userData.workspaceKey,
-      workspaceName: userData.workspaceName,
+      orgId: userData.orgId,
+      orgKey: userData.orgKey,
+      orgName: userData.orgName,
       retellWorkspaceId: userData.retellWorkspaceId,
       permissions: userData.permissions,
     };
@@ -232,13 +232,13 @@ class UserAuthService {
   /**
    * Generate refresh token
    * @param {number} userId - User ID
-   * @param {number} workspaceId - Workspace ID
+   * @param {number} orgId - Organisation ID
    * @returns {string} - Refresh token
    */
-  generateRefreshToken(userId, workspaceId) {
+  generateRefreshToken(userId, orgId) {
     const payload = {
       userId,
-      workspaceId,
+      orgId,
       type: "refresh",
       jti: crypto.randomUUID(), // JWT ID for token tracking
     };
@@ -248,7 +248,7 @@ class UserAuthService {
     });
 
     // Store refresh token in database for tracking (optional)
-    this.storeRefreshToken(userId, workspaceId, payload.jti).catch((err) => {
+    this.storeRefreshToken(userId, orgId, payload.jti).catch((err) => {
       logger.error("Failed to store refresh token", { error: err.message });
     });
 
@@ -258,17 +258,17 @@ class UserAuthService {
   /**
    * Store refresh token in database (optional for tracking/revocation)
    * @param {number} userId - User ID
-   * @param {number} workspaceId - Workspace ID
+   * @param {number} orgId - Organisation ID
    * @param {string} jti - JWT ID
    */
-  async storeRefreshToken(userId, workspaceId, jti) {
+  async storeRefreshToken(userId, orgId, jti) {
     try {
       await db.query(
-        `INSERT INTO refresh_tokens (user_id, workspace_id, token_id, expires_at)
+        `INSERT INTO refresh_tokens (user_id, org_id, token_id, expires_at)
          VALUES ($1, $2, $3, NOW() + INTERVAL '7 days')
-         ON CONFLICT (user_id, workspace_id) DO UPDATE
+         ON CONFLICT (user_id, org_id) DO UPDATE
          SET token_id = $3, expires_at = NOW() + INTERVAL '7 days', created_at = NOW()`,
-        [userId, workspaceId, jti],
+        [userId, orgId, jti],
       );
     } catch (error) {
       logger.error("Error storing refresh token", { error: error.message });
@@ -302,12 +302,12 @@ class UserAuthService {
       // Verify user still exists and is active
       const result = await db.query(
         `SELECT u.id, u.username, u.email, u.role, u.is_active,
-                u.workspace_id, w.api_key as workspace_key, w.name as workspace_name,
-                w.retell_workspace_id
+                u.org_id, o.api_key as org_api_key, o.name as org_name,
+                o.retell_workspace_id
          FROM users u
-         JOIN workspaces w ON u.workspace_id = w.id
-         WHERE u.id = $1 AND u.workspace_id = $2`,
-        [decodedToken.userId, decodedToken.workspaceId],
+         JOIN organisations o ON u.org_id = o.org_id
+         WHERE u.id = $1 AND u.org_id = $2`,
+        [decodedToken.userId, decodedToken.orgId],
       );
 
       if (result.rows.length === 0 || !result.rows[0].is_active) {
@@ -329,9 +329,9 @@ class UserAuthService {
         username: user.username,
         email: user.email,
         role: user.role,
-        workspaceId: user.workspace_id,
-        workspaceKey: user.workspace_key,
-        workspaceName: user.workspace_name,
+        orgId: user.org_id,
+        orgKey: user.org_api_key,
+        orgName: user.org_name,
         retellWorkspaceId: user.retell_workspace_id,
         permissions: permissionsResult.rows.map((p) => p.name),
         isActive: user.is_active,
@@ -359,10 +359,10 @@ class UserAuthService {
       // Get fresh user data
       const userResult = await db.query(
         `SELECT u.id, u.username, u.email, u.role, u.is_active,
-                u.workspace_id, w.api_key as workspace_key, w.name as workspace_name,
-                w.retell_workspace_id
+                u.org_id, o.api_key as org_api_key, o.name as org_name,
+                o.retell_workspace_id
          FROM users u
-         JOIN workspaces w ON u.workspace_id = w.id
+         JOIN organisations o ON u.org_id = o.org_id
          WHERE u.id = $1`,
         [decoded.userId],
       );
@@ -373,9 +373,9 @@ class UserAuthService {
 
       const user = userResult.rows[0];
 
-      // Verify workspace match
-      if (user.workspace_id !== decoded.workspaceId) {
-        throw new Error("Workspace mismatch");
+      // Verify organisation match
+      if (user.org_id !== decoded.orgId) {
+        throw new Error("Organisation mismatch");
       }
 
       // Get permissions
@@ -391,19 +391,16 @@ class UserAuthService {
         username: user.username,
         email: user.email,
         role: user.role,
-        workspaceId: user.workspace_id,
-        workspaceKey: user.workspace_key,
-        workspaceName: user.workspace_name,
+        orgId: user.org_id,
+        orgKey: user.org_api_key,
+        orgName: user.org_name,
         retellWorkspaceId: user.retell_workspace_id,
         permissions: permissionsResult.rows.map((p) => p.name),
       };
 
       // Generate new tokens
       const newAccessToken = this.generateJWT(userData);
-      const newRefreshToken = this.generateRefreshToken(
-        user.id,
-        user.workspace_id,
-      );
+      const newRefreshToken = this.generateRefreshToken(user.id, user.org_id);
 
       return {
         accessToken: newAccessToken,
@@ -419,13 +416,13 @@ class UserAuthService {
   /**
    * Invalidate refresh token (for logout)
    * @param {number} userId - User ID
-   * @param {number} workspaceId - Workspace ID
+   * @param {number} orgId - Organisation ID
    */
-  async invalidateRefreshToken(userId, workspaceId) {
+  async invalidateRefreshToken(userId, orgId) {
     try {
       await db.query(
-        "DELETE FROM refresh_tokens WHERE user_id = $1 AND workspace_id = $2",
-        [userId, workspaceId],
+        "DELETE FROM refresh_tokens WHERE user_id = $1 AND org_id = $2",
+        [userId, orgId],
       );
     } catch (error) {
       logger.error("Error invalidating refresh token", {
@@ -480,24 +477,24 @@ class UserAuthService {
   }
 
   /**
-   * Get user workspaces
+   * Get user organisations
    * @param {string} email - User email
-   * @returns {Promise<array>} - List of workspaces
+   * @returns {Promise<array>} - List of organisations
    */
-  async getUserWorkspaces(email) {
+  async getUserOrganisations(email) {
     try {
       const result = await db.query(
-        `SELECT u.workspace_id, u.role, u.last_login,
-                w.name, w.api_key, w.retell_workspace_id
+        `SELECT u.org_id, u.role, u.last_login,
+                o.name, o.api_key, o.retell_workspace_id
          FROM users u
-         JOIN workspaces w ON u.workspace_id = w.id
+         JOIN organisations o ON u.org_id = o.org_id
          WHERE u.email = $1 AND u.is_active = true
          ORDER BY u.last_login DESC NULLS LAST`,
         [email],
       );
 
       return result.rows.map((row) => ({
-        id: row.workspace_id,
+        id: row.org_id,
         name: row.name,
         key: row.api_key,
         retellWorkspaceId: row.retell_workspace_id,
@@ -505,7 +502,9 @@ class UserAuthService {
         lastLogin: row.last_login,
       }));
     } catch (error) {
-      logger.error("Error fetching user workspaces", { error: error.message });
+      logger.error("Error fetching user organisations", {
+        error: error.message,
+      });
       throw error;
     }
   }
