@@ -20,6 +20,16 @@ const providers = {
     from_email: "patientservices@myflowai.com",
     default_location: null,
   },
+  "uchicago": {
+    provider_id: "uchicago",
+    name: "UChicago Medicine",
+    business_name: "University of Chicago Medicine",
+    doctor_name: "University of Chicago Medicine",
+    logo_url: "https://edge.sitecorecloud.io/unichicagomc-81nbqnb3/media/images/ucmc/landing-pages/ucm-logo-horizontal.png",
+    office_phone: "773-702-1000",
+    from_email: "patientservices@myflowai.com",
+    default_location: "TBD",
+  },
 };
 
 /**
