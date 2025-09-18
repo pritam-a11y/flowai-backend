@@ -26,6 +26,7 @@ const sheetRoutes = require("./routes/sheets");
 const customerSupportRoutes = require("./routes/customerSupport");
 const schedulingRoutes = require("./routes/schedulingAgent");
 const patientIntakeRoutes = require("./routes/patientIntakeAgent");
+const hammingRoutes = require("./routes/hamming");
 
 const app = express();
 
@@ -144,6 +145,7 @@ app.use("/api/v1/sheet", sheetRoutes);
 app.use("/api/v1/customer-support-agent", customerSupportRoutes);
 app.use("/api/v1/scheduling-agent", schedulingRoutes);
 app.use("/api/v1/patient-intake", patientIntakeRoutes);
+app.use("/api/v1/hamming", hammingRoutes);
 
 // OAuth Routes (no prefix as per standard OAuth conventions)
 app.use("/oauth", oauthRoutes);

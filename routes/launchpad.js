@@ -99,16 +99,15 @@ const fetchOrganizationData = async (orgId, userRole) => {
       [orgId],
     );
 
-    // Fetch specialty services
     const specialtyResult = await db.query(
       `SELECT id, org_id, specialty_name, location_ids, 
-              physician_names_source, physician_names_source_other,
-              new_patients_source, new_patients_source_other,
-              physician_locations_source, physician_locations_source_other,
-              physician_credentials_source, physician_credentials_source_other,
-              services, services_offered_source, services_offered_source_other,
-              patient_prep_source, patient_prep_source_other,
-              patient_faqs_source, patient_faqs_source_other,
+              physician_names_source_type, physician_names_source_name,
+              new_patients_source_type, new_patients_source_name,
+              physician_locations_source_type, physician_locations_source_name,
+              physician_credentials_source_type, physician_credentials_source_name,
+              services, services_offered_source_type, services_offered_source_name,
+              patient_prep_source_type, patient_prep_source_name,
+              patient_faqs_source_type, patient_faqs_source_name,
               documents, is_active, created_at, updated_at
        FROM org_speciality_services 
        WHERE org_id = $1 AND is_active = true
@@ -558,16 +557,17 @@ router.post(
           speciality_services.length > 0
         ) {
           for (const specialty of speciality_services) {
+            // Update the INSERT query
             await db.query(
               `INSERT INTO org_speciality_services (
                 org_id, specialty_name, location_ids,
-                physician_names_source, physician_names_source_other,
-                new_patients_source, new_patients_source_other,
-                physician_locations_source, physician_locations_source_other,
-                physician_credentials_source, physician_credentials_source_other,
-                services, services_offered_source, services_offered_source_other,
-                patient_prep_source, patient_prep_source_other,
-                patient_faqs_source, patient_faqs_source_other,
+                physician_names_source_type, physician_names_source_name,
+                new_patients_source_type, new_patients_source_name,
+                physician_locations_source_type, physician_locations_source_name,
+                physician_credentials_source_type, physician_credentials_source_name,
+                services, services_offered_source_type, services_offered_source_name,
+                patient_prep_source_type, patient_prep_source_name,
+                patient_faqs_source_type, patient_faqs_source_name,
                 documents, is_active, created_by, updated_by
               ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 
@@ -578,21 +578,21 @@ router.post(
                 orgId,
                 specialty.specialty_name,
                 specialty.location_ids || [],
-                specialty.physician_names_source,
-                specialty.physician_names_source_other,
-                specialty.new_patients_source,
-                specialty.new_patients_source_other,
-                specialty.physician_locations_source,
-                specialty.physician_locations_source_other,
-                specialty.physician_credentials_source,
-                specialty.physician_credentials_source_other,
+                specialty.physician_names_source_type,
+                specialty.physician_names_source_name,
+                specialty.new_patients_source_type,
+                specialty.new_patients_source_name,
+                specialty.physician_locations_source_type,
+                specialty.physician_locations_source_name,
+                specialty.physician_credentials_source_type,
+                specialty.physician_credentials_source_name,
                 JSON.stringify(specialty.services || []),
-                specialty.services_offered_source,
-                specialty.services_offered_source_other,
-                specialty.patient_prep_source,
-                specialty.patient_prep_source_other,
-                specialty.patient_faqs_source,
-                specialty.patient_faqs_source_other,
+                specialty.services_offered_source_type,
+                specialty.services_offered_source_name,
+                specialty.patient_prep_source_type,
+                specialty.patient_prep_source_name,
+                specialty.patient_faqs_source_type,
+                specialty.patient_faqs_source_name,
                 JSON.stringify(specialty.documents || []),
                 true,
                 req.user.userId,
