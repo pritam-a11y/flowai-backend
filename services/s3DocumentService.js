@@ -11,7 +11,12 @@ class S3DocumentService {
       region: process.env.AWS_REGION || "us-east-1",
     });
 
-    this.bucketName = process.env.S3_BUCKET_NAME || "flow-ai-launchpad-docs";
+    // ✅ Use AWS_S3_BUCKET (preferred), fallback to S3_BUCKET_NAME, then default
+    this.bucketName =
+      process.env.AWS_S3_BUCKET ||
+      process.env.S3_BUCKET_NAME ||
+      "flow-ai-launchpad-docs";
+
     this.cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN; // Optional: Use CloudFront for CDN
   }
 
