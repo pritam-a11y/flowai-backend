@@ -144,7 +144,7 @@ app.use("/api/v1/launchpad", launchpadRoutes);
 app.use("/api/v1/sheet", sheetRoutes);
 app.use("/api/v1/customer-support-agent", customerSupportRoutes);
 app.use("/api/v1/scheduling-agent", schedulingRoutes);
-app.use("/api/v1/patient-intake", patientIntakeRoutes);
+app.use("/api/v1/patient-intake-agent", patientIntakeRoutes);
 app.use("/api/v1/hamming", hammingRoutes);
 
 // OAuth Routes (no prefix as per standard OAuth conventions)
