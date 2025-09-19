@@ -70,9 +70,9 @@ const upload = multer({
  */
 const fetchOrganizationData = async (orgId, userRole) => {
   try {
-    // Fetch organization basic info
+    // Fetch organization basic info INCLUDING documents column
     const orgResult = await db.query(
-      `SELECT org_id, name, created_at, updated_at
+      `SELECT org_id, name, created_at, updated_at, documents
        FROM organisations 
        WHERE org_id = $1`,
       [orgId],
@@ -83,6 +83,17 @@ const fetchOrganizationData = async (orgId, userRole) => {
     }
 
     const organization = orgResult.rows[0];
+
+    // Extract curated_kb documents from the documents array
+    let curatedKbDocs = [];
+    if (organization.documents && Array.isArray(organization.documents)) {
+      curatedKbDocs = organization.documents.filter(
+        (doc) => doc.type === "curated_kb",
+      );
+    }
+
+    // Remove documents from organization object to keep it clean
+    delete organization.documents;
 
     // Fetch account details
     const accountDetailsResult = await db.query(
@@ -116,6 +127,7 @@ const fetchOrganizationData = async (orgId, userRole) => {
       [orgId],
     );
 
+    // Fetch specialty services
     const specialtyResult = await db.query(
       `SELECT id, org_id, specialty_name, location_ids, 
               physician_names_source_type, physician_names_source_name,
@@ -143,18 +155,20 @@ const fetchOrganizationData = async (orgId, userRole) => {
       [orgId],
     );
 
-    // Build response with new structure
+    // Build response with new structure including curated_kb
     const organizationData = {
       organization: organization,
       account_details: accountDetailsResult.rows[0] || null,
       locations: locationsResult.rows,
       speciality_services: specialtyResult.rows,
       insurance: insuranceResult.rows[0] || null,
+      curated_kb: curatedKbDocs, // Add the curated KB documents array
       metadata: {
         last_updated: organization.updated_at || new Date().toISOString(),
         org_id: orgId,
         user_role: userRole,
         can_edit: requireFeaturePermission("launchpad", "write"),
+        curated_kb_count: curatedKbDocs.length, // Add count for convenience
       },
     };
 
