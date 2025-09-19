@@ -19,7 +19,10 @@ const {
   TableCell,
   WidthType,
   AlignmentType,
+  ShadingType,
 } = require("docx");
+
+const { EXAMPLE_DOCUMENT_TEMPLATE } = require("../constants/exampleDocument");
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -1848,7 +1851,7 @@ router.post(
         insurance: organizationData.insurance,
       };
 
-      // Create OpenAI prompt
+      // Create OpenAI prompt (without JSON request and example)
       const prompt = `You are a medical documentation expert. Create a comprehensive knowledge base document for a healthcare organization based on the following data.
 
       The document should include:
@@ -1874,16 +1877,16 @@ router.post(
       Organization Data:
       ${JSON.stringify(dataForAI, null, 2)}
 
-      Create a well-structured, professional document that patients can use as a comprehensive resource. Include all relevant information from the data provided. Format the response as structured JSON with sections and subsections.`;
+      Create a well-structured, professional document that patients can use as a comprehensive resource. Include all relevant information from the data provided.`;
 
-      // Call OpenAI API with new syntax
+      // Call OpenAI API
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
           {
             role: "system",
             content:
-              "You are a medical documentation expert creating patient-friendly knowledge base documents.",
+              "You are a medical documentation expert creating patient-friendly knowledge base documents. Format your response with clear headings and sections using markdown-style formatting.",
           },
           {
             role: "user",
@@ -1891,29 +1894,17 @@ router.post(
           },
         ],
         temperature: 0.7,
-        max_tokens: 8000,
+        max_tokens: 16383,
       });
 
       const aiResponse = completion.choices[0].message.content;
 
-      // Parse AI response (assuming it returns structured content)
-      let structuredContent;
-      try {
-        structuredContent = JSON.parse(aiResponse);
-      } catch (e) {
-        // If not JSON, use the text directly
-        structuredContent = { content: aiResponse };
-      }
-
-      // Create DOCX document
+      // Create DOCX document from text response
       const doc = new Document({
         sections: [
           {
             properties: {},
-            children: await createDocumentContent(
-              organizationData,
-              structuredContent,
-            ),
+            children: parseTextToDocumentContent(aiResponse, organizationData),
           },
         ],
       });
@@ -2103,11 +2094,14 @@ router.post(
   },
 );
 
-// Keep the helper function createDocumentContent as is (same as before)
-async function createDocumentContent(orgData, aiContent) {
+/**
+ * Parse text content to document elements
+ * This function converts plain text or markdown-formatted text to DOCX elements
+ */
+function parseTextToDocumentContent(textContent, orgData) {
   const children = [];
 
-  // Title
+  // Add document title
   children.push(
     new Paragraph({
       text: `${orgData.organization.name} - Knowledge Base`,
@@ -2117,202 +2111,249 @@ async function createDocumentContent(orgData, aiContent) {
     }),
   );
 
-  // General Information Section
+  // Add generation date
   children.push(
     new Paragraph({
-      text: "General Information",
-      heading: HeadingLevel.HEADING_1,
-      spacing: { before: 400, after: 200 },
+      text: `Generated on: ${new Date().toLocaleDateString()}`,
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 400 },
+      style: "Caption",
     }),
   );
 
-  if (orgData.account_details) {
-    children.push(
-      new Paragraph({
-        children: [
-          new TextRun({ text: "Website: ", bold: true }),
-          new TextRun(orgData.account_details.website_address || "N/A"),
-        ],
-        spacing: { after: 120 },
-      }),
-      new Paragraph({
-        children: [
-          new TextRun({ text: "Headquarters: ", bold: true }),
-          new TextRun(orgData.account_details.headquarters_address || "N/A"),
-        ],
-        spacing: { after: 120 },
-      }),
-    );
-  }
+  // Clean up the text content first - minimal cleaning only
+  let cleanedContent = textContent
+    .replace(/\\\*/g, "*") // Fix escaped asterisks
+    .replace(/\\\[/g, "[") // Fix escaped brackets
+    .replace(/\\\]/g, "]") // Fix escaped brackets
+    .replace(/\\\(/g, "(") // Fix escaped parentheses
+    .replace(/\\\)/g, ")") // Fix escaped parentheses
+    .replace(/https:\*\*/g, "https://"); // Fix malformed URLs
 
-  // Locations Section
-  if (orgData.locations && orgData.locations.length > 0) {
-    children.push(
-      new Paragraph({
-        text: "Locations & Hours",
-        heading: HeadingLevel.HEADING_1,
-        spacing: { before: 400, after: 200 },
-      }),
-    );
+  // Parse the cleaned text into sections
+  const lines = cleanedContent.split("\n");
+  let inList = false;
+  let listItems = [];
 
-    // Create locations table
-    const locationRows = [
-      new TableRow({
-        children: [
-          new TableCell({
-            children: [new Paragraph({ text: "Location", bold: true })],
-            width: { size: 20, type: WidthType.PERCENTAGE },
-          }),
-          new TableCell({
-            children: [new Paragraph({ text: "Address", bold: true })],
-            width: { size: 35, type: WidthType.PERCENTAGE },
-          }),
-          new TableCell({
-            children: [new Paragraph({ text: "Weekday Hours", bold: true })],
-            width: { size: 22.5, type: WidthType.PERCENTAGE },
-          }),
-          new TableCell({
-            children: [new Paragraph({ text: "Weekend Hours", bold: true })],
-            width: { size: 22.5, type: WidthType.PERCENTAGE },
-          }),
-        ],
-      }),
-    ];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
 
-    orgData.locations.forEach((location) => {
-      locationRows.push(
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [new Paragraph(location.name || "")],
-            }),
-            new TableCell({
-              children: [
-                new Paragraph(
-                  `${location.address_line1 || ""} ${location.address_line2 || ""}, ${location.city || ""}, ${location.state || ""} ${location.zip_code || ""}`,
-                ),
-              ],
-            }),
-            new TableCell({
-              children: [new Paragraph(location.weekday_hours || "")],
-            }),
-            new TableCell({
-              children: [new Paragraph(location.weekend_hours || "")],
-            }),
-          ],
-        }),
-      );
-    });
+    // Skip empty lines
+    if (!line) {
+      continue;
+    }
 
-    children.push(
-      new Table({
-        rows: locationRows,
-        width: { size: 100, type: WidthType.PERCENTAGE },
-      }),
-    );
-  }
+    // Check for H1 headers (# or ### for major sections)
+    if (line.startsWith("# ") || line.startsWith("### ")) {
+      // Close any open lists
+      if (inList && listItems.length > 0) {
+        children.push(...createBulletList(listItems));
+        listItems = [];
+        inList = false;
+      }
 
-  // Specialty Services Section
-  if (orgData.speciality_services && orgData.speciality_services.length > 0) {
-    children.push(
-      new Paragraph({
-        text: "Specialty Services",
-        heading: HeadingLevel.HEADING_1,
-        spacing: { before: 400, after: 200 },
-      }),
-    );
-
-    orgData.speciality_services.forEach((specialty) => {
+      const headerText = line.replace(/^#+\s*/, "").trim();
       children.push(
         new Paragraph({
-          text: specialty.specialty_name,
+          text: headerText,
+          heading: HeadingLevel.HEADING_1,
+          spacing: { before: 400, after: 200 },
+        }),
+      );
+    }
+    // Check for H2 headers (##)
+    else if (line.startsWith("## ")) {
+      // Close any open lists
+      if (inList && listItems.length > 0) {
+        children.push(...createBulletList(listItems));
+        listItems = [];
+        inList = false;
+      }
+
+      children.push(
+        new Paragraph({
+          text: line.substring(3).trim(),
           heading: HeadingLevel.HEADING_2,
           spacing: { before: 300, after: 150 },
         }),
       );
-
-      if (specialty.services && Array.isArray(specialty.services)) {
-        specialty.services.forEach((service) => {
-          children.push(
-            new Paragraph({
-              text: service.name,
-              heading: HeadingLevel.HEADING_3,
-              spacing: { before: 200, after: 100 },
-            }),
-          );
-
-          if (service.patient_prep_requirements) {
-            children.push(
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "Preparation: ", bold: true }),
-                  new TextRun(service.patient_prep_requirements),
-                ],
-                spacing: { after: 80 },
-              }),
-            );
-          }
-
-          if (service.faq) {
-            children.push(
-              new Paragraph({
-                children: [
-                  new TextRun({ text: "FAQ: ", bold: true }),
-                  new TextRun(service.faq),
-                ],
-                spacing: { after: 80 },
-              }),
-            );
-          }
-        });
+    }
+    // Check for bullet points
+    else if (
+      line.startsWith("- ") ||
+      line.startsWith("* ") ||
+      line.startsWith("• ")
+    ) {
+      inList = true;
+      const bulletText = line.substring(2).trim();
+      listItems.push(cleanBoldText(bulletText));
+    }
+    // Check for numbered lists
+    else if (line.match(/^[0-9]+\.\s/)) {
+      inList = true;
+      const listText = line.substring(line.indexOf(".") + 1).trim();
+      listItems.push(cleanBoldText(listText));
+    }
+    // Handle paragraphs with bold text (but NOT tables)
+    else if (
+      line.includes("**") ||
+      (line.includes(":") && !line.startsWith("http") && !line.includes("|"))
+    ) {
+      // Close any open lists
+      if (inList && listItems.length > 0) {
+        children.push(...createBulletList(listItems));
+        listItems = [];
+        inList = false;
       }
-    });
+
+      children.push(createFormattedParagraph(cleanBoldText(line)));
+    }
+    // Regular paragraph - INCLUDING TABLES AS PLAIN TEXT
+    else {
+      // Close any open lists
+      if (inList && listItems.length > 0) {
+        children.push(...createBulletList(listItems));
+        listItems = [];
+        inList = false;
+      }
+
+      // Just add the line as plain text - no special processing
+      children.push(
+        new Paragraph({
+          text: line,
+          spacing: { after: 120 },
+        }),
+      );
+    }
   }
 
-  // Insurance Information
-  if (orgData.insurance) {
-    children.push(
-      new Paragraph({
-        text: "Insurance Information",
-        heading: HeadingLevel.HEADING_1,
-        spacing: { before: 400, after: 200 },
-      }),
-      new Paragraph({
-        children: [
-          new TextRun({ text: "Accepted Payers: ", bold: true }),
-          new TextRun(
-            orgData.insurance.accepted_payers_source_details ||
-              "Contact for details",
-          ),
-        ],
-        spacing: { after: 120 },
-      }),
-      new Paragraph({
-        children: [
-          new TextRun({ text: "Verification System: ", bold: true }),
-          new TextRun(orgData.insurance.insurance_verification_source || "N/A"),
-        ],
-        spacing: { after: 120 },
-      }),
-    );
-  }
-
-  // Add AI-generated content if available
-  if (aiContent && aiContent.content) {
-    children.push(
-      new Paragraph({
-        text: "Additional Information",
-        heading: HeadingLevel.HEADING_1,
-        spacing: { before: 400, after: 200 },
-      }),
-      new Paragraph({
-        text: aiContent.content,
-        spacing: { after: 120 },
-      }),
-    );
+  // Close any remaining lists
+  if (inList && listItems.length > 0) {
+    children.push(...createBulletList(listItems));
   }
 
   return children;
 }
 
+/**
+ * Clean bold text markers
+ */
+function cleanBoldText(text) {
+  return text
+    .replace(/\*\*/g, "") // Remove bold markers
+    .replace(/\\/g, "") // Remove escape characters
+    .trim();
+}
+
+/**
+ * Create formatted paragraph with bold text support
+ */
+function createFormattedParagraph(text) {
+  // Clean the text first
+  const cleanText = text.replace(/\\/g, "").trim();
+  const runs = [];
+
+  // Check if this is a label:value format
+  const colonIndex = cleanText.indexOf(":");
+  if (colonIndex > 0 && colonIndex < 50 && !cleanText.startsWith("http")) {
+    runs.push(
+      new TextRun({ text: cleanText.substring(0, colonIndex + 1), bold: true }),
+    );
+    runs.push(new TextRun({ text: cleanText.substring(colonIndex + 1) }));
+  } else {
+    runs.push(new TextRun({ text: cleanText }));
+  }
+
+  return new Paragraph({
+    children: runs,
+    spacing: { after: 120 },
+  });
+}
+
+/**
+ * Create bullet list from items
+ */
+function createBulletList(items) {
+  return items.map(
+    (item) =>
+      new Paragraph({
+        text: item,
+        bullet: {
+          level: 0,
+        },
+        spacing: { after: 80 },
+      }),
+  );
+}
+
+/**
+ * Create a simple table from data
+ */
+function createSimpleTable(data) {
+  if (data.length === 0) return null;
+
+  const rows = [];
+
+  // First row as header
+  if (data.length > 0) {
+    rows.push(
+      new TableRow({
+        children: data[0].map(
+          (cell) =>
+            new TableCell({
+              children: [
+                new Paragraph({
+                  text: cell.replace(/\*/g, "").trim(),
+                  bold: true,
+                  alignment: AlignmentType.LEFT,
+                }),
+              ],
+              shading: {
+                fill: "E6E6E6",
+              },
+            }),
+        ),
+        tableHeader: true,
+      }),
+    );
+  }
+
+  // Data rows
+  for (let i = 1; i < data.length; i++) {
+    // Make sure we have the same number of cells as the header
+    const cells = data[i];
+    while (cells.length < data[0].length) {
+      cells.push("");
+    }
+
+    rows.push(
+      new TableRow({
+        children: cells.map(
+          (cell) =>
+            new TableCell({
+              children: [
+                new Paragraph({
+                  text: cell.replace(/\*/g, "").trim(),
+                }),
+              ],
+            }),
+        ),
+      }),
+    );
+  }
+
+  return new Table({
+    rows: rows,
+    width: {
+      size: 100,
+      type: WidthType.PERCENTAGE,
+    },
+    margins: {
+      top: 120,
+      bottom: 120,
+      right: 120,
+      left: 120,
+    },
+  });
+}
 module.exports = router;
