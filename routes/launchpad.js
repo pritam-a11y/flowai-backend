@@ -1877,7 +1877,10 @@ router.post(
       Organization Data:
       ${JSON.stringify(dataForAI, null, 2)}
 
-      Create a well-structured, professional document that patients can use as a comprehensive resource. Include all relevant information from the data provided.`;
+      Create a well-structured, professional document that patients can use as a comprehensive resource. Include all relevant information from the data provided.
+      Example document template is below:
+      
+      ${EXAMPLE_DOCUMENT_TEMPLATE}`;
 
       // Call OpenAI API
       const completion = await openai.chat.completions.create({
