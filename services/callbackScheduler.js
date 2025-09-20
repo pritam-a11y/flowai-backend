@@ -11,7 +11,7 @@ class CallbackScheduler {
   constructor() {
     this.intervalId = null;
     this.isProcessing = false;
-    this.intervalMs = 5 * 60 * 1000; // 5 minutes
+    this.intervalMs = 1 * 60 * 1000; // 1 minute
   }
 
   /**
@@ -30,7 +30,7 @@ class CallbackScheduler {
     // Run immediately on start
     this.processCallbacks();
 
-    // Then run every 5 minutes
+    // Then run every 1 minute
     this.intervalId = setInterval(() => {
       this.processCallbacks();
     }, this.intervalMs);
@@ -48,7 +48,7 @@ class CallbackScheduler {
   }
 
   /**
-   * Process pending callbacks within the next 5-minute window
+   * Process pending callbacks within the next 1-minute window
    */
   async processCallbacks() {
     // Prevent concurrent processing
@@ -272,7 +272,7 @@ class CallbackScheduler {
         FROM scheduled_callbacks
         WHERE status = 'pending'
           AND scheduled_time > CURRENT_TIMESTAMP
-          AND scheduled_time <= CURRENT_TIMESTAMP + INTERVAL '5 minutes'
+          AND scheduled_time <= CURRENT_TIMESTAMP + INTERVAL '1 minute'
       `;
 
       const [statsResult, upcomingResult] = await Promise.all([
@@ -290,7 +290,7 @@ class CallbackScheduler {
         stats[row.status] = parseInt(row.count);
       });
 
-      stats.upcomingInNext5Minutes = parseInt(upcomingResult.rows[0].count);
+      stats.upcomingInNext1Minute = parseInt(upcomingResult.rows[0].count);
 
       return stats;
     } catch (error) {

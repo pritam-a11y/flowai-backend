@@ -1587,9 +1587,9 @@ router.get("/call-storage/stats", authMiddleware, (req, res) => {
  *                     failed:
  *                       type: number
  *                       description: Number of failed callbacks
- *                     upcomingInNext5Minutes:
+ *                     upcomingInNext1Minute:
  *                       type: number
- *                       description: Number of callbacks scheduled in next 5 minutes
+ *                       description: Number of callbacks scheduled in next 1 minute
  */
 router.get("/callbacks/stats", authMiddleware, async (req, res, next) => {
   try {
