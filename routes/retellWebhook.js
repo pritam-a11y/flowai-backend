@@ -696,6 +696,62 @@ router.post("/function-call", async (req, res, next) => {
  *         description: Internal server error
  */
 router.post("/call/update", async (req, res, next) => {
+
+  try {
+    const { event, call } = req.body;
+
+    // Send to Hamming for call_analyzed events (non-blocking)
+    if (event === "call_analyzed") {
+      try {
+        // Prepare the payload for Hamming
+        const hammingPayload = {
+          provider: "retell",
+          metadata: {
+            agent_name: call.agent_id || "Unknown Agent", 
+          },
+          payload: req.body
+        };
+
+        // Send to Hamming API (non-blocking)
+        axios.post(
+          "https://app.hamming.ai/api/rest/v2/call-logs",
+          hammingPayload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer sk-5e183fff2b1c44430892aade02e62496
+                ", // Your API key
+            },
+            timeout: 10000, // 10 second timeout
+          }
+        )
+        .then(response => {
+          logger.info("Successfully sent call data to Hamming", {
+            call_id: call.call_id,
+            hamming_response_status: response.status,
+          });
+        })
+        .catch(hammingError => {
+          logger.error("Failed to send call data to Hamming", {
+            error: hammingError.message,
+            call_id: call.call_id,
+            status: hammingError.response?.status,
+            response_data: hammingError.response?.data,
+          });
+        });
+
+        logger.info("Hamming API call initiated", {
+          call_id: call.call_id,
+          agent_id: call.agent_id,
+        });
+      } catch (hammingError) {
+        // Log error but don't fail the request
+        logger.error("Error preparing Hamming payload", {
+          error: hammingError.message,
+          call_id: call.call_id,
+        });
+      }
+    }
   try {
     // Forward a copy of the event to Cekura observability (non-blocking)
 
