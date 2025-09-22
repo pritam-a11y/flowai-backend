@@ -696,67 +696,59 @@ router.post("/function-call", async (req, res, next) => {
  *         description: Internal server error
  */
 router.post("/call/update", async (req, res, next) => {
-
   try {
+    console.log("hit");
     const { event, call } = req.body;
 
-    // Send to Hamming for call_analyzed events (non-blocking)
-    if (event === "call_analyzed") {
-      try {
-        // Prepare the payload for Hamming
+    try {
+      if (event === "call_analyzed") {
         const hammingPayload = {
           provider: "retell",
           metadata: {
-            agent_name: call.agent_id || "Unknown Agent", 
+            agent_name: call.agent_id || "Unknown Agent",
           },
-          payload: req.body
+          payload: req.body,
         };
 
-        // Send to Hamming API (non-blocking)
-        axios.post(
-          "https://app.hamming.ai/api/rest/v2/call-logs",
-          hammingPayload,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "Bearer sk-5e183fff2b1c44430892aade02e62496
-                ", // Your API key
+        axios
+          .post(
+            "https://app.hamming.ai/api/rest/v2/call-logs",
+            hammingPayload,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer sk-5e183fff2b1c44430892aade02e62496",
+              },
+              timeout: 10000,
             },
-            timeout: 10000, // 10 second timeout
-          }
-        )
-        .then(response => {
-          logger.info("Successfully sent call data to Hamming", {
-            call_id: call.call_id,
-            hamming_response_status: response.status,
+          )
+          .then((response) => {
+            logger.info("Successfully sent call data to Hamming", {
+              call_id: call.call_id,
+              hamming_response_status: response.status,
+            });
+          })
+          .catch((hammingError) => {
+            logger.error("Failed to send call data to Hamming", {
+              error: hammingError.message,
+              call_id: call.call_id,
+              status: hammingError.response?.status,
+              response_data: hammingError.response?.data,
+            });
           });
-        })
-        .catch(hammingError => {
-          logger.error("Failed to send call data to Hamming", {
-            error: hammingError.message,
-            call_id: call.call_id,
-            status: hammingError.response?.status,
-            response_data: hammingError.response?.data,
-          });
-        });
 
         logger.info("Hamming API call initiated", {
           call_id: call.call_id,
           agent_id: call.agent_id,
         });
-      } catch (hammingError) {
-        // Log error but don't fail the request
-        logger.error("Error preparing Hamming payload", {
-          error: hammingError.message,
-          call_id: call.call_id,
-        });
       }
+    } catch (hammingError) {
+      // Log error but don't fail the request
+      logger.error("Error preparing Hamming payload", {
+        error: hammingError.message,
+        call_id: call.call_id,
+      });
     }
-  try {
-    // Forward a copy of the event to Cekura observability (non-blocking)
-
-    console.log("hit");
-    const { event, call } = req.body;
 
     console.log("hit2");
 
@@ -784,8 +776,7 @@ router.post("/call/update", async (req, res, next) => {
       console.log("in send email");
       const recepientEmail =
         call.call_analysis?.custom_analysis_data?.patient_email;
-      const sendEmail =
-        call.call_analysis?.custom_analysis_data?.send_email;
+      const sendEmail = call.call_analysis?.custom_analysis_data?.send_email;
 
       if (recepientEmail && sendEmail === true) {
         // Get provider configuration
@@ -1316,7 +1307,7 @@ function renderAppointmentConfirmationHTML(d) {
     : "To be confirmed";
 
   // Create Google Maps URL if location is provided
-  const mapUrl = d.appointment_location 
+  const mapUrl = d.appointment_location
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.appointment_location)}`
     : null;
 
@@ -1351,14 +1342,18 @@ function renderAppointmentConfirmationHTML(d) {
                   <tr>
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Date &amp; Time:</strong> ${escapeHTML(d.date_str)} at ${escapeHTML(d.time_str)}. Please arrive 10–15 minutes early.</td>
                   </tr>
-                  ${d.appointment_department && d.appointment_department.trim() ? `
+                  ${
+                    d.appointment_department && d.appointment_department.trim()
+                      ? `
                   <tr>
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Department:</strong> ${escapeHTML(d.appointment_department)}</td>
-                  </tr>` : ''}
+                  </tr>`
+                      : ""
+                  }
                   <tr>
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">
                       • <strong>Location:</strong> ${locationDisplay}
-                      ${mapUrl ? `<br>&nbsp;&nbsp;<a href="${mapUrl}" target="_blank" style="color:#2563eb;text-decoration:underline;font-size:13px;">📍 View on Google Maps</a>` : ''}
+                      ${mapUrl ? `<br>&nbsp;&nbsp;<a href="${mapUrl}" target="_blank" style="color:#2563eb;text-decoration:underline;font-size:13px;">📍 View on Google Maps</a>` : ""}
                     </td>
                   </tr>
                 </table>
