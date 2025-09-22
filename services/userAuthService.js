@@ -11,6 +11,211 @@ class UserAuthService {
   }
 
   /**
+   * Select organisation for authenticated user with role-based access control
+   * @param {number} userId - User ID from JWT
+   * @param {string} email - User email
+   * @param {string} role - User's role
+   * @param {number} orgId - Selected organisation ID
+   * @returns {Promise<object>} - User data for selected organisation
+   */
+  async selectOrganisationWithAuth(userId, email, role, orgId) {
+    try {
+      logger.info("Selecting organisation with auth", {
+        userId,
+        email,
+        role,
+        orgId,
+      });
+
+      // Define workspace access rules
+      const WORKSPACE_ACCESS_RULES = {
+        "super-admin": "all",
+        observer: "all",
+        member: "own_and_assigned",
+        "customer-admin": "own",
+        "core-team-member": "own",
+        "analytics-user": "own",
+      };
+
+      const accessType = WORKSPACE_ACCESS_RULES[role] || "own";
+      let hasAccess = false;
+      let userData = null;
+
+      // First, check if the requested organisation exists
+      const orgCheckResult = await db.query(
+        `SELECT org_id, name, api_key, retell_workspace_id 
+         FROM organisations 
+         WHERE org_id = $1`,
+        [orgId],
+      );
+
+      if (orgCheckResult.rows.length === 0) {
+        throw new Error("Organisation not found");
+      }
+
+      const targetOrg = orgCheckResult.rows[0];
+
+      // Check access based on role
+      if (accessType === "all") {
+        // Super-admin and observer can access any org
+        hasAccess = true;
+
+        // Check if user has a record for this org
+        const userOrgResult = await db.query(
+          `SELECT u.id, u.username, u.email, u.role, u.is_active
+           FROM users u
+           WHERE u.email = $1 AND u.org_id = $2`,
+          [email, orgId],
+        );
+
+        if (userOrgResult.rows.length > 0) {
+          // User has existing record for this org
+          userData = userOrgResult.rows[0];
+
+          // Update last login
+          await db.query("UPDATE users SET last_login = NOW() WHERE id = $1", [
+            userData.id,
+          ]);
+        } else {
+          // Super-admin/observer accessing org without user record
+          // Use their original user data but with the new org
+          const originalUserResult = await db.query(
+            `SELECT id, username, email, role, is_active
+             FROM users
+             WHERE id = $1`,
+            [userId],
+          );
+
+          if (originalUserResult.rows.length === 0) {
+            throw new Error("User not found");
+          }
+
+          userData = originalUserResult.rows[0];
+          // Keep the original role for super-admin/observer
+        }
+      } else if (accessType === "own") {
+        // Check if the user's org_id matches
+        const userResult = await db.query(
+          `SELECT u.id, u.username, u.email, u.role, u.org_id, u.is_active
+           FROM users u
+           WHERE u.id = $1`,
+          [userId],
+        );
+
+        if (userResult.rows.length > 0 && userResult.rows[0].org_id === orgId) {
+          hasAccess = true;
+          userData = userResult.rows[0];
+
+          // Update last login
+          await db.query("UPDATE users SET last_login = NOW() WHERE id = $1", [
+            userData.id,
+          ]);
+        }
+      } else if (accessType === "own_and_assigned") {
+        // Check if org is in user's own org_id or assigned_workspace array
+        const userResult = await db.query(
+          `SELECT u.id, u.username, u.email, u.role, u.org_id, 
+                  u.assigned_workspace, u.is_active
+           FROM users u
+           WHERE u.id = $1`,
+          [userId],
+        );
+
+        if (userResult.rows.length > 0) {
+          const user = userResult.rows[0];
+
+          // Check if it's their own org
+          if (user.org_id === orgId) {
+            hasAccess = true;
+            userData = user;
+          }
+          // Check if it's in assigned workspaces
+          else if (
+            user.assigned_workspace &&
+            Array.isArray(user.assigned_workspace)
+          ) {
+            if (user.assigned_workspace.includes(orgId)) {
+              hasAccess = true;
+
+              // Check if user has a record for this assigned org
+              const assignedOrgUserResult = await db.query(
+                `SELECT u.id, u.username, u.email, u.role, u.is_active
+                 FROM users u
+                 WHERE u.email = $1 AND u.org_id = $2`,
+                [email, orgId],
+              );
+
+              if (assignedOrgUserResult.rows.length > 0) {
+                userData = assignedOrgUserResult.rows[0];
+              } else {
+                // Use original user data
+                userData = user;
+              }
+            }
+          }
+
+          if (hasAccess && userData) {
+            // Update last login
+            await db.query(
+              "UPDATE users SET last_login = NOW() WHERE id = $1",
+              [userData.id],
+            );
+          }
+        }
+      }
+
+      if (!hasAccess) {
+        logger.warn("Organisation access denied", {
+          userId,
+          email,
+          role,
+          orgId,
+          accessType,
+        });
+        throw new Error("Access denied to this organisation");
+      }
+
+      if (!userData) {
+        throw new Error("User data not found");
+      }
+
+      // Check if user is active
+      if (!userData.is_active) {
+        throw new Error("Account is deactivated");
+      }
+
+      // Get permissions based on role
+      const permissionsResult = await db.query(
+        `SELECT p.name 
+         FROM role_permissions rp 
+         JOIN permissions p ON rp.permission_id = p.id 
+         WHERE rp.role = $1`,
+        [userData.role],
+      );
+
+      const permissions = permissionsResult.rows.map((p) => p.name);
+
+      return {
+        userId: userData.id,
+        username: userData.username,
+        email: userData.email,
+        role: userData.role,
+        orgId: targetOrg.org_id,
+        orgKey: targetOrg.api_key,
+        orgName: targetOrg.name,
+        retellWorkspaceId: targetOrg.retell_workspace_id,
+        permissions: permissions,
+        isActive: userData.is_active,
+      };
+    } catch (error) {
+      logger.error("Organisation selection with auth error", {
+        error: error.message,
+      });
+      throw error;
+    }
+  }
+
+  /**
    * Authenticate user with email and password
    * @param {string} email - User email
    * @param {string} password - User password

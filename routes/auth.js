@@ -184,8 +184,10 @@ router.post("/login", async (req, res) => {
  * @swagger
  * /auth/select-org:
  *   post:
- *     summary: Select organisation after initial login (for users with multiple organisations)
+ *     summary: Select organisation to switch context (for users with access to multiple organisations)
  *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -193,17 +195,11 @@ router.post("/login", async (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
  *               - orgId
  *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 description: User's email address
- *                 example: "chirag.gupta@myflowai.com"
  *               orgId:
  *                 type: integer
- *                 description: Selected organisation ID
+ *                 description: Organisation ID to switch to
  *                 example: 1
  *     responses:
  *       200:
@@ -218,7 +214,7 @@ router.post("/login", async (req, res) => {
  *                   example: true
  *                 token:
  *                   type: string
- *                   description: JWT authentication token
+ *                   description: JWT authentication token for the selected org
  *                 refreshToken:
  *                   type: string
  *                   description: JWT refresh token
@@ -227,60 +223,104 @@ router.post("/login", async (req, res) => {
  *       400:
  *         description: Invalid request
  *       401:
- *         description: Invalid organisation selection
+ *         description: No authentication token provided or invalid token
+ *       403:
+ *         description: Access denied to selected organisation
  */
 router.post("/select-org", async (req, res) => {
   try {
-    const { email, orgId } = req.body;
+    // Extract token from Authorization header - NOW REQUIRED
+    const authHeader = req.headers.authorization;
 
-    logger.info("Organisation selection", { email, orgId });
-
-    if (!email || !orgId) {
-      return res.status(400).json({
-        success: false,
-        error: "Email and orgId are required",
-      });
-    }
-
-    // Select organisation for user
-    const userData = await userAuthService.selectOrganisation(email, orgId);
-
-    // Generate tokens
-    const token = userAuthService.generateJWT(userData);
-    const refreshToken = userAuthService.generateRefreshToken(
-      userData.userId,
-      userData.orgId,
-    );
-
-    logger.info("Organisation selected successfully", {
-      userId: userData.userId,
-      email: userData.email,
-      orgId: userData.orgId,
-    });
-
-    res.json({
-      success: true,
-      token,
-      refreshToken,
-      user: {
-        id: userData.userId,
-        username: userData.username,
-        email: userData.email,
-        role: userData.role,
-        org_id: userData.orgId,
-        org_name: userData.orgName,
-        is_active: userData.isActive,
-      },
-    });
-  } catch (error) {
-    logger.error("Organisation selection error", { error: error.message });
-
-    if (error.message === "Invalid organisation selection") {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
-        error: error.message,
+        error: "No authentication token provided",
       });
     }
+
+    const token = authHeader.substring(7);
+
+    try {
+      // Verify and decode the token
+      const decoded = userAuthService.verifyJWT(token);
+
+      const { orgId } = req.body;
+
+      logger.info("Organisation selection", {
+        userId: decoded.userId,
+        email: decoded.email,
+        currentOrgId: decoded.orgId,
+        requestedOrgId: orgId,
+        role: decoded.role,
+      });
+
+      if (!orgId) {
+        return res.status(400).json({
+          success: false,
+          error: "orgId is required",
+        });
+      }
+
+      // Select organisation for authenticated user
+      const userData = await userAuthService.selectOrganisationWithAuth(
+        decoded.userId,
+        decoded.email,
+        decoded.role,
+        orgId,
+      );
+
+      // Generate new tokens for the selected organisation
+      const newToken = userAuthService.generateJWT(userData);
+      const refreshToken = userAuthService.generateRefreshToken(
+        userData.userId,
+        userData.orgId,
+      );
+
+      logger.info("Organisation selected successfully", {
+        userId: userData.userId,
+        email: userData.email,
+        fromOrgId: decoded.orgId,
+        toOrgId: userData.orgId,
+        role: userData.role,
+      });
+
+      res.json({
+        success: true,
+        token: newToken,
+        refreshToken: refreshToken,
+        user: {
+          id: userData.userId,
+          username: userData.username,
+          email: userData.email,
+          role: userData.role,
+          org_id: userData.orgId,
+          org_name: userData.orgName,
+          is_active: userData.isActive,
+        },
+      });
+    } catch (error) {
+      if (error.message === "Invalid or expired token") {
+        return res.status(401).json({
+          success: false,
+          error: error.message,
+        });
+      }
+
+      if (
+        error.message === "Access denied to this organisation" ||
+        error.message === "Invalid organisation selection"
+      ) {
+        return res.status(403).json({
+          success: false,
+          error: error.message,
+        });
+      }
+
+      throw error; // Re-throw other errors
+    }
+  } catch (error) {
+    logger.error("Organisation selection error", { error: error.message });
 
     res.status(500).json({
       success: false,
@@ -288,6 +328,7 @@ router.post("/select-org", async (req, res) => {
     });
   }
 });
+
 
 /**
  * @swagger
