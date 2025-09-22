@@ -695,4 +695,204 @@ router.get("/db-debug", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/all-orgs:
+ *   get:
+ *     summary: Get all organisations the authenticated user has access to based on their role
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of organisations based on user's role and access rules
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 organisations:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                         description: Organisation ID
+ *                       name:
+ *                         type: string
+ *                         example: "Flowai"
+ *                         description: Organisation name
+ *                       isCurrent:
+ *                         type: boolean
+ *                         example: true
+ *                         description: Whether this is the user's current active organisation
+ *                 currentOrgId:
+ *                   type: integer
+ *                   description: Currently active organisation ID
+ *                 accessType:
+ *                   type: string
+ *                   description: Type of access (all, own, own_and_assigned)
+ *       401:
+ *         description: No authentication token provided or invalid token
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/all-orgs", async (req, res) => {
+  try {
+    // Extract token from Authorization header
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        error: "No authentication token provided",
+      });
+    }
+
+    const token = authHeader.substring(7);
+
+    try {
+      // Verify and decode the token
+      const decoded = userAuthService.verifyJWT(token);
+
+      logger.info("Fetching organisations for user based on role", {
+        userId: decoded.userId,
+        email: decoded.email,
+        role: decoded.role,
+        currentOrgId: decoded.orgId,
+      });
+
+      // Define workspace access rules
+      const WORKSPACE_ACCESS_RULES = {
+        "super-admin": "all",
+        observer: "all",
+        member: "own_and_assigned",
+        "customer-admin": "own",
+        "core-team-member": "own",
+        "analytics-user": "own",
+      };
+
+      const accessType = WORKSPACE_ACCESS_RULES[decoded.role] || "own";
+      let organisations = [];
+      let orgIds = new Set(); // To track unique org IDs
+
+      if (accessType === "all") {
+        // Get ALL organizations from the organisations table
+        const result = await db.query(
+          `SELECT org_id as id, name, api_key, retell_workspace_id 
+           FROM organisations 
+           ORDER BY name ASC`,
+        );
+
+        organisations = result.rows.map((org) => ({
+          id: org.id,
+          name: org.name,
+          isCurrent: org.id === decoded.orgId,
+        }));
+      } else if (accessType === "own") {
+        // Get only the user's own organization
+        const result = await db.query(
+          `SELECT org_id as id, name, api_key, retell_workspace_id 
+           FROM organisations 
+           WHERE org_id = $1`,
+          [decoded.orgId],
+        );
+
+        if (result.rows.length > 0) {
+          organisations = [
+            {
+              id: result.rows[0].id,
+              name: result.rows[0].name,
+              isCurrent: true,
+            },
+          ];
+        }
+      } else if (accessType === "own_and_assigned") {
+        // Get user's own org + assigned workspaces
+
+        // First, get the user's assigned_workspace array
+        const userResult = await db.query(
+          `SELECT org_id, assigned_workspace 
+           FROM users 
+           WHERE id = $1`,
+          [decoded.userId],
+        );
+
+        if (userResult.rows.length > 0) {
+          const user = userResult.rows[0];
+
+          // Add own org_id
+          orgIds.add(user.org_id);
+
+          // Add assigned workspace IDs if they exist
+          if (
+            user.assigned_workspace &&
+            Array.isArray(user.assigned_workspace)
+          ) {
+            user.assigned_workspace.forEach((id) => {
+              if (id) orgIds.add(id);
+            });
+          }
+
+          // Now get all unique organizations
+          if (orgIds.size > 0) {
+            const orgIdsArray = Array.from(orgIds);
+            const placeholders = orgIdsArray
+              .map((_, idx) => `$${idx + 1}`)
+              .join(", ");
+
+            const result = await db.query(
+              `SELECT org_id as id, name, api_key, retell_workspace_id 
+               FROM organisations 
+               WHERE org_id IN (${placeholders})
+               ORDER BY name ASC`,
+              orgIdsArray,
+            );
+
+            organisations = result.rows.map((org) => ({
+              id: org.id,
+              name: org.name,
+              isCurrent: org.id === decoded.orgId,
+            }));
+          }
+        }
+      }
+
+      logger.info("Organisations fetched successfully", {
+        userId: decoded.userId,
+        email: decoded.email,
+        role: decoded.role,
+        accessType: accessType,
+        orgCount: organisations.length,
+      });
+
+      res.json({
+        success: true,
+        organisations: organisations,
+        currentOrgId: decoded.orgId,
+        currentOrgName: decoded.orgName,
+        accessType: accessType,
+      });
+    } catch (error) {
+      logger.warn("Token validation failed", { error: error.message });
+
+      return res.status(401).json({
+        success: false,
+        error: error.message || "Invalid or expired token",
+      });
+    }
+  } catch (error) {
+    logger.error("Get all organisations error", { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: "An error occurred while fetching organisations",
+    });
+  }
+});
+
 module.exports = router;
