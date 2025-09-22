@@ -329,7 +329,6 @@ router.post("/select-org", async (req, res) => {
   }
 });
 
-
 /**
  * @swagger
  * /auth/logout:
@@ -450,12 +449,15 @@ router.post("/validate", async (req, res) => {
       // Verify and decode the token
       const decoded = userAuthService.verifyJWT(token);
 
-      // Validate user is still active and get fresh data
-      const userData = await userAuthService.validateAndRefreshUser(decoded);
+      // Validate user is still active and get fresh data with role-based logic
+      const userData =
+        await userAuthService.validateAndRefreshUserWithRoles(decoded);
 
       logger.info("Token validated successfully", {
         userId: userData.userId,
         email: userData.email,
+        orgId: userData.orgId,
+        role: userData.role,
       });
 
       res.json({

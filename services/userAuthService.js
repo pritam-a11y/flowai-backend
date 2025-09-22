@@ -10,6 +10,191 @@ class UserAuthService {
     // Constructor
   }
 
+  // Add this new method to the UserAuthService class in services/userAuthService.js
+
+  /**
+   * Validate user is still active and get fresh data with role-based access logic
+   * Handles super-admin and observer cases where they might not have user records for all orgs
+   * @param {object} decodedToken - Decoded JWT payload
+   * @returns {Promise<object>} - Fresh user data
+   */
+  async validateAndRefreshUserWithRoles(decodedToken) {
+    try {
+      logger.info("Validating user with role-based access", {
+        userId: decodedToken.userId,
+        email: decodedToken.email,
+        role: decodedToken.role,
+        orgId: decodedToken.orgId,
+      });
+
+      // Define workspace access rules
+      const WORKSPACE_ACCESS_RULES = {
+        "super-admin": "all",
+        observer: "all",
+        member: "own_and_assigned",
+        "customer-admin": "own",
+        "core-team-member": "own",
+        "analytics-user": "own",
+      };
+
+      const accessType = WORKSPACE_ACCESS_RULES[decodedToken.role] || "own";
+
+      // First, verify the user exists in their original org
+      const userResult = await db.query(
+        `SELECT u.id, u.username, u.email, u.role, u.is_active,
+                u.org_id, u.assigned_workspace
+         FROM users u
+         WHERE u.id = $1`,
+        [decodedToken.userId],
+      );
+
+      if (userResult.rows.length === 0) {
+        throw new Error("User not found");
+      }
+
+      const originalUser = userResult.rows[0];
+
+      // Check if user is active
+      if (!originalUser.is_active) {
+        throw new Error("User account is deactivated");
+      }
+
+      // Verify the organisation exists
+      const orgResult = await db.query(
+        `SELECT org_id, name, api_key, retell_workspace_id 
+         FROM organisations 
+         WHERE org_id = $1`,
+        [decodedToken.orgId],
+      );
+
+      if (orgResult.rows.length === 0) {
+        throw new Error("Organisation not found");
+      }
+
+      const targetOrg = orgResult.rows[0];
+      let hasAccess = false;
+      let userDataForOrg = null;
+
+      // Check access based on role
+      if (accessType === "all") {
+        // Super-admin and observer can access any org
+        hasAccess = true;
+
+        // Check if they have a specific user record for this org
+        const userOrgResult = await db.query(
+          `SELECT u.id, u.username, u.email, u.role, u.is_active
+           FROM users u
+           WHERE u.email = $1 AND u.org_id = $2`,
+          [decodedToken.email, decodedToken.orgId],
+        );
+
+        if (userOrgResult.rows.length > 0 && userOrgResult.rows[0].is_active) {
+          // Use the org-specific user record
+          userDataForOrg = userOrgResult.rows[0];
+        } else {
+          // Use original user data but maintain super-admin/observer role
+          userDataForOrg = {
+            id: originalUser.id,
+            username: originalUser.username,
+            email: originalUser.email,
+            role: originalUser.role, // Keep original role (super-admin/observer)
+            is_active: originalUser.is_active,
+          };
+        }
+      } else if (accessType === "own") {
+        // User can only access their own org
+        if (originalUser.org_id === decodedToken.orgId) {
+          hasAccess = true;
+          userDataForOrg = originalUser;
+        }
+      } else if (accessType === "own_and_assigned") {
+        // Check if it's their own org or in assigned workspaces
+        if (originalUser.org_id === decodedToken.orgId) {
+          hasAccess = true;
+          userDataForOrg = originalUser;
+        } else if (
+          originalUser.assigned_workspace &&
+          Array.isArray(originalUser.assigned_workspace) &&
+          originalUser.assigned_workspace.includes(decodedToken.orgId)
+        ) {
+          hasAccess = true;
+
+          // Check if they have a user record for this assigned org
+          const assignedOrgUserResult = await db.query(
+            `SELECT u.id, u.username, u.email, u.role, u.is_active
+             FROM users u
+             WHERE u.email = $1 AND u.org_id = $2`,
+            [decodedToken.email, decodedToken.orgId],
+          );
+
+          if (
+            assignedOrgUserResult.rows.length > 0 &&
+            assignedOrgUserResult.rows[0].is_active
+          ) {
+            userDataForOrg = assignedOrgUserResult.rows[0];
+          } else {
+            userDataForOrg = originalUser;
+          }
+        }
+      }
+
+      if (!hasAccess) {
+        logger.warn("User no longer has access to organisation", {
+          userId: decodedToken.userId,
+          email: decodedToken.email,
+          role: decodedToken.role,
+          orgId: decodedToken.orgId,
+          accessType: accessType,
+        });
+        throw new Error("Access denied to organisation");
+      }
+
+      if (!userDataForOrg || !userDataForOrg.is_active) {
+        throw new Error("User not found or inactive for this organisation");
+      }
+
+      // Get current permissions based on the user's role
+      const permissionsResult = await db.query(
+        `SELECT p.name FROM role_permissions rp 
+         JOIN permissions p ON rp.permission_id = p.id 
+         WHERE rp.role = $1`,
+        [userDataForOrg.role],
+      );
+
+      // Build the validated user data
+      const validatedUserData = {
+        userId: userDataForOrg.id,
+        username: userDataForOrg.username,
+        email: userDataForOrg.email,
+        role: userDataForOrg.role,
+        orgId: targetOrg.org_id,
+        orgKey: targetOrg.api_key,
+        orgName: targetOrg.name,
+        retellWorkspaceId: targetOrg.retell_workspace_id,
+        permissions: permissionsResult.rows.map((p) => p.name),
+        isActive: userDataForOrg.is_active,
+        accessType: accessType, // Include access type for transparency
+      };
+
+      logger.info("User validation successful", {
+        userId: validatedUserData.userId,
+        email: validatedUserData.email,
+        role: validatedUserData.role,
+        orgId: validatedUserData.orgId,
+        accessType: accessType,
+      });
+
+      return validatedUserData;
+    } catch (error) {
+      logger.error("User validation with roles error", {
+        error: error.message,
+        userId: decodedToken.userId,
+        orgId: decodedToken.orgId,
+      });
+      throw error;
+    }
+  }
+
   /**
    * Select organisation for authenticated user with role-based access control
    * @param {number} userId - User ID from JWT
