@@ -606,7 +606,29 @@ router.post(
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 
                 $11, $12, $13, $14, $15, $16, $17, $18, $19, 
                 $20, $21, $21
-              )`,
+              )
+              ON CONFLICT (org_id, specialty_name) 
+              DO UPDATE SET
+                location_ids = EXCLUDED.location_ids,
+                physician_names_source_type = EXCLUDED.physician_names_source_type,
+                physician_names_source_name = EXCLUDED.physician_names_source_name,
+                new_patients_source_type = EXCLUDED.new_patients_source_type,
+                new_patients_source_name = EXCLUDED.new_patients_source_name,
+                physician_locations_source_type = EXCLUDED.physician_locations_source_type,
+                physician_locations_source_name = EXCLUDED.physician_locations_source_name,
+                physician_credentials_source_type = EXCLUDED.physician_credentials_source_type,
+                physician_credentials_source_name = EXCLUDED.physician_credentials_source_name,
+                services = EXCLUDED.services,
+                services_offered_source_type = EXCLUDED.services_offered_source_type,
+                services_offered_source_name = EXCLUDED.services_offered_source_name,
+                patient_prep_source_type = EXCLUDED.patient_prep_source_type,
+                patient_prep_source_name = EXCLUDED.patient_prep_source_name,
+                patient_faqs_source_type = EXCLUDED.patient_faqs_source_type,
+                patient_faqs_source_name = EXCLUDED.patient_faqs_source_name,
+                documents = EXCLUDED.documents,
+                is_active = true,
+                updated_by = EXCLUDED.updated_by,
+                updated_at = CURRENT_TIMESTAMP`,
               [
                 orgId,
                 specialty.specialty_name,
