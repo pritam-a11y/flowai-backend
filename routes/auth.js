@@ -1142,10 +1142,10 @@ router.post("/create-organisation", async (req, res) => {
 
       // Create the organisation
       const result = await db.query(
-        `INSERT INTO organisations (name, api_key, retell_workspace_id, created_at, created_by) 
-         VALUES ($1, $2, $3, NOW(), $4) 
-         RETURNING org_id as id, name, api_key, retell_workspace_id, created_at`,
-        [orgName, apiKey, retellWorkspaceId, decoded.userId],
+        `INSERT INTO organisations (name, api_key, retell_workspace_id) 
+         VALUES ($1, $2, $3) 
+         RETURNING org_id as id, name, api_key, retell_workspace_id`,
+        [orgName, apiKey, retellWorkspaceId],
       );
 
       const newOrg = result.rows[0];
@@ -1153,7 +1153,7 @@ router.post("/create-organisation", async (req, res) => {
       logger.info("Organisation created successfully", {
         orgId: newOrg.id,
         orgName: newOrg.name,
-        createdBy: decoded.userId,
+        createdByUserId: decoded.userId,
         createdByEmail: decoded.email,
       });
 
@@ -1161,22 +1161,22 @@ router.post("/create-organisation", async (req, res) => {
       try {
         // Create entry in org_patient_intake_agent table
         await db.query(
-          `INSERT INTO org_patient_intake_agent (org_id, is_active, created_by, updated_by, created_at, updated_at) 
-           VALUES ($1, true, $2, $2, NOW(), NOW())`,
+          `INSERT INTO org_patient_intake_agent (org_id, is_active, current_version, created_by, updated_by, created_at, updated_at) 
+           VALUES ($1, true, 1, $2, $2, NOW(), NOW())`,
           [newOrg.id, decoded.userId],
         );
 
         // Create entry in org_customer_support_agent table
         await db.query(
-          `INSERT INTO org_customer_support_agent (org_id, is_active, created_by, updated_by, created_at, updated_at) 
-           VALUES ($1, true, $2, $2, NOW(), NOW())`,
+          `INSERT INTO org_customer_support_agent (org_id, is_active, current_version, created_by, updated_by, created_at, updated_at) 
+           VALUES ($1, true, 1, $2, $2, NOW(), NOW())`,
           [newOrg.id, decoded.userId],
         );
 
         // Create entry in org_scheduling_agent table
         await db.query(
-          `INSERT INTO org_scheduling_agent (org_id, is_active, created_by, updated_by, created_at, updated_at) 
-           VALUES ($1, true, $2, $2, NOW(), NOW())`,
+          `INSERT INTO org_scheduling_agent (org_id, is_active, current_version, created_by, updated_by, created_at, updated_at) 
+           VALUES ($1, true, 1, $2, $2, NOW(), NOW())`,
           [newOrg.id, decoded.userId],
         );
 
@@ -1221,7 +1221,6 @@ router.post("/create-organisation", async (req, res) => {
           name: newOrg.name,
           api_key: newOrg.api_key,
           retell_workspace_id: newOrg.retell_workspace_id,
-          created_at: newOrg.created_at,
         },
       });
     } catch (error) {
