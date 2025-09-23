@@ -938,4 +938,249 @@ router.get("/all-orgs", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/create-organisation:
+ *   post:
+ *     summary: Create a new organisation
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Organisation name
+ *                 example: "Acme Corporation"
+ *               retell_workspace_id:
+ *                 type: string
+ *                 description: Retell workspace ID (optional)
+ *                 example: "ws_12345"
+ *     responses:
+ *       201:
+ *         description: Organisation created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 organisation:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       example: "Acme Corporation"
+ *                     api_key:
+ *                       type: string
+ *                       example: "key_81827a38956f6979a50fccd47183"
+ *                     retell_workspace_id:
+ *                       type: string
+ *                       example: "ws_12345"
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Invalid request - missing required fields
+ *       401:
+ *         description: No authentication token provided or invalid token
+ *       403:
+ *         description: Insufficient permissions to create organisation
+ *       409:
+ *         description: Organisation already exists
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/create-organisation", async (req, res) => {
+  try {
+    // Extract token from Authorization header
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        error: "No authentication token provided",
+      });
+    }
+
+    const token = authHeader.substring(7);
+
+    try {
+      // Verify and decode the token
+      const decoded = userAuthService.verifyJWT(token);
+
+      // Check if user has permission to create organisations
+      // Typically only super-admin, customer-admin, or specific roles should be able to create orgs
+      const allowedRoles = ["super-admin", "customer-admin"];
+
+      if (!allowedRoles.includes(decoded.role)) {
+        logger.warn("Unauthorised organisation creation attempt", {
+          userId: decoded.userId,
+          email: decoded.email,
+          role: decoded.role,
+        });
+
+        return res.status(403).json({
+          success: false,
+          error: "Insufficient permissions to create organisation",
+        });
+      }
+
+      const { name, retell_workspace_id } = req.body;
+
+      // Validate required fields
+      if (!name || typeof name !== "string" || name.trim().length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: "Organisation name is required",
+        });
+      }
+
+      const orgName = name.trim();
+
+      // Check if organisation with same name already exists
+      const existingOrg = await db.query(
+        `SELECT org_id FROM organisations WHERE LOWER(name) = LOWER($1)`,
+        [orgName],
+      );
+
+      if (existingOrg.rows.length > 0) {
+        logger.warn("Attempt to create duplicate organisation", {
+          name: orgName,
+          existingOrgId: existingOrg.rows[0].org_id,
+          userId: decoded.userId,
+        });
+
+        return res.status(409).json({
+          success: false,
+          error: "Organisation with this name already exists",
+        });
+      }
+
+      // Generate a unique API key for the organisation
+      const generateApiKey = () => {
+        const randomBytes = require("crypto").randomBytes(24);
+        return `key_${randomBytes.toString("hex")}`;
+      };
+
+      const apiKey = generateApiKey();
+
+      // Create the organisation
+      const result = await db.query(
+        `INSERT INTO organisations (name, api_key, retell_workspace_id, created_at, created_by) 
+         VALUES ($1, $2, $3, NOW(), $4) 
+         RETURNING org_id as id, name, api_key, retell_workspace_id, created_at`,
+        [orgName, apiKey, retell_workspace_id || null, decoded.userId],
+      );
+
+      const newOrg = result.rows[0];
+
+      logger.info("Organisation created successfully", {
+        orgId: newOrg.id,
+        orgName: newOrg.name,
+        createdBy: decoded.userId,
+        createdByEmail: decoded.email,
+      });
+
+      // Create default entries in agent tables
+      try {
+        // Create entry in org_patient_intake_agent table
+        await db.query(
+          `INSERT INTO org_patient_intake_agent (org_id, is_active, created_by, updated_by, created_at, updated_at) 
+           VALUES ($1, true, $2, $2, NOW(), NOW())`,
+          [newOrg.id, decoded.userId],
+        );
+
+        // Create entry in org_customer_support_agent table
+        await db.query(
+          `INSERT INTO org_customer_support_agent (org_id, is_active, created_by, updated_by, created_at, updated_at) 
+           VALUES ($1, true, $2, $2, NOW(), NOW())`,
+          [newOrg.id, decoded.userId],
+        );
+
+        // Create entry in org_scheduling_agent table
+        await db.query(
+          `INSERT INTO org_scheduling_agent (org_id, is_active, created_by, updated_by, created_at, updated_at) 
+           VALUES ($1, true, $2, $2, NOW(), NOW())`,
+          [newOrg.id, decoded.userId],
+        );
+
+        logger.info("Default agent table entries created", {
+          orgId: newOrg.id,
+        });
+      } catch (agentError) {
+        logger.error("Failed to create agent table entries, rolling back", {
+          orgId: newOrg.id,
+          error: agentError.message,
+        });
+
+        // Rollback: delete the organisation if agent tables fail
+        await db.query(`DELETE FROM organisations WHERE org_id = $1`, [
+          newOrg.id,
+        ]);
+
+        throw new Error("Failed to initialize organisation configuration");
+      }
+
+      // Optional: If the creating user is a customer-admin, you might want to
+      // automatically associate them with the new organisation
+      if (decoded.role === "customer-admin") {
+        await db.query(
+          `INSERT INTO user_organisations (user_id, org_id, role, joined_at) 
+           VALUES ($1, $2, $3, NOW()) 
+           ON CONFLICT (user_id, org_id) DO NOTHING`,
+          [decoded.userId, newOrg.id, "owner"],
+        );
+
+        logger.info("User associated with new organisation", {
+          userId: decoded.userId,
+          orgId: newOrg.id,
+          role: "owner",
+        });
+      }
+
+      res.status(201).json({
+        success: true,
+        organisation: {
+          id: newOrg.id,
+          name: newOrg.name,
+          api_key: newOrg.api_key,
+          retell_workspace_id: newOrg.retell_workspace_id,
+          created_at: newOrg.created_at,
+        },
+      });
+    } catch (error) {
+      if (error.message === "Invalid or expired token") {
+        return res.status(401).json({
+          success: false,
+          error: error.message,
+        });
+      }
+      throw error;
+    }
+  } catch (error) {
+    logger.error("Create organisation error", {
+      error: error.message,
+      stack: error.stack,
+    });
+
+    res.status(500).json({
+      success: false,
+      error: "An error occurred while creating the organisation",
+    });
+  }
+});
+
 module.exports = router;
