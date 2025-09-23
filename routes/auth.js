@@ -954,6 +954,8 @@ router.get("/all-orgs", async (req, res) => {
  *             type: object
  *             required:
  *               - name
+ *               - retell_workspace_id
+ *               - api_key
  *             properties:
  *               name:
  *                 type: string
@@ -961,8 +963,12 @@ router.get("/all-orgs", async (req, res) => {
  *                 example: "Acme Corporation"
  *               retell_workspace_id:
  *                 type: string
- *                 description: Retell workspace ID (optional)
+ *                 description: Retell workspace ID
  *                 example: "ws_12345"
+ *               api_key:
+ *                 type: string
+ *                 description: API key for the organisation
+ *                 example: "key_81827a38956f6979a50fccd47183"
  *     responses:
  *       201:
  *         description: Organisation created successfully
@@ -1038,7 +1044,7 @@ router.post("/create-organisation", async (req, res) => {
         });
       }
 
-      const { name, retell_workspace_id } = req.body;
+      const { name, retell_workspace_id, api_key } = req.body;
 
       // Validate required fields
       if (!name || typeof name !== "string" || name.trim().length === 0) {
@@ -1048,7 +1054,31 @@ router.post("/create-organisation", async (req, res) => {
         });
       }
 
+      if (
+        !retell_workspace_id ||
+        typeof retell_workspace_id !== "string" ||
+        retell_workspace_id.trim().length === 0
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: "Retell workspace ID is required",
+        });
+      }
+
+      if (
+        !api_key ||
+        typeof api_key !== "string" ||
+        api_key.trim().length === 0
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: "API key is required",
+        });
+      }
+
       const orgName = name.trim();
+      const retellWorkspaceId = retell_workspace_id.trim();
+      const apiKey = api_key.trim();
 
       // Check if organisation with same name already exists
       const existingOrg = await db.query(
@@ -1069,20 +1099,53 @@ router.post("/create-organisation", async (req, res) => {
         });
       }
 
-      // Generate a unique API key for the organisation
-      const generateApiKey = () => {
-        const randomBytes = require("crypto").randomBytes(24);
-        return `key_${randomBytes.toString("hex")}`;
-      };
+      // Check if api_key already exists
+      const existingApiKey = await db.query(
+        `SELECT org_id FROM organisations WHERE api_key = $1`,
+        [apiKey],
+      );
 
-      const apiKey = generateApiKey();
+      if (existingApiKey.rows.length > 0) {
+        logger.warn("Attempt to create organisation with duplicate API key", {
+          apiKey: apiKey,
+          existingOrgId: existingApiKey.rows[0].org_id,
+          userId: decoded.userId,
+        });
+
+        return res.status(409).json({
+          success: false,
+          error: "API key already exists",
+        });
+      }
+
+      // Check if retell_workspace_id already exists
+      const existingWorkspace = await db.query(
+        `SELECT org_id FROM organisations WHERE retell_workspace_id = $1`,
+        [retellWorkspaceId],
+      );
+
+      if (existingWorkspace.rows.length > 0) {
+        logger.warn(
+          "Attempt to create organisation with duplicate Retell workspace ID",
+          {
+            retellWorkspaceId: retellWorkspaceId,
+            existingOrgId: existingWorkspace.rows[0].org_id,
+            userId: decoded.userId,
+          },
+        );
+
+        return res.status(409).json({
+          success: false,
+          error: "Retell workspace ID already exists",
+        });
+      }
 
       // Create the organisation
       const result = await db.query(
         `INSERT INTO organisations (name, api_key, retell_workspace_id, created_at, created_by) 
          VALUES ($1, $2, $3, NOW(), $4) 
          RETURNING org_id as id, name, api_key, retell_workspace_id, created_at`,
-        [orgName, apiKey, retell_workspace_id || null, decoded.userId],
+        [orgName, apiKey, retellWorkspaceId, decoded.userId],
       );
 
       const newOrg = result.rows[0];
