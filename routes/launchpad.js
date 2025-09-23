@@ -122,7 +122,7 @@ const fetchOrganizationData = async (orgId, userRole) => {
       `SELECT id, org_id, name, address_line1, address_line2, 
               city, state, zip_code,
               weekday_hours, weekend_hours, location_id, 
-              specialties_services, parking_directions, documents,
+              parking_directions, documents,
               is_active, created_at, updated_at
        FROM org_locations 
        WHERE org_id = $1 AND is_active = true
@@ -491,7 +491,7 @@ router.post(
                 org_id, name, address_line1, address_line2, 
                 city, state, zip_code, 
                 weekday_hours, weekend_hours, location_id,
-                specialties_services, parking_directions, documents,
+                parking_directions, documents,
                 is_active, created_by, updated_by
               ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 
@@ -508,7 +508,6 @@ router.post(
                 location.weekday_hours,
                 location.weekend_hours,
                 location.location_id,
-                JSON.stringify(location.specialties_services || []),
                 location.parking_directions,
                 JSON.stringify(location.documents || []),
                 true,
@@ -939,7 +938,7 @@ router.post(
                 org_id, name, address_line1, address_line2, 
                 city, state, zip_code, 
                 weekday_hours, weekend_hours, location_id,
-                specialties_services, parking_directions, documents,
+                parking_directions, documents,
                 is_active, created_by, updated_by
               ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 
@@ -956,7 +955,6 @@ router.post(
                 location.weekday_hours,
                 location.weekend_hours,
                 location.location_id,
-                JSON.stringify(location.specialties_services || []),
                 location.parking_directions,
                 JSON.stringify(location.documents || []),
                 true,
