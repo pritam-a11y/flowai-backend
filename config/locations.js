@@ -45,7 +45,7 @@ const precisionLocations = {
   },
   flemingIsland: {
     name: "Fleming Island",
-    address: "1540 Business Center Dr, Ste B, Fleming Island, FL 32003",
+    address: "1540 Business Center Drive, Suite B, Fleming Island, FL 32003",
     zipCode: "32003",
     coordinates: {
       lat: 30.0924,
@@ -65,7 +65,7 @@ const precisionLocations = {
   },
   mandarin: {
     name: "Mandarin",
-    address: "10696 Old St Augustine Rd, Jacksonville, FL 32257",
+    address: "10696 Old Saint Augustine Road, Jacksonville, FL 32257",
     zipCode: "32257",
     coordinates: {
       lat: 30.1658,
@@ -80,8 +80,8 @@ const precisionLocations = {
     ]
   },
   stAugustine: {
-    name: "St. Augustine",
-    address: "1000 Plantation Island Dr S, Ste 1, St. Augustine, FL 32080",
+    name: "Saint Augustine",
+    address: "1000 Plantation Island Drive South, Suite 1, Saint Augustine, FL 32080",
     zipCode: "32080",
     coordinates: {
       lat: 29.9012,
@@ -102,7 +102,7 @@ const precisionLocations = {
   },
   orlando: {
     name: "Orlando – Millenia",
-    address: "3900 Millenia Blvd, Orlando, FL 32839",
+    address: "3900 Millenia Boulevard, Orlando, FL 32839",
     zipCode: "32839",
     coordinates: {
       lat: 28.4969,
@@ -117,7 +117,7 @@ const precisionLocations = {
 const uchicagoLocations = {
   hydeParkDCAM: {
     name: "Hyde Park — Duchossois Center for Advanced Medicine (DCAM)",
-    address: "5758 S. Maryland Ave., Chicago, IL 60637",
+    address: "5758 South Maryland Avenue, Chicago, IL 60637",
     zipCode: "60637",
     coordinates: {
       lat: 41.7902987,
@@ -136,7 +136,7 @@ const uchicagoLocations = {
   },
   hydeParkCCD: {
     name: "Center for Care & Discovery (CCD)",
-    address: "5700 S. Maryland Ave., Chicago, IL 60637", 
+    address: "5700 South Maryland Avenue, Chicago, IL 60637", 
     zipCode: "60637",
     coordinates: {
       lat: 41.7910241,
@@ -150,7 +150,7 @@ const uchicagoLocations = {
   },
   southLoop: {
     name: "South Loop",
-    address: "1101 S. Canal St., Suite 201 & 202, Chicago, IL 60607",
+    address: "1101 South Canal Street, Suite 201 & 202, Chicago, IL 60607",
     zipCode: "60607",
     coordinates: {
       lat: 41.8688617,
@@ -169,7 +169,7 @@ const uchicagoLocations = {
   },
   orlandPark: {
     name: "Orland Park — Center for Advanced Care",
-    address: "14290 S. La Grange Rd., Orland Park, IL 60462",
+    address: "14290 South La Grange Road, Orland Park, IL 60462",
     zipCode: "60462",
     coordinates: {
       lat: 41.6308805,
@@ -188,7 +188,7 @@ const uchicagoLocations = {
   },
   tinleyPark: {
     name: "Tinley Park — UChicago Medicine at Ingalls",
-    address: "6701 W. 159th St., Tinley Park, IL 60477",
+    address: "6701 West 159th Street, Tinley Park, IL 60477",
     zipCode: "60477",
     coordinates: {
       lat: 41.60168729999999,
@@ -207,7 +207,7 @@ const uchicagoLocations = {
   },
   laGrange: {
     name: "La Grange — UChicago Medicine Orthopaedics (AdventHealth Campus)",
-    address: "5201 South Willow Springs Rd., Suite 340, La Grange, IL 60525",
+    address: "5201 South Willow Springs Road, Suite 340, La Grange, IL 60525",
     zipCode: "60525",
     coordinates: {
       lat: 41.7956417,
@@ -219,7 +219,7 @@ const uchicagoLocations = {
   },
   comerChildrens: {
     name: "Comer Children's Hospital",
-    address: "5721 S. Maryland Ave., Chicago, IL 60637",
+    address: "5721 South Maryland Avenue, Chicago, IL 60637",
     zipCode: "60637", 
     coordinates: {
       lat: 41.7901847,
