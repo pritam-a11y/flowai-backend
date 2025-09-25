@@ -837,6 +837,51 @@ router.post("/call/update", async (req, res, next) => {
           selected_provider: providerConfig.provider_id,
         });
 
+        // Check for physician name and find profile URL if available
+        const physicianName = call.call_analysis?.custom_analysis_data?.physician_name;
+        let physicianProfileUrl = null;
+        let physicianDisplayName = null;
+
+        if (physicianName) {
+          try {
+            // Import physician data
+            const physiciansData = require("../config/physiciansData.json");
+            
+            // Search for physician by name (case-insensitive)
+            const normalizedPhysicianName = physicianName.trim().toLowerCase();
+            
+            // Try to find exact match first
+            const physician = physiciansData.physicians.find(p => 
+              p.name.toLowerCase() === normalizedPhysicianName ||
+              `dr. ${p.firstName.toLowerCase()} ${p.lastName.toLowerCase()}` === normalizedPhysicianName ||
+              `${p.firstName.toLowerCase()} ${p.lastName.toLowerCase()}` === normalizedPhysicianName
+            );
+
+            if (physician) {
+              physicianProfileUrl = physician.profileUrl;
+              physicianDisplayName = physician.name;
+              logger.info("Physician profile found for email", {
+                call_id: call.call_id,
+                physician_name: physicianName,
+                profile_url: physicianProfileUrl,
+              });
+            } else {
+              logger.info("Physician profile not found for email", {
+                call_id: call.call_id,
+                physician_name: physicianName,
+              });
+              physicianDisplayName = physicianName; // Use the provided name as-is
+            }
+          } catch (error) {
+            logger.warn("Error searching for physician profile", {
+              call_id: call.call_id,
+              physician_name: physicianName,
+              error: error.message,
+            });
+            physicianDisplayName = physicianName; // Use the provided name as-is
+          }
+        }
+
         const data = {
           patient_first_name:
             call.call_analysis?.custom_analysis_data?.patient_first_name ||
@@ -847,6 +892,8 @@ router.post("/call/update", async (req, res, next) => {
             call.call_analysis?.custom_analysis_data?.appointment_department,
           appointment_location:
             call.call_analysis?.custom_analysis_data?.appointment_location,
+          physician_name: physicianDisplayName,
+          physician_profile_url: physicianProfileUrl,
           provider_name: providerConfig.name,
           business_name: providerConfig.business_name,
           doctor_name: providerConfig.doctor_name,
@@ -1393,6 +1440,18 @@ function renderAppointmentConfirmationHTML(d) {
                       ? `
                   <tr>
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Department:</strong> ${escapeHTML(d.appointment_department)}</td>
+                  </tr>`
+                      : ""
+                  }
+                  ${
+                    d.physician_name && d.physician_name.trim()
+                      ? `
+                  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Physician:</strong> ${
+                      d.physician_profile_url 
+                        ? `<a href="${escapeHTML(d.physician_profile_url)}" target="_blank" style="color:#2563eb;text-decoration:underline;">${escapeHTML(d.physician_name)}</a>` 
+                        : escapeHTML(d.physician_name)
+                    }</td>
                   </tr>`
                       : ""
                   }
