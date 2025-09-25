@@ -619,26 +619,6 @@
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/srinath-yeshwant"
     },
     {
-      "id": 30,
-      "firstName": "Jonathan",
-      "lastName": "Paul",
-      "name": "Dr. Jonathan Paul",
-      "specialty": "CARDIOLOGY",
-      "rawSpecialty": "Cardiology (Heart Care)",
-      "acceptingNewPatients": true,
-      "languages": [
-        "English"
-      ],
-      "locations": [
-        {
-          "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        }
-      ],
-      "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jonathan-d-paul"
-    },
-    {
       "id": 31,
       "firstName": "Jonathan",
       "lastName": "Grinstein",
@@ -736,26 +716,6 @@
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/hena-patel"
-    },
-    {
-      "id": 36,
-      "firstName": "Atman",
-      "lastName": "Shah",
-      "name": "Dr. Atman Shah",
-      "specialty": "CARDIOLOGY",
-      "rawSpecialty": "Cardiology (Heart Care)",
-      "acceptingNewPatients": true,
-      "languages": [
-        "English"
-      ],
-      "locations": [
-        {
-          "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        }
-      ],
-      "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/atman-p-shah"
     },
     {
       "id": 37,
@@ -1644,30 +1604,6 @@
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/mary-kate-erdman"
-    },
-    {
-      "id": 78,
-      "firstName": "Lewis",
-      "lastName": "Shi",
-      "name": "Dr. Lewis Shi",
-      "specialty": "ORTHOPEDICS",
-      "rawSpecialty": "Orthopedics",
-      "acceptingNewPatients": true,
-      "languages": [
-        "English"
-      ],
-      "locations": [
-        {
-          "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
-        }
-      ]
     },
     {
       "id": 79,
