@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db/connection");
 const logger = require("../utils/logger");
-const userAuthMiddleware = require("../middleware/userAuth");
-const createOrgAccessMiddleware = require("../middleware/orgAccess");
+const jwtMiddleware = require("../middleware/jwt");
+const { validateOrgAccess } = require("../middleware/orgAccess");
+const requireFeaturePermission = require("../middleware/featureAccess");
+const bcrypt = require("bcrypt");
 
 // Role visibility rules
 const ROLE_VISIBILITY_RULES = {
@@ -29,8 +31,8 @@ const RESTRICTED_VISIBLE_ROLES = [
  */
 router.get(
   "/:org_id/list",
-  userAuthMiddleware, // Verify JWT token
-  createOrgAccessMiddleware({ requireOrgId: true }), // Verify org access
+  jwtMiddleware,
+  validateOrgAccess,
   async (req, res) => {
     try {
       const { org_id } = req.params;
@@ -159,8 +161,8 @@ router.get(
  */
 router.get(
   "/:org_id/member/:member_id",
-  userAuthMiddleware,
-  createOrgAccessMiddleware({ requireOrgId: true }),
+  jwtMiddleware,
+  validateOrgAccess,
   async (req, res) => {
     try {
       const { org_id, member_id } = req.params;
@@ -312,8 +314,8 @@ router.get(
  */
 router.post(
   "/:org_id/add",
-  userAuthMiddleware,
-  createOrgAccessMiddleware({ requireOrgId: true }),
+  jwtMiddleware,
+  validateOrgAccess,
   async (req, res) => {
     try {
       const { org_id } = req.params;
@@ -397,8 +399,15 @@ router.post(
         }
       }
 
+      // Validate required fields for new user
+      if (!password) {
+        return res.status(400).json({
+          success: false,
+          error: "Password is required for new user",
+        });
+      }
+
       // Hash password
-      const bcrypt = require("bcrypt");
       const passwordHash = await bcrypt.hash(password, 10);
 
       // Insert new user
@@ -456,8 +465,8 @@ router.post(
  */
 router.put(
   "/:org_id/member/:member_id/role",
-  userAuthMiddleware,
-  createOrgAccessMiddleware({ requireOrgId: true }),
+  jwtMiddleware,
+  validateOrgAccess,
   async (req, res) => {
     try {
       const { org_id, member_id } = req.params;
@@ -562,8 +571,8 @@ router.put(
  */
 router.delete(
   "/:org_id/member/:member_id",
-  userAuthMiddleware,
-  createOrgAccessMiddleware({ requireOrgId: true }),
+  jwtMiddleware,
+  validateOrgAccess,
   async (req, res) => {
     try {
       const { org_id, member_id } = req.params;
@@ -672,6 +681,172 @@ router.delete(
       res.status(500).json({
         success: false,
         error: "Failed to remove member",
+        message: error.message,
+      });
+    }
+  },
+);
+
+/**
+ * @route PUT /api/v1/members/:org_id/member/:member_id/reactivate
+ * @desc Reactivate a deactivated member
+ * @access Private - requires JWT, org access, and appropriate permissions
+ */
+router.put(
+  "/:org_id/member/:member_id/reactivate",
+  jwtMiddleware,
+  validateOrgAccess,
+  async (req, res) => {
+    try {
+      const { org_id, member_id } = req.params;
+      const requestingUserRole = req.user.role;
+
+      logger.info("Reactivating member", {
+        orgId: org_id,
+        memberId: member_id,
+        requestedBy: req.user.userId,
+      });
+
+      // Check permissions
+      const canReactivateMembers = ["super-admin", "customer-admin"].includes(
+        requestingUserRole,
+      );
+      if (!canReactivateMembers) {
+        return res.status(403).json({
+          success: false,
+          error: "You do not have permission to reactivate members",
+        });
+      }
+
+      // Check if member exists and belongs to this org
+      const memberCheck = await db.query(
+        `SELECT id, org_id, is_active 
+         FROM users 
+         WHERE id = $1 AND org_id = $2`,
+        [parseInt(member_id), parseInt(org_id)],
+      );
+
+      if (memberCheck.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: "Member not found in this organization",
+        });
+      }
+
+      const member = memberCheck.rows[0];
+
+      if (member.is_active) {
+        return res.status(400).json({
+          success: false,
+          error: "Member is already active",
+        });
+      }
+
+      // Reactivate the member
+      await db.query(
+        `UPDATE users 
+         SET is_active = true, updated_at = NOW()
+         WHERE id = $1`,
+        [parseInt(member_id)],
+      );
+
+      logger.info("Member reactivated successfully", {
+        orgId: org_id,
+        memberId: member_id,
+        reactivatedBy: req.user.userId,
+      });
+
+      res.json({
+        success: true,
+        message: "Member has been reactivated",
+      });
+    } catch (error) {
+      logger.error("Error reactivating member", {
+        error: error.message,
+        orgId: req.params.org_id,
+        memberId: req.params.member_id,
+        userId: req.user?.userId,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: "Failed to reactivate member",
+        message: error.message,
+      });
+    }
+  },
+);
+
+/**
+ * @route POST /api/v1/members/:org_id/assign-workspaces
+ * @desc Bulk assign workspaces to a member
+ * @access Private - requires JWT, org access, and super-admin role
+ */
+router.post(
+  "/:org_id/assign-workspaces",
+  jwtMiddleware,
+  validateOrgAccess,
+  async (req, res) => {
+    try {
+      const { org_id } = req.params;
+      const { member_id, workspace_ids } = req.body;
+      const requestingUserRole = req.user.role;
+
+      logger.info("Assigning workspaces to member", {
+        orgId: org_id,
+        memberId: member_id,
+        workspaceIds: workspace_ids,
+        requestedBy: req.user.userId,
+      });
+
+      // Only super-admin can bulk assign workspaces
+      if (requestingUserRole !== "super-admin") {
+        return res.status(403).json({
+          success: false,
+          error: "Only super-admin can assign multiple workspaces",
+        });
+      }
+
+      if (!Array.isArray(workspace_ids) || workspace_ids.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: "workspace_ids must be a non-empty array",
+        });
+      }
+
+      // Update member's assigned_workspace array
+      await db.query(
+        `UPDATE users 
+         SET assigned_workspace = $1,
+             updated_at = NOW()
+         WHERE id = $2`,
+        [workspace_ids, parseInt(member_id)],
+      );
+
+      logger.info("Workspaces assigned successfully", {
+        memberId: member_id,
+        workspaceCount: workspace_ids.length,
+        assignedBy: req.user.userId,
+      });
+
+      res.json({
+        success: true,
+        message: `Successfully assigned ${workspace_ids.length} workspace(s) to member`,
+        data: {
+          member_id: parseInt(member_id),
+          assigned_workspaces: workspace_ids,
+        },
+      });
+    } catch (error) {
+      logger.error("Error assigning workspaces", {
+        error: error.message,
+        orgId: req.params.org_id,
+        userId: req.user?.userId,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: "Failed to assign workspaces",
         message: error.message,
       });
     }
