@@ -164,6 +164,7 @@ class PhysicianSearchService {
             name: location.name,
             address: location.address,
             distance: element.distance.text,
+            duration: element.duration.text,
             distanceValue: element.distance.value // in meters for sorting
           });
         } else {
@@ -183,7 +184,8 @@ class PhysicianSearchService {
       return locationsWithDistance.map(loc => ({
         name: loc.name,
         address: loc.address,
-        distance: loc.distance || 'Distance unavailable'
+        distance: loc.distance || 'Distance unavailable',
+        duration: loc.duration || 'Duration unavailable'
       }));
 
     } catch (error) {
