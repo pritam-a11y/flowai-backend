@@ -28,6 +28,7 @@ const schedulingRoutes = require("./routes/schedulingAgent");
 const patientIntakeRoutes = require("./routes/patientIntakeAgent");
 const hammingRoutes = require("./routes/hamming");
 const timezoneRoutes = require("./routes/timezone");
+const membersRoutes = require("./routes/members");
 
 const app = express();
 
@@ -148,6 +149,7 @@ app.use("/api/v1/scheduling-agent", schedulingRoutes);
 app.use("/api/v1/patient-intake-agent", patientIntakeRoutes);
 app.use("/api/v1/hamming", hammingRoutes);
 app.use("/api/v1/timezones", timezoneRoutes);
+app.use("/api/v1/members", membersRoutes);
 
 // OAuth Routes (no prefix as per standard OAuth conventions)
 app.use("/oauth", oauthRoutes);
