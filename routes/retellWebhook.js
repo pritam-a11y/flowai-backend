@@ -201,7 +201,7 @@ router.post("/webhook", async (req, res, next) => {
  *                     description: Access token from call context
  *               name:
  *                 type: string
- *                 enum: [check_availability, book_appointment, update_appointment, create_patient, find_patient, sort_locations]
+ *                 enum: [check_availability, book_appointment, update_appointment, create_patient, find_patient, sort_locations, search_physician]
  *                 description: Function name
  *               args:
  *                 type: object
@@ -228,6 +228,12 @@ router.post("/webhook", async (req, res, next) => {
  *                   provider:
  *                     type: string
  *                     description: Provider identifier - precision or uchicago (for sort_locations)
+ *                   specialty:
+ *                     type: string
+ *                     description: Physician specialty (e.g., CARDIOLOGY, ONCOLOGY) - required for search_physician
+ *                   firstName:
+ *                     type: string
+ *                     description: Physician first name - optional for search_physician
  *     responses:
  *       200:
  *         description: Function call result
@@ -625,6 +631,46 @@ router.post("/function-call", async (req, res, next) => {
 
           result = sortResult.result;
         }
+        break;
+      }
+
+      case "search_physician": {
+        logger.info("Processing search_physician function call");
+
+        // Extract parameters from args
+        const { specialty, firstName, address } = args;
+
+        // Validate required fields
+        if (!specialty) {
+          logger.warn("search_physician failed: missing required specialty", {
+            specialty,
+            firstName,
+            address,
+          });
+          return res.status(400).json({
+            success: false,
+            error: "Missing required field: specialty is required",
+          });
+        }
+
+        // Import physician search service
+        const physicianSearchService = require("../services/physicianSearchService");
+
+        // Search for physicians
+        const searchResult = await physicianSearchService.searchPhysicians(
+          specialty,
+          firstName || null,
+          address || null
+        );
+
+        logger.info("search_physician completed", {
+          specialty,
+          firstName,
+          hasAddress: !!address,
+          physiciansFound: searchResult.physicians.length,
+        });
+
+        result = searchResult;
         break;
       }
 

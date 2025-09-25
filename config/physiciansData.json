@@ -1,0 +1,2899 @@
+{
+  "metadata": {
+    "totalPhysicians": 141,
+    "lastUpdated": "2025-09-25T07:00:54.991Z",
+    "specialties": [
+      "CARDIOLOGY",
+      "ONCOLOGY",
+      "ORTHOPEDICS",
+      "OBSTETRICS_GYNECOLOGY",
+      "NEUROLOGY",
+      "GASTROENTEROLOGY",
+      "GI_SURGERY",
+      "UROLOGY"
+    ],
+    "source": "Final Updated U Chicago List of Physicians - v2.0.csv"
+  },
+  "physicians": [
+    {
+      "id": 1,
+      "firstName": "Rishi",
+      "lastName": "Arora",
+      "name": "Dr. Rishi Arora",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "firstName": "Zaid",
+      "lastName": "Aziz",
+      "name": "Dr. Zaid Aziz",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "firstName": "Andrew",
+      "lastName": "Beaser",
+      "name": "Dr. Andrew Beaser",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Ingalls - Harvey",
+          "centerName": "UChicago Medicine Outpatient Center at Ingalls – Harvey",
+          "address": "71 W. 156th St., Harvey, IL, 60426"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "firstName": "Gaurav",
+      "lastName": "Upadhyay",
+      "name": "Dr. Gaurav Upadhyay",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English",
+        "Hindi"
+      ],
+      "locations": [
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        },
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "firstName": "Henry",
+      "lastName": "Huang",
+      "name": "Dr. Henry Huang",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "firstName": "Atman",
+      "lastName": "Shah",
+      "name": "Dr. Atman Shah",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "firstName": "Sandeep",
+      "lastName": "Nathan",
+      "name": "Dr. Sandeep Nathan",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "firstName": "Adam",
+      "lastName": "Vohra",
+      "name": "Dr. Adam Vohra",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "firstName": "Jonathan",
+      "lastName": "Paul",
+      "name": "Dr. Jonathan Paul",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "firstName": "Jay",
+      "lastName": "Khambhati",
+      "name": "Dr. Jay Khambhati",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Crown Point",
+          "centerName": "UChicago Medicine Crown Point",
+          "address": "10855 Virginia St., Crown Point, IN, 46307"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "firstName": "Nikhil",
+      "lastName": "Narang",
+      "name": "Dr. Nikhil Narang",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "firstName": "Manreet",
+      "lastName": "Kanwar",
+      "name": "Dr. Manreet Kanwar",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "firstName": "Amber",
+      "lastName": "Johnson",
+      "name": "Dr. Amber Johnson",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "firstName": "Leo",
+      "lastName": "Gozdecki",
+      "name": "Dr. Leo Gozdecki",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "firstName": "Jeanne",
+      "lastName": "DeCara",
+      "name": "Dr. Jeanne DeCara",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "firstName": "Michael",
+      "lastName": "Davidson",
+      "name": "Dr. Michael Davidson",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "firstName": "Karima",
+      "lastName": "Addetia",
+      "name": "Dr. Karima Addetia",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "firstName": "Mark",
+      "lastName": "Belkin",
+      "name": "Dr. Mark Belkin",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "firstName": "Francis",
+      "lastName": "Alenghat",
+      "name": "Dr. Francis Alenghat",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "firstName": "Tamar",
+      "lastName": "Polonsky",
+      "name": "Dr. Tamar Polonsky",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "firstName": "Alexandru",
+      "lastName": "Marginean",
+      "name": "Dr. Alexandru Marginean",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English",
+        "Romanian",
+        "Spanish"
+      ],
+      "locations": [
+        {
+          "name": "Ingalls - Flossmoor",
+          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
+          "address": "19550 Governors Hwy., Flossmoor, IL, 60422"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "firstName": "Angel",
+      "lastName": "De La Cruz Tejada",
+      "name": "Dr. Angel De La Cruz Tejada",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English",
+        "Spanish"
+      ],
+      "locations": [
+        {
+          "name": "Ingalls - Flossmoor",
+          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
+          "address": "19550 Governors Hwy., Flossmoor, IL, 60422"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "firstName": "Kathleen",
+      "lastName": "Drinan",
+      "name": "Dr. Kathleen Drinan",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "firstName": "Amber",
+      "lastName": "Kim",
+      "name": "Dr. Amber Kim",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "firstName": "Ann",
+      "lastName": "Nguyen",
+      "name": "Dr. Ann Nguyen",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "firstName": "Ibett",
+      "lastName": "Garcia",
+      "name": "Dr. Ibett Garcia",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English",
+        "Spanish"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "firstName": "Cevher",
+      "lastName": "Ozcan",
+      "name": "Dr. Cevher Ozcan",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "firstName": "Jeremy",
+      "lastName": "Ward",
+      "name": "Dr. Jeremy Ward",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "firstName": "Srinath",
+      "lastName": "Yeshwant",
+      "name": "Dr. Srinath Yeshwant",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "firstName": "Jonathan",
+      "lastName": "Paul",
+      "name": "Dr. Jonathan Paul",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "firstName": "Jonathan",
+      "lastName": "Grinstein",
+      "name": "Dr. Jonathan Grinstein",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "firstName": "Bow",
+      "lastName": "Chung",
+      "name": "Dr. Bow Chung",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "firstName": "Gene",
+      "lastName": "Kim",
+      "name": "Dr. Gene Kim",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "firstName": "Nitasha",
+      "lastName": "Sarswat",
+      "name": "Dr. Nitasha Sarswat",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "firstName": "Hena",
+      "lastName": "Patel",
+      "name": "Dr. Hena Patel",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "firstName": "Atman",
+      "lastName": "Shah",
+      "name": "Dr. Atman Shah",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "firstName": "Prateek",
+      "lastName": "Sharma",
+      "name": "Dr. Prateek Sharma",
+      "specialty": "CARDIOLOGY",
+      "rawSpecialty": "Cardiology (Heart Care)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "firstName": "Everett",
+      "lastName": "Vokes",
+      "name": "Dr. Everett Vokes",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "firstName": "Peter",
+      "lastName": "O'Donnell",
+      "name": "Dr. Peter O'Donnell",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "firstName": "Gini",
+      "lastName": "Fleming",
+      "name": "Dr. Gini Fleming",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "firstName": "Russell",
+      "lastName": "Szmulewitz",
+      "name": "Dr. Russell Szmulewitz",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "firstName": "Peter",
+      "lastName": "Riedell",
+      "name": "Dr. Peter Riedell",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "firstName": "Joseph",
+      "lastName": "Franses",
+      "name": "Dr. Joseph Franses",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "firstName": "Nan",
+      "lastName": "Chen",
+      "name": "Dr. Nan Chen",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "firstName": "Ivy",
+      "lastName": "Abraham",
+      "name": "Dr. Ivy Abraham",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Ingalls - Flossmoor",
+          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
+          "address": "19550 Governors Hwy., Flossmoor, IL, 60422"
+        },
+        {
+          "name": "Calumet City",
+          "centerName": "UChicago Medicine at Ingalls - Calumet City",
+          "address": "1600 Torrence Ave., Calumet City, IL, 60409"
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "firstName": "Ralph",
+      "lastName": "Weichselbaum",
+      "name": "Dr. Ralph Weichselbaum",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "firstName": "Steven",
+      "lastName": "Chmura",
+      "name": "Dr. Steven Chmura",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "firstName": "Muzamil",
+      "lastName": "Arshad",
+      "name": "Dr. Muzamil Arshad",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "firstName": "Joshua",
+      "lastName": "Lorenz",
+      "name": "Dr. Joshua Lorenz",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Crown Point",
+          "centerName": "UChicago Medicine Crown Point",
+          "address": "10855 Virginia St., Crown Point, IN, 46307"
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "firstName": "Daniel",
+      "lastName": "Haraf",
+      "name": "Dr. Daniel Haraf",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "firstName": "John",
+      "lastName": "Moroney",
+      "name": "Dr. John Moroney",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "firstName": "Nita",
+      "lastName": "Lee",
+      "name": "Dr. Nita Lee",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "firstName": "Ernst",
+      "lastName": "Lengyel",
+      "name": "Dr. Ernst Lengyel",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "firstName": "Cristina",
+      "lastName": "O'Donoghue",
+      "name": "Dr. Cristina O'Donoghue",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "firstName": "Nora",
+      "lastName": "Jaskowiak",
+      "name": "Dr. Nora Jaskowiak",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "firstName": "Ami",
+      "lastName": "Desai",
+      "name": "Dr. Ami Desai",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "firstName": "Mark",
+      "lastName": "Applebaum",
+      "name": "Dr. Mark Applebaum",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Comer Children's Hospital - Hyde Park",
+          "address": "5721 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "firstName": "James",
+      "lastName": "LaBelle",
+      "name": "Dr. James LaBelle",
+      "specialty": "ONCOLOGY",
+      "rawSpecialty": "Oncology (Cancer)",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "firstName": "Aravind",
+      "lastName": "Athiviraham",
+      "name": "Dr. Aravind Athiviraham",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English",
+        "French",
+        "Spanish"
+      ],
+      "locations": [
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        },
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "firstName": "Tessa",
+      "lastName": "Balach",
+      "name": "Dr. Tessa Balach",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        },
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "firstName": "Sofia",
+      "lastName": "Bougioukli",
+      "name": "Dr. Sofia Bougioukli",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English",
+        "Greek"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Calumet City",
+          "centerName": "UChicago Medicine at Ingalls - Calumet City",
+          "address": "1600 Torrence Ave., Calumet City, IL, 60409"
+        }
+      ]
+    },
+    {
+      "id": 62,
+      "firstName": "Lewis",
+      "lastName": "Shi",
+      "name": "Dr. Lewis Shi",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        },
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "firstName": "Jeffrey",
+      "lastName": "Stepan",
+      "name": "Dr. Jeffrey Stepan",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        },
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 64,
+      "firstName": "Sara",
+      "lastName": "Wallace",
+      "name": "Dr. Sara Wallace",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        },
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "La Grange",
+          "centerName": "UChicago Medicine Orthopaedics - La Grange",
+          "address": "5201 South Willow Spring Road, Suite 340, La Grange, IL, 60525"
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "firstName": "Michael",
+      "lastName": "Lee",
+      "name": "Dr. Michael Lee",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        },
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 66,
+      "firstName": "Nicholas",
+      "lastName": "Maassen",
+      "name": "Dr. Nicholas Maassen",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        },
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 67,
+      "firstName": "Wonyong",
+      "lastName": "Lee",
+      "name": "Dr. Wonyong Lee",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English",
+        "Korean"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Calumet City",
+          "centerName": "UChicago Medicine at Ingalls - Calumet City",
+          "address": "1600 Torrence Ave., Calumet City, IL, 60409"
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "firstName": "Gregory",
+      "lastName": "Schimizzi",
+      "name": "Dr. Gregory Schimizzi",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 69,
+      "firstName": "Lorin",
+      "lastName": "Brown",
+      "name": "Dr. Lorin Brown",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Crown Point",
+          "centerName": "UChicago Medicine Crown Point",
+          "address": "10855 Virginia St., Crown Point, IN, 46307"
+        }
+      ]
+    },
+    {
+      "id": 70,
+      "firstName": "Clarabelle",
+      "lastName": "DeVries",
+      "name": "Dr. Clarabelle DeVries",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Comer Children's Hospital - Hyde Park",
+          "address": "5721 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "La Grange",
+          "centerName": "UChicago Medicine Orthopaedics - La Grange",
+          "address": "5201 South Willow Spring Road, Suite 340, La Grange, IL, 60525"
+        }
+      ]
+    },
+    {
+      "id": 71,
+      "firstName": "Sherwin",
+      "lastName": "Ho",
+      "name": "Dr. Sherwin Ho",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        }
+      ]
+    },
+    {
+      "id": 72,
+      "firstName": "Hue",
+      "lastName": "Luu",
+      "name": "Dr. Hue Luu",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 73,
+      "firstName": "Rebecca",
+      "lastName": "Kuo",
+      "name": "Dr. Rebecca Kuo",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 74,
+      "firstName": "Jacob",
+      "lastName": "Wolf",
+      "name": "Dr. Jacob Wolf",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 75,
+      "firstName": "Megan",
+      "lastName": "Conti Mica",
+      "name": "Dr. Megan Conti Mica",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        }
+      ]
+    },
+    {
+      "id": 76,
+      "firstName": "Rachel",
+      "lastName": "Garfinkel",
+      "name": "Dr. Rachel Garfinkel",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Comer Children's Hospital - Hyde Park",
+          "address": "5721 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Crown Point",
+          "centerName": "UChicago Medicine Crown Point",
+          "address": "10855 Virginia St., Crown Point, IN, 46307"
+        }
+      ]
+    },
+    {
+      "id": 77,
+      "firstName": "Mary Kate",
+      "lastName": "Erdman",
+      "name": "Dr. Mary Kate Erdman",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 78,
+      "firstName": "Lewis",
+      "lastName": "Shi",
+      "name": "Dr. Lewis Shi",
+      "specialty": "ORTHOPEDICS",
+      "rawSpecialty": "Orthopedics",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        }
+      ]
+    },
+    {
+      "id": 79,
+      "firstName": "Shivika",
+      "lastName": "Trivedi",
+      "name": "Dr. Shivika Trivedi",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English",
+        "Hindi"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 80,
+      "firstName": "Jana",
+      "lastName": "Richards",
+      "name": "Dr. Jana Richards",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "firstName": "Melinda",
+      "lastName": "Lukens",
+      "name": "Dr. Melinda Lukens",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 82,
+      "firstName": "Monica",
+      "lastName": "Christmas",
+      "name": "Dr. Monica Christmas",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "River East",
+          "centerName": "UChicago Medicine River East",
+          "address": "355 E Grand Ave., Chicago, IL, 60611"
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "firstName": "Julia",
+      "lastName": "Simon",
+      "name": "Dr. Julia Simon",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 84,
+      "firstName": "Ashish",
+      "lastName": "Premkumar",
+      "name": "Dr. Ashish Premkumar",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "firstName": "Ernst",
+      "lastName": "Lengyel",
+      "name": "Dr. Ernst Lengyel",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "firstName": "Nita",
+      "lastName": "Lee",
+      "name": "Dr. Nita Lee",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "firstName": "John",
+      "lastName": "Moroney",
+      "name": "Dr. John Moroney",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 88,
+      "firstName": "Kimberly",
+      "lastName": "Kenton",
+      "name": "Dr. Kimberly Kenton",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 89,
+      "firstName": "Christina",
+      "lastName": "Lewicky-Gaupp",
+      "name": "Dr. Christina Lewicky-Gaupp",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "firstName": "Maryam",
+      "lastName": "Siddiqui",
+      "name": "Dr. Maryam Siddiqui",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 91,
+      "firstName": "Jayme",
+      "lastName": "Castillo",
+      "name": "Dr. Jayme Castillo",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 92,
+      "firstName": "Jacques",
+      "lastName": "Abramowicz",
+      "name": "Dr. Jacques Abramowicz",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 93,
+      "firstName": "Sarah",
+      "lastName": "Collins",
+      "name": "Dr. Sarah Collins",
+      "specialty": "OBSTETRICS_GYNECOLOGY",
+      "rawSpecialty": "OB/Gyn",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 94,
+      "firstName": "Peter",
+      "lastName": "Warnke",
+      "name": "Dr. Peter Warnke",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 95,
+      "firstName": "David",
+      "lastName": "Satzer",
+      "name": "Dr. David Satzer",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Crown Point",
+          "centerName": "UChicago Medicine Crown Point",
+          "address": "10855 Virginia St., Crown Point, IN, 46307"
+        }
+      ]
+    },
+    {
+      "id": 96,
+      "firstName": "Sean",
+      "lastName": "Polster",
+      "name": "Dr. Sean Polster",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 97,
+      "firstName": "Edwin",
+      "lastName": "Ramos",
+      "name": "Dr. Edwin Ramos",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "New Lenox",
+          "centerName": "UChicago Medicine at Silver Cross (Pavilion A) - New Lenox",
+          "address": "1850 Silver Cross Blvd., Pavilion A, New Lenox, IL, 60451"
+        }
+      ]
+    },
+    {
+      "id": 98,
+      "firstName": "Paramita",
+      "lastName": "Das",
+      "name": "Dr. Paramita Das",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 99,
+      "firstName": "Martin",
+      "lastName": "Herman",
+      "name": "Dr. Martin Herman",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        }
+      ]
+    },
+    {
+      "id": 100,
+      "firstName": "Bakhtiar",
+      "lastName": "Yamini",
+      "name": "Dr. Bakhtiar Yamini",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 101,
+      "firstName": "Behzad",
+      "lastName": "Elahi",
+      "name": "Dr. Behzad Elahi",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "River East",
+          "centerName": "UChicago Medicine River East",
+          "address": "355 E Grand Ave., Chicago, IL, 60611"
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "firstName": "Veronica",
+      "lastName": "Cipriani",
+      "name": "Dr. Veronica Cipriani",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "River East",
+          "centerName": "UChicago Medicine River East",
+          "address": "355 E Grand Ave., Chicago, IL, 60611"
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "firstName": "Pei-Ning",
+      "lastName": "Hsu",
+      "name": "Dr. Pei-Ning Hsu",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "South Loop",
+          "centerName": "UChicago Medicine South Loop",
+          "address": "1100 S. Canal St., Chicago, IL, 60607"
+        }
+      ]
+    },
+    {
+      "id": 104,
+      "firstName": "Staci",
+      "lastName": "Graf",
+      "name": "Dr. Staci Graf",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Ingalls - Harvey",
+          "centerName": "UChicago Medicine at Ingalls Outpatient Center - Harvey",
+          "address": "71 W. 156th St., Harvey, IL, 60426"
+        }
+      ]
+    },
+    {
+      "id": 105,
+      "firstName": "James",
+      "lastName": "Siegler",
+      "name": "Dr. James Siegler",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Ingalls - Flossmoor",
+          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
+          "address": "19550 Governors Hwy., Flossmoor, IL, 60422"
+        }
+      ]
+    },
+    {
+      "id": 106,
+      "firstName": "Rachel",
+      "lastName": "Mehendale",
+      "name": "Dr. Rachel Mehendale",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 107,
+      "firstName": "Carlos",
+      "lastName": "Lara",
+      "name": "Dr. Carlos Lara",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 108,
+      "firstName": "Shubadra",
+      "lastName": "Priyadarshini",
+      "name": "Dr. Shubadra Priyadarshini",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 109,
+      "firstName": "Daniel",
+      "lastName": "Orozco",
+      "name": "Dr. Daniel Orozco",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 110,
+      "firstName": "William",
+      "lastName": "Roth",
+      "name": "Dr. William Roth",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 111,
+      "firstName": "Tao",
+      "lastName": "Xie",
+      "name": "Dr. Tao Xie",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 112,
+      "firstName": "Mohamad",
+      "lastName": "Bydon",
+      "name": "Dr. Mohamad Bydon",
+      "specialty": "NEUROLOGY",
+      "rawSpecialty": "Neuro",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 113,
+      "firstName": "David",
+      "lastName": "Rubin",
+      "name": "Dr. David Rubin",
+      "specialty": "GASTROENTEROLOGY",
+      "rawSpecialty": "Gastroenterology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "River East",
+          "centerName": "UChicago Medicine River East",
+          "address": "355 E Grand Ave., Chicago, IL, 60611"
+        }
+      ]
+    },
+    {
+      "id": 114,
+      "firstName": "Russell",
+      "lastName": "Cohen",
+      "name": "Dr. Russell Cohen",
+      "specialty": "GASTROENTEROLOGY",
+      "rawSpecialty": "Gastroenterology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 115,
+      "firstName": "Sonia",
+      "lastName": "Kupfer",
+      "name": "Dr. Sonia Kupfer",
+      "specialty": "GASTROENTEROLOGY",
+      "rawSpecialty": "Gastroenterology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "River East",
+          "centerName": "UChicago Medicine River East",
+          "address": "355 E Grand Ave., Chicago, IL, 60611"
+        }
+      ]
+    },
+    {
+      "id": 116,
+      "firstName": "Uzma",
+      "lastName": "Siddiqui",
+      "name": "Dr. Uzma Siddiqui",
+      "specialty": "GASTROENTEROLOGY",
+      "rawSpecialty": "Gastroenterology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        }
+      ]
+    },
+    {
+      "id": 117,
+      "firstName": "Michael",
+      "lastName": "Charlton",
+      "name": "Dr. Michael Charlton",
+      "specialty": "GASTROENTEROLOGY",
+      "rawSpecialty": "Gastroenterology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 118,
+      "firstName": "Amit",
+      "lastName": "Patel",
+      "name": "Dr. Amit Patel",
+      "specialty": "GASTROENTEROLOGY",
+      "rawSpecialty": "Gastroenterology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 119,
+      "firstName": "John",
+      "lastName": "Alverdy",
+      "name": "Dr. John Alverdy",
+      "specialty": "GI_SURGERY",
+      "rawSpecialty": "GI Surgery",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 120,
+      "firstName": "Vivek",
+      "lastName": "Prachand",
+      "name": "Dr. Vivek Prachand",
+      "specialty": "GI_SURGERY",
+      "rawSpecialty": "GI Surgery",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 121,
+      "firstName": "Mitchell",
+      "lastName": "Posner",
+      "name": "Dr. Mitchell Posner",
+      "specialty": "GI_SURGERY",
+      "rawSpecialty": "GI Surgery",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        }
+      ]
+    },
+    {
+      "id": 122,
+      "firstName": "Jeffrey",
+      "lastName": "Matthews",
+      "name": "Dr. Jeffrey Matthews",
+      "specialty": "GI_SURGERY",
+      "rawSpecialty": "GI Surgery",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 123,
+      "firstName": "Neil",
+      "lastName": "Hyman",
+      "name": "Dr. Neil Hyman",
+      "specialty": "GI_SURGERY",
+      "rawSpecialty": "GI Surgery",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 124,
+      "firstName": "Ameesh",
+      "lastName": "Vora",
+      "name": "Dr. Ameesh Vora",
+      "specialty": "GASTROENTEROLOGY",
+      "rawSpecialty": "Gastroenterology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 125,
+      "firstName": "Ankit",
+      "lastName": "Bharadia",
+      "name": "Dr. Ankit Bharadia",
+      "specialty": "GASTROENTEROLOGY",
+      "rawSpecialty": "Gastroenterology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 126,
+      "firstName": "Jessica",
+      "lastName": "Alberts",
+      "name": "Dr. Jessica Alberts",
+      "specialty": "GASTROENTEROLOGY",
+      "rawSpecialty": "Gastroenterology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 127,
+      "firstName": "Tarek",
+      "lastName": "Hassanein",
+      "name": "Dr. Tarek Hassanein",
+      "specialty": "GASTROENTEROLOGY",
+      "rawSpecialty": "Gastroenterology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 128,
+      "firstName": "Ibrahim",
+      "lastName": "Hanouneh",
+      "name": "Dr. Ibrahim Hanouneh",
+      "specialty": "GASTROENTEROLOGY",
+      "rawSpecialty": "Gastroenterology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 129,
+      "firstName": "Shane",
+      "lastName": "Dalton",
+      "name": "Dr. Shane Dalton",
+      "specialty": "GI_SURGERY",
+      "rawSpecialty": "GI Surgery",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 130,
+      "firstName": "Samer",
+      "lastName": "Talik",
+      "name": "Dr. Samer Talik",
+      "specialty": "GI_SURGERY",
+      "rawSpecialty": "GI Surgery",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 131,
+      "firstName": "Scott",
+      "lastName": "Eggener",
+      "name": "Dr. Scott Eggener",
+      "specialty": "UROLOGY",
+      "rawSpecialty": "Urology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "River East",
+          "centerName": "UChicago Medicine River East",
+          "address": "355 E Grand Ave., Chicago, IL, 60611"
+        }
+      ]
+    },
+    {
+      "id": 132,
+      "firstName": "Arieh",
+      "lastName": "Shalhav",
+      "name": "Dr. Arieh Shalhav",
+      "specialty": "UROLOGY",
+      "rawSpecialty": "Urology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 133,
+      "firstName": "Gregory",
+      "lastName": "Zagaja",
+      "name": "Dr. Gregory Zagaja",
+      "specialty": "UROLOGY",
+      "rawSpecialty": "Urology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "Orland Park",
+          "centerName": "UChicago Medicine Orland Park",
+          "address": "14290 S. La Grange Rd., Orland Park, IL, 60462"
+        }
+      ]
+    },
+    {
+      "id": 134,
+      "firstName": "Mike",
+      "lastName": "Hsieh",
+      "name": "Dr. Mike Hsieh",
+      "specialty": "UROLOGY",
+      "rawSpecialty": "Urology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 135,
+      "firstName": "Christina",
+      "lastName": "Karakousis",
+      "name": "Dr. Christina Karakousis",
+      "specialty": "UROLOGY",
+      "rawSpecialty": "Urology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 136,
+      "firstName": "Mohamed",
+      "lastName": "Mayan",
+      "name": "Dr. Mohamed Mayan",
+      "specialty": "UROLOGY",
+      "rawSpecialty": "Urology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "Comer Children's Hospital - Hyde Park",
+          "address": "5721 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 137,
+      "firstName": "Andrew",
+      "lastName": "Hayes",
+      "name": "Dr. Andrew Hayes",
+      "specialty": "UROLOGY",
+      "rawSpecialty": "Urology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 138,
+      "firstName": "Michael",
+      "lastName": "Gore",
+      "name": "Dr. Michael Gore",
+      "specialty": "UROLOGY",
+      "rawSpecialty": "Urology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Crown Point",
+          "centerName": "UChicago Medicine Crown Point",
+          "address": "10855 Virginia St., Crown Point, IN, 46307"
+        },
+        {
+          "name": "New Lenox",
+          "centerName": "UChicago Medicine at Silver Cross (Pavilion A) - New Lenox",
+          "address": "1850 Silver Cross Blvd., Pavilion A, New Lenox, IL, 60451"
+        }
+      ]
+    },
+    {
+      "id": 139,
+      "firstName": "Piyush",
+      "lastName": "Agarwal",
+      "name": "Dr. Piyush Agarwal",
+      "specialty": "UROLOGY",
+      "rawSpecialty": "Urology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English",
+        "Hindi"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    },
+    {
+      "id": 140,
+      "firstName": "Denise",
+      "lastName": "Asafu-Adjei",
+      "name": "Dr. Denise Asafu-Adjei",
+      "specialty": "UROLOGY",
+      "rawSpecialty": "Urology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        },
+        {
+          "name": "River East",
+          "centerName": "UChicago Medicine River East",
+          "address": "355 E Grand Ave., Chicago, IL, 60611"
+        },
+        {
+          "name": "South Loop",
+          "centerName": "UChicago Medicine South Loop",
+          "address": "1100 S. Canal St., Chicago, IL, 60607"
+        }
+      ]
+    },
+    {
+      "id": 141,
+      "firstName": "Sarah",
+      "lastName": "Faris",
+      "name": "Dr. Sarah Faris",
+      "specialty": "UROLOGY",
+      "rawSpecialty": "Urology",
+      "acceptingNewPatients": true,
+      "languages": [
+        "English"
+      ],
+      "locations": [
+        {
+          "name": "Hyde Park",
+          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
+          "address": "5758 S. Maryland Ave., Chicago, IL, 60637"
+        }
+      ]
+    }
+  ]
+}
