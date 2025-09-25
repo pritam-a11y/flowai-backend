@@ -1,3 +1,4 @@
+require('dotenv').config();
 const physiciansData = require('../config/physiciansData.json');
 const axios = require('axios');
 const logger = require('../utils/logger');
