@@ -364,15 +364,7 @@ router.post(
   async (req, res) => {
     try {
       const { org_id } = req.params;
-      const {
-        email,
-        username,
-        firstName,
-        lastName,
-        role,
-        password,
-        assignAsSecondary,
-      } = req.body;
+      const { email, username, firstName, lastName, role } = req.body;
       const requestingUserRole = req.user.role;
 
       logger.info("Adding new member", {
@@ -395,8 +387,13 @@ router.post(
 
       // Validate role assignment permissions
       if (requestingUserRole === "customer-admin") {
-        // Customer admins can only add restricted roles
-        if (!RESTRICTED_VISIBLE_ROLES.includes(role)) {
+        // Customer admins can only add these specific roles
+        const allowedRoles = [
+          "customer-admin",
+          "core-team-member",
+          "analytics-user",
+        ];
+        if (!allowedRoles.includes(role)) {
           return res.status(403).json({
             success: false,
             error:
@@ -405,40 +402,52 @@ router.post(
         }
       }
 
+      // Validate required fields
+      if (!email || !username || !firstName || !role) {
+        return res.status(400).json({
+          success: false,
+          error:
+            "Missing required fields: email, username, firstName, and role are required",
+        });
+      }
+
       // Check if user already exists
       const existingUserCheck = await db.query(
-        "SELECT id, email, org_id, role FROM users WHERE email = $1",
+        "SELECT id, email, org_id, role, assigned_workspace FROM users WHERE email = $1",
         [email],
       );
 
       if (existingUserCheck.rows.length > 0) {
         const existingUser = existingUserCheck.rows[0];
 
-        // Check if existing user is super-admin or observer
-        if (
-          existingUser.role === "super-admin" ||
-          existingUser.role === "observer"
-        ) {
-          return res.status(400).json({
-            success: false,
-            error: `User already exists as ${existingUser.role} with global access to all organizations`,
-          });
-        }
+        // Only allow adding to assigned_workspace if the existing user role is "member"
+        if (existingUser.role === "member") {
+          // Check if org is already in assigned_workspace
+          const alreadyAssigned =
+            existingUser.assigned_workspace &&
+            existingUser.assigned_workspace.includes(parseInt(org_id));
 
-        // If assignAsSecondary is true, add org to assigned_workspace
-        if (assignAsSecondary) {
+          if (alreadyAssigned) {
+            return res.status(400).json({
+              success: false,
+              error: "User already has access to this organization",
+            });
+          }
+
+          // Add org to assigned_workspace
           await db.query(
             `UPDATE users 
              SET assigned_workspace = array_append(
                COALESCE(assigned_workspace, ARRAY[]::integer[]), 
                $1
-             )
-             WHERE id = $2 AND NOT ($1 = ANY(COALESCE(assigned_workspace, ARRAY[]::integer[])))`,
+             ),
+             updated_at = NOW()
+             WHERE id = $2`,
             [parseInt(org_id), existingUser.id],
           );
 
           logger.info(
-            "Added organization to existing user assigned workspaces",
+            "Added organization to existing member's assigned workspaces",
             {
               userId: existingUser.id,
               orgId: org_id,
@@ -448,31 +457,45 @@ router.post(
           return res.json({
             success: true,
             message:
-              "Organization added to existing user's assigned workspaces",
+              "Organization added to existing member's assigned workspaces",
             data: {
               userId: existingUser.id,
               email: existingUser.email,
+              role: existingUser.role,
               assignedToOrg: parseInt(org_id),
             },
           });
         } else {
           return res.status(400).json({
             success: false,
-            error: "User with this email already exists",
+            error: `User already exists with role: ${existingUser.role}. Cannot add to this organization.`,
           });
         }
       }
 
-      // Validate required fields for new user
-      if (!password) {
-        return res.status(400).json({
-          success: false,
-          error: "Password is required for new user",
-        });
-      }
+      // Generate random password for new user
+      const generatePassword = () => {
+        const length = 12;
+        const charset =
+          "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+        let password = "";
+        for (let i = 0; i < length; i++) {
+          password += charset.charAt(
+            Math.floor(Math.random() * charset.length),
+          );
+        }
+        return password;
+      };
 
-      // Hash password
-      const passwordHash = await bcrypt.hash(password, 10);
+      const generatedPassword = generatePassword();
+      const passwordHash = await bcrypt.hash(generatedPassword, 10);
+
+      // Get organization name for email
+      const orgResult = await db.query(
+        "SELECT name FROM organisations WHERE org_id = $1",
+        [parseInt(org_id)],
+      );
+      const orgName = orgResult.rows[0]?.name || "MyFlowAI";
 
       // Insert new user
       const insertQuery = `
@@ -486,7 +509,7 @@ router.post(
       const insertResult = await db.query(insertQuery, [
         username,
         email,
-        firstName || null,
+        firstName,
         lastName || null,
         passwordHash,
         role,
@@ -494,6 +517,144 @@ router.post(
       ]);
 
       const newMember = insertResult.rows[0];
+
+      // Send welcome email with credentials
+      try {
+        const { Resend } = require("resend");
+        const resend = new Resend("re_DXtS219b_C9LEPwDvBsy2ZMmEKZGh8yYx");
+
+        const emailHtml = `
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width">
+    <meta charset="utf-8">
+    <title>Welcome to MyFlowAI</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f5f7fb;">
+      <tr>
+        <td align="center" style="padding:40px 20px;">
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+
+            <!-- Header -->
+            <tr>
+              <td style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);padding:30px 40px;text-align:center;">
+                <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:600;">Welcome to MyFlowAI</h1>
+              </td>
+            </tr>
+
+            <!-- Content -->
+            <tr>
+              <td style="padding:40px;">
+                <h2 style="margin:0 0 10px 0;color:#1a202c;font-size:20px;">Hi ${firstName},</h2>
+                <p style="margin:0 0 20px 0;color:#4a5568;line-height:1.6;">
+                  You have been added as a <strong>${role}</strong> to the <strong>${orgName}</strong> organization on MyFlowAI.
+                </p>
+
+                <!-- Credentials Box -->
+                <div style="background:#f7fafc;border:2px solid #e2e8f0;border-radius:8px;padding:20px;margin:30px 0;">
+                  <h3 style="margin:0 0 15px 0;color:#2d3748;font-size:16px;">Your Login Credentials</h3>
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                    <tr>
+                      <td style="padding:8px 0;color:#4a5568;">
+                        <strong>Email:</strong>
+                      </td>
+                      <td style="padding:8px 0;color:#2d3748;font-family:monospace;">
+                        ${email}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding:8px 0;color:#4a5568;">
+                        <strong>Username:</strong>
+                      </td>
+                      <td style="padding:8px 0;color:#2d3748;font-family:monospace;">
+                        ${username}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding:8px 0;color:#4a5568;">
+                        <strong>Temporary Password:</strong>
+                      </td>
+                      <td style="padding:8px 0;color:#2d3748;font-family:monospace;background:#fff;padding:8px;border-radius:4px;">
+                        ${generatedPassword}
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+
+                <!-- Login Button -->
+                <div style="text-align:center;margin:30px 0;">
+                  <a href="https://dev.myflowai.com/login" 
+                     style="display:inline-block;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:6px;font-weight:600;font-size:16px;">
+                    Login to MyFlowAI
+                  </a>
+                </div>
+
+                <!-- Security Notice -->
+                <div style="background:#fef5e7;border-left:4px solid #f39c12;padding:15px;margin:30px 0;border-radius:4px;">
+                  <p style="margin:0;color:#856404;font-size:14px;">
+                    <strong>Security Notice:</strong> Please change your password after your first login. 
+                    Keep your credentials secure and do not share them with anyone.
+                  </p>
+                </div>
+
+                <!-- Next Steps -->
+                <div style="margin:30px 0;">
+                  <h3 style="margin:0 0 10px 0;color:#2d3748;font-size:16px;">Next Steps:</h3>
+                  <ol style="margin:10px 0;padding-left:20px;color:#4a5568;line-height:1.8;">
+                    <li>Click the login button above or visit <a href="https://dev.myflowai.com/login" style="color:#667eea;">https://dev.myflowai.com/login</a></li>
+                    <li>Enter your email and temporary password</li>
+                    <li>Change your password when prompted</li>
+                    <li>Start exploring your dashboard and features</li>
+                  </ol>
+                </div>
+
+                <!-- Support -->
+                <p style="margin:20px 0 0 0;color:#718096;font-size:14px;line-height:1.6;">
+                  If you have any questions or need assistance, please don't hesitate to contact our support team at 
+                  <a href="mailto:support@myflowai.com" style="color:#667eea;">support@myflowai.com</a>
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="background:#f7fafc;padding:20px 40px;text-align:center;border-top:1px solid #e2e8f0;">
+                <p style="margin:0;color:#718096;font-size:12px;">
+                  © 2025 MyFlowAI. All rights reserved.<br>
+                  This is an automated message, please do not reply to this email.
+                </p>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+
+        await resend.emails.send({
+          from: "MyFlowAI <no-reply@myflowai.com>",
+          to: email,
+          subject: `Welcome to MyFlowAI - Your Account Has Been Created`,
+          html: emailHtml,
+        });
+
+        logger.info("Welcome email sent successfully", {
+          to: email,
+          memberId: newMember.id,
+        });
+      } catch (emailError) {
+        logger.error("Failed to send welcome email", {
+          error: emailError.message,
+          to: email,
+          memberId: newMember.id,
+        });
+        // Don't fail the request if email fails - user is still created
+      }
 
       logger.info("New member added successfully", {
         orgId: org_id,
@@ -505,12 +666,13 @@ router.post(
 
       res.status(201).json({
         success: true,
-        message: "Member added successfully",
+        message:
+          "Member added successfully. Welcome email has been sent with login credentials.",
         data: {
           id: newMember.id,
           username: newMember.username,
           email: newMember.email,
-          firstName: newMember.first_name || null,
+          firstName: newMember.first_name,
           lastName: newMember.last_name || null,
           role: newMember.role,
           orgId: newMember.org_id,
