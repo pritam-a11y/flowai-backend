@@ -23,7 +23,7 @@ const RESTRICTED_VISIBLE_ROLES = [
 ];
 
 /**
- * @route GET /api/members/:org_id/list
+ * @route GET /api/v1/members/:org_id/list
  * @desc Get list of members for an organization
  * @access Private - requires JWT and org access
  */
@@ -153,7 +153,7 @@ router.get(
 );
 
 /**
- * @route GET /api/members/:org_id/member/:member_id
+ * @route GET /api/v1/members/:org_id/member/:member_id
  * @desc Get detailed information about a specific member
  * @access Private - requires JWT and org access
  */
@@ -306,7 +306,7 @@ router.get(
 );
 
 /**
- * @route POST /api/members/:org_id/add
+ * @route POST /api/v1/members/:org_id/add
  * @desc Add a new member to the organization
  * @access Private - requires JWT, org access, and appropriate permissions
  */
@@ -450,7 +450,7 @@ router.post(
 );
 
 /**
- * @route PUT /api/members/:org_id/member/:member_id/role
+ * @route PUT /api/v1/members/:org_id/member/:member_id/role
  * @desc Update member role
  * @access Private - requires JWT, org access, and appropriate permissions
  */
@@ -556,7 +556,7 @@ router.put(
 );
 
 /**
- * @route DELETE /api/members/:org_id/member/:member_id
+ * @route DELETE /api/v1/members/:org_id/member/:member_id
  * @desc Remove member from organization (deactivate or remove from assigned)
  * @access Private - requires JWT, org access, and appropriate permissions
  */
