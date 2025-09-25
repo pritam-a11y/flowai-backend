@@ -7,6 +7,18 @@ const { validateOrgAccess } = require("../middleware/orgAccess");
 const requireFeaturePermission = require("../middleware/featureAccess");
 const bcrypt = require("bcrypt");
 
+/**
+ * Member Access Rules:
+ * - super-admin & observer: Have access to ALL organizations (global access)
+ * - member: Has access to their own org (org_id) + assigned orgs (assigned_workspace)
+ * - customer-admin, core-team-member, analytics-user: Only their own org (org_id)
+ *
+ * When listing members for an org, we include:
+ * 1. Users where org_id matches (primary organization)
+ * 2. Users where org is in assigned_workspace array
+ * 3. ALL super-admins and observers (they have global access)
+ */
+
 // Role visibility rules
 const ROLE_VISIBILITY_RULES = {
   "super-admin": "all",
@@ -49,11 +61,17 @@ router.get(
         ROLE_VISIBILITY_RULES[requestingUserRole] || "restricted";
 
       // Build the base query
+      // Include:
+      // 1. Users with this org as primary (org_id = $1)
+      // 2. Users with this org in assigned_workspace
+      // 3. ALL super-admins and observers (they have access to all orgs)
       let query = `
         SELECT DISTINCT
           u.id,
           u.username,
           u.email,
+          u.first_name,
+          u.last_name,
           u.role,
           u.org_id as primary_org_id,
           u.assigned_workspace,
@@ -63,6 +81,7 @@ router.get(
           CASE 
             WHEN u.org_id = $1 THEN 'primary'
             WHEN $1 = ANY(u.assigned_workspace) THEN 'assigned'
+            WHEN u.role IN ('super-admin', 'observer') THEN 'global_access'
             ELSE 'unknown'
           END as access_type
         FROM users u
@@ -71,6 +90,7 @@ router.get(
           AND (
             u.org_id = $1 
             OR $1 = ANY(u.assigned_workspace)
+            OR u.role IN ('super-admin', 'observer')
           )
       `;
 
@@ -83,7 +103,7 @@ router.get(
       }
 
       // Add ordering
-      query += ` ORDER BY u.role, u.username`;
+      query += ` ORDER BY u.role, u.first_name, u.last_name, u.username`;
 
       // Execute query
       const result = await db.query(query, queryParams);
@@ -93,14 +113,21 @@ router.get(
         id: member.id,
         username: member.username,
         email: member.email,
+        firstName: member.first_name || null,
+        lastName: member.last_name || null,
+        fullName:
+          member.first_name || member.last_name
+            ? `${member.first_name || ""} ${member.last_name || ""}`.trim()
+            : null,
         role: member.role,
-        accessType: member.access_type,
+        accessType: member.access_type, // 'primary', 'assigned', or 'global_access'
         isActive: member.is_active,
         lastLogin: member.last_login,
         createdAt: member.created_at,
         isPrimaryOrg: member.primary_org_id === parseInt(org_id),
         hasMultipleOrgs:
           member.assigned_workspace && member.assigned_workspace.length > 0,
+        hasGlobalAccess: member.access_type === "global_access", // Added for clarity
       }));
 
       // Group members by role for better organization
@@ -134,7 +161,11 @@ router.get(
               return acc;
             }, {}),
             primaryOrgMembers: members.filter((m) => m.isPrimaryOrg).length,
-            assignedMembers: members.filter((m) => !m.isPrimaryOrg).length,
+            assignedMembers: members.filter((m) => m.accessType === "assigned")
+              .length,
+            globalAccessMembers: members.filter(
+              (m) => m.accessType === "global_access",
+            ).length,
           },
         },
       });
@@ -175,11 +206,14 @@ router.get(
       });
 
       // Build query to get member details
+      // Include super-admins and observers who have global access
       const query = `
         SELECT 
           u.id,
           u.username,
           u.email,
+          u.first_name,
+          u.last_name,
           u.role,
           u.org_id as primary_org_id,
           u.assigned_workspace,
@@ -191,13 +225,18 @@ router.get(
           CASE 
             WHEN u.org_id = $1 THEN 'primary'
             WHEN $1 = ANY(u.assigned_workspace) THEN 'assigned'
+            WHEN u.role IN ('super-admin', 'observer') THEN 'global_access'
             ELSE 'no_access'
           END as access_type
         FROM users u
         LEFT JOIN organisations o ON u.org_id = o.org_id
         WHERE 
           u.id = $2
-          AND (u.org_id = $1 OR $1 = ANY(u.assigned_workspace))
+          AND (
+            u.org_id = $1 
+            OR $1 = ANY(u.assigned_workspace)
+            OR u.role IN ('super-admin', 'observer')
+          )
       `;
 
       const result = await db.query(query, [
@@ -264,6 +303,12 @@ router.get(
         id: member.id,
         username: member.username,
         email: member.email,
+        firstName: member.first_name || null,
+        lastName: member.last_name || null,
+        fullName:
+          member.first_name || member.last_name
+            ? `${member.first_name || ""} ${member.last_name || ""}`.trim()
+            : null,
         role: member.role,
         accessType: member.access_type,
         isActive: member.is_active,
@@ -319,7 +364,15 @@ router.post(
   async (req, res) => {
     try {
       const { org_id } = req.params;
-      const { email, username, role, password, assignAsSecondary } = req.body;
+      const {
+        email,
+        username,
+        firstName,
+        lastName,
+        role,
+        password,
+        assignAsSecondary,
+      } = req.body;
       const requestingUserRole = req.user.role;
 
       logger.info("Adding new member", {
@@ -354,12 +407,23 @@ router.post(
 
       // Check if user already exists
       const existingUserCheck = await db.query(
-        "SELECT id, email, org_id FROM users WHERE email = $1",
+        "SELECT id, email, org_id, role FROM users WHERE email = $1",
         [email],
       );
 
       if (existingUserCheck.rows.length > 0) {
         const existingUser = existingUserCheck.rows[0];
+
+        // Check if existing user is super-admin or observer
+        if (
+          existingUser.role === "super-admin" ||
+          existingUser.role === "observer"
+        ) {
+          return res.status(400).json({
+            success: false,
+            error: `User already exists as ${existingUser.role} with global access to all organizations`,
+          });
+        }
 
         // If assignAsSecondary is true, add org to assigned_workspace
         if (assignAsSecondary) {
@@ -413,15 +477,17 @@ router.post(
       // Insert new user
       const insertQuery = `
         INSERT INTO users (
-          username, email, password_hash, role, org_id, 
+          username, email, first_name, last_name, password_hash, role, org_id, 
           is_active, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, true, NOW(), NOW())
-        RETURNING id, username, email, role, org_id
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, true, NOW(), NOW())
+        RETURNING id, username, email, first_name, last_name, role, org_id
       `;
 
       const insertResult = await db.query(insertQuery, [
         username,
         email,
+        firstName || null,
+        lastName || null,
         passwordHash,
         role,
         parseInt(org_id),
@@ -440,7 +506,15 @@ router.post(
       res.status(201).json({
         success: true,
         message: "Member added successfully",
-        data: newMember,
+        data: {
+          id: newMember.id,
+          username: newMember.username,
+          email: newMember.email,
+          firstName: newMember.first_name || null,
+          lastName: newMember.last_name || null,
+          role: newMember.role,
+          orgId: newMember.org_id,
+        },
       });
     } catch (error) {
       logger.error("Error adding member", {
@@ -452,6 +526,136 @@ router.post(
       res.status(500).json({
         success: false,
         error: "Failed to add member",
+        message: error.message,
+      });
+    }
+  },
+);
+
+/**
+ * @route PUT /api/v1/members/:org_id/member/:member_id/profile
+ * @desc Update member profile information (name, username)
+ * @access Private - requires JWT, org access, and appropriate permissions
+ */
+router.put(
+  "/:org_id/member/:member_id/profile",
+  jwtMiddleware,
+  validateOrgAccess,
+  async (req, res) => {
+    try {
+      const { org_id, member_id } = req.params;
+      const { firstName, lastName, username } = req.body;
+      const requestingUserRole = req.user.role;
+
+      logger.info("Updating member profile", {
+        orgId: org_id,
+        memberId: member_id,
+        requestedBy: req.user.userId,
+      });
+
+      // Check permissions - user can update their own profile, or admins can update others
+      const canUpdateProfile =
+        parseInt(member_id) === req.user.userId ||
+        ["super-admin", "customer-admin"].includes(requestingUserRole);
+
+      if (!canUpdateProfile) {
+        return res.status(403).json({
+          success: false,
+          error: "You do not have permission to update this member's profile",
+        });
+      }
+
+      // Build dynamic update query
+      const updateFields = [];
+      const values = [];
+      let paramIndex = 1;
+
+      if (firstName !== undefined) {
+        updateFields.push(`first_name = ${paramIndex}`);
+        values.push(firstName);
+        paramIndex++;
+      }
+
+      if (lastName !== undefined) {
+        updateFields.push(`last_name = ${paramIndex}`);
+        values.push(lastName);
+        paramIndex++;
+      }
+
+      if (username !== undefined) {
+        updateFields.push(`username = ${paramIndex}`);
+        values.push(username);
+        paramIndex++;
+      }
+
+      if (updateFields.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: "No fields to update",
+        });
+      }
+
+      updateFields.push("updated_at = NOW()");
+      values.push(parseInt(member_id));
+      values.push(parseInt(org_id));
+
+      // Update the member profile
+      const updateQuery = `
+        UPDATE users 
+        SET ${updateFields.join(", ")}
+        WHERE id = ${paramIndex} 
+        AND (
+          org_id = ${paramIndex + 1} 
+          OR ${paramIndex + 1} = ANY(assigned_workspace)
+          OR role IN ('super-admin', 'observer')
+        )
+        RETURNING id, username, email, first_name, last_name, role
+      `;
+
+      const updateResult = await db.query(updateQuery, values);
+
+      if (updateResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: "Member not found or does not belong to this organization",
+        });
+      }
+
+      const updatedMember = updateResult.rows[0];
+
+      logger.info("Member profile updated successfully", {
+        orgId: org_id,
+        memberId: member_id,
+        updatedBy: req.user.userId,
+      });
+
+      res.json({
+        success: true,
+        message: "Profile updated successfully",
+        data: {
+          id: updatedMember.id,
+          username: updatedMember.username,
+          email: updatedMember.email,
+          firstName: updatedMember.first_name || null,
+          lastName: updatedMember.last_name || null,
+          fullName:
+            updatedMember.first_name || updatedMember.last_name
+              ? `${updatedMember.first_name || ""} ${updatedMember.last_name || ""}`.trim()
+              : null,
+          role: updatedMember.role,
+        },
+      });
+    } catch (error) {
+      logger.error("Error updating member profile", {
+        error: error.message,
+        orgId: req.params.org_id,
+        memberId: req.params.member_id,
+        userId: req.user?.userId,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: "Failed to update member profile",
         message: error.message,
       });
     }
@@ -514,12 +718,17 @@ router.put(
       }
 
       // Update the role
+      // Include super-admins and observers in the update query
       const updateQuery = `
         UPDATE users 
         SET role = $1, updated_at = NOW()
         WHERE id = $2 
-        AND (org_id = $3 OR $3 = ANY(assigned_workspace))
-        RETURNING id, username, email, role
+        AND (
+          org_id = $3 
+          OR $3 = ANY(assigned_workspace)
+          OR role IN ('super-admin', 'observer')
+        )
+        RETURNING id, username, email, first_name, last_name, role
       `;
 
       const updateResult = await db.query(updateQuery, [
@@ -542,10 +751,19 @@ router.put(
         updatedBy: req.user.userId,
       });
 
+      const updatedMember = updateResult.rows[0];
+
       res.json({
         success: true,
         message: "Role updated successfully",
-        data: updateResult.rows[0],
+        data: {
+          id: updatedMember.id,
+          username: updatedMember.username,
+          email: updatedMember.email,
+          firstName: updatedMember.first_name || null,
+          lastName: updatedMember.last_name || null,
+          role: updatedMember.role,
+        },
       });
     } catch (error) {
       logger.error("Error updating member role", {
@@ -605,7 +823,7 @@ router.delete(
 
       // Check if this is primary org or assigned workspace
       const memberCheck = await db.query(
-        `SELECT id, org_id, assigned_workspace 
+        `SELECT id, org_id, assigned_workspace, role 
          FROM users 
          WHERE id = $1`,
         [parseInt(member_id)],
@@ -619,6 +837,17 @@ router.delete(
       }
 
       const member = memberCheck.rows[0];
+
+      // Handle super-admin and observer special cases
+      if (member.role === "super-admin" || member.role === "observer") {
+        if (member.org_id !== parseInt(org_id)) {
+          return res.status(400).json({
+            success: false,
+            error: `Cannot remove ${member.role} from organization - they have global access to all organizations. Change their role or deactivate their account instead.`,
+          });
+        }
+        // If it IS their primary org, proceed to deactivate below
+      }
 
       if (member.org_id === parseInt(org_id)) {
         // This is their primary org - deactivate the account
@@ -811,6 +1040,27 @@ router.post(
         return res.status(400).json({
           success: false,
           error: "workspace_ids must be a non-empty array",
+        });
+      }
+
+      // Check if the member is super-admin or observer
+      const memberCheck = await db.query(
+        "SELECT role FROM users WHERE id = $1",
+        [parseInt(member_id)],
+      );
+
+      if (memberCheck.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: "Member not found",
+        });
+      }
+
+      const memberRole = memberCheck.rows[0].role;
+      if (memberRole === "super-admin" || memberRole === "observer") {
+        return res.status(400).json({
+          success: false,
+          error: `Cannot assign workspaces to ${memberRole} - they already have global access to all organizations`,
         });
       }
 
