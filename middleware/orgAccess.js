@@ -40,6 +40,7 @@ const createOrgAccessMiddleware = (options = {}) => {
       // Get user's organization ID
       // This assumes users table has been updated with org_id column
       // Otherwise, you'll need to map workspace_id to org_id
+      console.log("User data in middleware:", req.user);
       const userOrgId = req.user.orgId || req.user.workspaceId;
 
       // Check if user has access to this organization

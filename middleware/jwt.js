@@ -31,11 +31,14 @@ const jwtMiddleware = (requireWorkspaceMatch = true) => {
           email: decoded.email,
           username: decoded.username,
           role: decoded.role,
-          workspaceId: decoded.workspaceId,
-          workspaceKey: decoded.workspaceKey,
-          workspaceName: decoded.workspaceName,
+          workspaceId: decoded.workspaceId || decoded.orgId,
+          workspaceKey: decoded.workspaceKey || decoded.orgKey,
+          workspaceName: decoded.workspaceName || decoded.orgName,
           retellWorkspaceId: decoded.retellWorkspaceId,
           permissions: decoded.permissions,
+          orgId: decoded.orgId || decoded.workspaceId,
+          orgKey: decoded.orgKey || decoded.workspaceKey,
+          orgName: decoded.orgName || decoded.workspaceName,
         };
 
         // Validate workspace access if required

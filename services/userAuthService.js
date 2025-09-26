@@ -606,6 +606,8 @@ class UserAuthService {
       permissions: userData.permissions,
     };
 
+    console.log("Generating JWT with payload:", payload);
+
     const token = jwt.sign(payload, JWT_CONFIG.secret, {
       expiresIn: JWT_CONFIG.expiresIn,
     });
