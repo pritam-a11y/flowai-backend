@@ -28,6 +28,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+
+
 // Configure multer for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
