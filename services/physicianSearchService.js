@@ -10,6 +10,26 @@ class PhysicianSearchService {
   }
 
   /**
+   * Truncate address to only include up to Chicago
+   * @param {string} address - Full address string
+   * @returns {string} Truncated address up to Chicago
+   */
+  truncateAddress(address) {
+    if (!address) return address;
+    
+    // Find "Chicago" in the address
+    const chicagoIndex = address.indexOf('Chicago');
+    
+    if (chicagoIndex === -1) {
+      // If Chicago is not found, return the original address
+      return address;
+    }
+    
+    // Return address up to and including "Chicago"
+    return address.substring(0, chicagoIndex + 'Chicago'.length).trim();
+  }
+
+  /**
    * Search for physicians by specialty and optionally by first name
    * @param {string} specialty - Required specialty (normalized, e.g., 'CARDIOLOGY')
    * @param {string} firstName - Optional first name (case-insensitive exact match)
@@ -82,14 +102,14 @@ class PhysicianSearchService {
             // Fall back to unsorted locations without distance
             physicianData.locations = physician.locations.map(loc => ({
               name: loc.name,
-              address: loc.address
+              address: this.truncateAddress(loc.address)
             }));
           }
         } else {
           // No address provided or no API key - return locations without distance
           physicianData.locations = physician.locations.map(loc => ({
             name: loc.name,
-            address: loc.address
+            address: this.truncateAddress(loc.address)
           }));
         }
 
@@ -131,7 +151,7 @@ class PhysicianSearchService {
     if (locations.length === 1) {
       return [{
         name: locations[0].name,
-        address: locations[0].address
+        address: this.truncateAddress(locations[0].address)
       }];
     }
 
@@ -163,7 +183,8 @@ class PhysicianSearchService {
         if (element && element.status === 'OK') {
           locationsWithDistance.push({
             name: location.name,
-            address: location.address,
+            address: location.address,  // Keep full address for internal use
+            truncatedAddress: this.truncateAddress(location.address),
             distance: element.distance.text,
             duration: element.duration.text,
             distanceValue: element.distance.value // in meters for sorting
@@ -172,7 +193,8 @@ class PhysicianSearchService {
           // If distance calculation fails for this location, add without distance
           locationsWithDistance.push({
             name: location.name,
-            address: location.address,
+            address: location.address,  // Keep full address for internal use
+            truncatedAddress: this.truncateAddress(location.address),
             distanceValue: Number.MAX_SAFE_INTEGER // Put at end when sorting
           });
         }
@@ -184,7 +206,7 @@ class PhysicianSearchService {
       // Return without distanceValue (internal use only)
       return locationsWithDistance.map(loc => ({
         name: loc.name,
-        address: loc.address,
+        address: loc.truncatedAddress,  // Use truncated address in response
         distance: loc.distance || 'Distance unavailable',
         duration: loc.duration || 'Duration unavailable'
       }));
@@ -198,7 +220,7 @@ class PhysicianSearchService {
       // Return unsorted locations without distance on error
       return locations.map(loc => ({
         name: loc.name,
-        address: loc.address
+        address: this.truncateAddress(loc.address)
       }));
     }
   }
