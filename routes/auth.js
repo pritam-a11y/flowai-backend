@@ -1245,4 +1245,304 @@ router.post("/create-organisation", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Reset password for a user account
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's email address
+ *                 example: "user@example.com"
+ *     responses:
+ *       200:
+ *         description: Password reset successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "A new password has been sent to your email address"
+ *       400:
+ *         description: Invalid request
+ *       403:
+ *         description: Account is deactivated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Account is deactivated. Please contact support to reactivate your account"
+ *       404:
+ *         description: Email not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Email not found in our system"
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    logger.info("Password reset request", { email });
+
+    // Validate email
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: "Email is required",
+      });
+    }
+
+    // Check if user exists
+    const userResult = await db.query(
+      `SELECT u.id, u.username, u.email, u.first_name, u.last_name, 
+              u.is_active, u.org_id, o.name as org_name
+       FROM users u
+       JOIN organisations o ON u.org_id = o.org_id
+       WHERE u.email = $1
+       LIMIT 1`,
+      [email],
+    );
+
+    if (userResult.rows.length === 0) {
+      logger.warn("Password reset attempted for non-existent email", { email });
+      return res.status(404).json({
+        success: false,
+        error: "Email not found in our system",
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    // Check if user is active
+    if (!user.is_active) {
+      logger.warn("Password reset attempted for inactive account", {
+        email,
+        userId: user.id,
+      });
+      return res.status(403).json({
+        success: false,
+        error:
+          "Account is deactivated. Please contact support to reactivate your account",
+      });
+    }
+
+    // Generate new password
+    const generatePassword = () => {
+      const length = 12;
+      const charset =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+      let password = "";
+      for (let i = 0; i < length; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+      }
+      return password;
+    };
+
+    const newPassword = generatePassword();
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+
+    // Update password in database
+    await db.query(
+      `UPDATE users 
+       SET password_hash = $1, 
+           failed_login_attempts = 0,
+           updated_at = NOW() 
+       WHERE id = $2`,
+      [passwordHash, user.id],
+    );
+
+    logger.info("Password reset in database", {
+      userId: user.id,
+      email: user.email,
+    });
+
+    // Send email with new password
+    try {
+      const { Resend } = require("resend");
+      const resend = new Resend("re_DXtS219b_C9LEPwDvBsy2ZMmEKZGh8yYx");
+
+      const firstName = user.first_name || user.username || "User";
+      const orgName = user.org_name || "MyFlowAI";
+
+      const emailHtml = `
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width">
+    <meta charset="utf-8">
+    <title>Password Reset - MyFlowAI</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f5f7fb;">
+      <tr>
+        <td align="center" style="padding:40px 20px;">
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+
+            <!-- Header -->
+            <tr>
+              <td style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);padding:30px 40px;text-align:center;">
+                <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:600;">Password Reset</h1>
+              </td>
+            </tr>
+
+            <!-- Content -->
+            <tr>
+              <td style="padding:40px;">
+                <h2 style="margin:0 0 10px 0;color:#1a202c;font-size:20px;">Hi ${firstName},</h2>
+                <p style="margin:0 0 20px 0;color:#4a5568;line-height:1.6;">
+                  We received a request to reset your password for your <strong>${orgName}</strong> account on MyFlowAI.
+                </p>
+                <p style="margin:0 0 20px 0;color:#4a5568;line-height:1.6;">
+                  Your password has been reset successfully. Please use the temporary password below to log in:
+                </p>
+
+                <!-- Password Box -->
+                <div style="background:#f7fafc;border:2px solid #e2e8f0;border-radius:8px;padding:20px;margin:30px 0;">
+                  <h3 style="margin:0 0 15px 0;color:#2d3748;font-size:16px;">Your Temporary Password</h3>
+                  <div style="background:#fff;padding:12px;border-radius:4px;font-family:monospace;font-size:16px;color:#2d3748;text-align:center;letter-spacing:1px;">
+                    ${newPassword}
+                  </div>
+                </div>
+
+                <!-- Security Notice -->
+                <div style="background:#fef5e7;border-left:4px solid #f39c12;padding:15px;margin:30px 0;border-radius:4px;">
+                  <p style="margin:0;color:#856404;font-size:14px;">
+                    <strong>Important Security Notice:</strong>
+                  </p>
+                  <ul style="margin:10px 0 0 0;padding-left:20px;color:#856404;font-size:14px;line-height:1.6;">
+                    <li>Please change this temporary password immediately after logging in</li>
+                    <li>Do not share this password with anyone</li>
+                    <li>If you did not request this password reset, please contact our support team immediately</li>
+                  </ul>
+                </div>
+
+                <!-- Login Button -->
+                <div style="text-align:center;margin:30px 0;">
+                  <a href="https://dev.myflowai.com/login" 
+                     style="display:inline-block;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:6px;font-weight:600;font-size:16px;">
+                    Login to MyFlowAI
+                  </a>
+                </div>
+
+                <!-- Next Steps -->
+                <div style="margin:30px 0;">
+                  <h3 style="margin:0 0 10px 0;color:#2d3748;font-size:16px;">Next Steps:</h3>
+                  <ol style="margin:10px 0;padding-left:20px;color:#4a5568;line-height:1.8;">
+                    <li>Click the login button above or visit <a href="https://dev.myflowai.com/login" style="color:#667eea;">https://dev.myflowai.com/login</a></li>
+                    <li>Enter your email address: <strong>${email}</strong></li>
+                    <li>Enter the temporary password provided above</li>
+                    <li>You will be prompted to create a new password</li>
+                  </ol>
+                </div>
+
+                <!-- Support -->
+                <p style="margin:20px 0 0 0;color:#718096;font-size:14px;line-height:1.6;">
+                  If you continue to have trouble accessing your account, please contact our support team at 
+                  <a href="mailto:support@myflowai.com" style="color:#667eea;">support@myflowai.com</a>
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="background:#f7fafc;padding:20px 40px;text-align:center;border-top:1px solid #e2e8f0;">
+                <p style="margin:0 0 10px 0;color:#718096;font-size:12px;">
+                  This password reset was requested on ${new Date().toLocaleString(
+                    "en-US",
+                    {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      timeZoneName: "short",
+                    },
+                  )}
+                </p>
+                <p style="margin:0;color:#718096;font-size:12px;">
+                  © 2025 MyFlowAI. All rights reserved.<br>
+                  This is an automated message, please do not reply to this email.
+                </p>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+
+      await resend.emails.send({
+        from: "MyFlowAI <no-reply@myflowai.com>",
+        to: email,
+        subject: "Password Reset Request - MyFlowAI",
+        html: emailHtml,
+      });
+
+      logger.info("Password reset email sent successfully", {
+        to: email,
+        userId: user.id,
+      });
+    } catch (emailError) {
+      logger.error("Failed to send password reset email", {
+        error: emailError.message,
+        to: email,
+        userId: user.id,
+      });
+      // Password was still reset, so we return success
+      // but log the email failure for monitoring
+    }
+
+    res.json({
+      success: true,
+      message: "A new password has been sent to your email address",
+    });
+  } catch (error) {
+    logger.error("Password reset error", {
+      error: error.message,
+      email: req.body.email,
+    });
+
+    res.status(500).json({
+      success: false,
+      error: "An error occurred during password reset. Please try again later.",
+    });
+  }
+});
+
 module.exports = router;
