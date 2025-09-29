@@ -3,6 +3,7 @@ const router = express.Router();
 const UserAuthService = require("../services/userAuthService");
 const logger = require("../utils/logger");
 const db = require("../db/connection");
+const bcrypt = require("bcrypt");
 
 const userAuthService = new UserAuthService();
 
