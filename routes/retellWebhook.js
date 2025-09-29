@@ -660,7 +660,7 @@ router.post("/function-call", async (req, res, next) => {
         const searchResult = await physicianSearchService.searchPhysicians(
           specialty,
           firstName || null,
-          address || null
+          address || null,
         );
 
         logger.info("search_physician completed", {
@@ -754,6 +754,7 @@ router.post("/call/update", async (req, res, next) => {
             agent_name: call.agent_id || "Unknown Agent",
           },
           payload: req.body,
+          externalAgentId: call.agent_id,
         };
 
         axios
@@ -838,7 +839,8 @@ router.post("/call/update", async (req, res, next) => {
         });
 
         // Check for physician name and find profile URL if available
-        const physicianName = call.call_analysis?.custom_analysis_data?.physician_name;
+        const physicianName =
+          call.call_analysis?.custom_analysis_data?.physician_name;
         let physicianProfileUrl = null;
         let physicianDisplayName = null;
 
@@ -846,15 +848,18 @@ router.post("/call/update", async (req, res, next) => {
           try {
             // Import physician data
             const physiciansData = require("../config/physiciansData.json");
-            
+
             // Search for physician by name (case-insensitive)
             const normalizedPhysicianName = physicianName.trim().toLowerCase();
-            
+
             // Try to find exact match first
-            const physician = physiciansData.physicians.find(p => 
-              p.name.toLowerCase() === normalizedPhysicianName ||
-              `dr. ${p.firstName.toLowerCase()} ${p.lastName.toLowerCase()}` === normalizedPhysicianName ||
-              `${p.firstName.toLowerCase()} ${p.lastName.toLowerCase()}` === normalizedPhysicianName
+            const physician = physiciansData.physicians.find(
+              (p) =>
+                p.name.toLowerCase() === normalizedPhysicianName ||
+                `dr. ${p.firstName.toLowerCase()} ${p.lastName.toLowerCase()}` ===
+                  normalizedPhysicianName ||
+                `${p.firstName.toLowerCase()} ${p.lastName.toLowerCase()}` ===
+                  normalizedPhysicianName,
             );
 
             if (physician) {
@@ -1448,8 +1453,8 @@ function renderAppointmentConfirmationHTML(d) {
                       ? `
                   <tr>
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Physician:</strong> ${
-                      d.physician_profile_url 
-                        ? `<a href="${escapeHTML(d.physician_profile_url)}" target="_blank" style="color:#2563eb;text-decoration:underline;">${escapeHTML(d.physician_name)}</a>` 
+                      d.physician_profile_url
+                        ? `<a href="${escapeHTML(d.physician_profile_url)}" target="_blank" style="color:#2563eb;text-decoration:underline;">${escapeHTML(d.physician_name)}</a>`
                         : escapeHTML(d.physician_name)
                     }</td>
                   </tr>`
