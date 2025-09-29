@@ -1916,7 +1916,7 @@ router.post(
             content: prompt,
           },
         ],
-        temperature: 0.7,
+        temperature: 1,
         max_completion_tokens: 32768,
       });
 
