@@ -1917,7 +1917,7 @@ router.post(
           },
         ],
         temperature: 0.7,
-        max_tokens: 16383,
+        max_completion_tokens: 32768,
       });
 
       const aiResponse = completion.choices[0].message.content;
