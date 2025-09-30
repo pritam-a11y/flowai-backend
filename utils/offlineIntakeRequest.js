@@ -86,20 +86,30 @@ async function createOfflineIntakeRequest(db, patientId, orgId, speciality) {
         // Return existing active request
         await db.query("COMMIT");
 
+        const existingHash = existingRequest.rows[0].unique_hash;
+        
         logger.info("Found existing active intake request", {
           requestId: existingRequest.rows[0].id,
-          uniqueHash: existingRequest.rows[0].unique_hash,
+          uniqueHash: existingHash,
           status: existingRequest.rows[0].status,
         });
+
+        // Generate the intake form URL for existing request
+        const intakeFormUrl = generateIntakeFormUrl(existingHash);
+        
+        // Create shortened URL
+        const finalUrl = await createTinyUrl(intakeFormUrl);
 
         return {
           success: true,
           isNew: false,
           data: {
             id: existingRequest.rows[0].id,
-            uniqueHash: existingRequest.rows[0].unique_hash,
+            uniqueHash: existingHash,
             status: existingRequest.rows[0].status,
             createdAt: existingRequest.rows[0].created_at,
+            intakeFormUrl: finalUrl,
+            originalUrl: intakeFormUrl,
             message: "Existing active intake request found",
           },
         };

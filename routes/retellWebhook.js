@@ -839,6 +839,66 @@ router.post("/call/update", async (req, res, next) => {
           selected_provider: providerConfig.provider_id,
         });
 
+        // Try to generate intake form URL
+        let intakeFormUrl = null;
+        try {
+          // Extract patient_id, org_id, and specialty from dynamic variables
+          const patientId = 
+            call.retell_llm_dynamic_variables?.patient_id ||
+            call.metadata?.collected_dynamic_variables?.patient_id;
+          
+          const orgId = 
+            call.retell_llm_dynamic_variables?.org_id ||
+            call.metadata?.collected_dynamic_variables?.org_id ||
+            35; // Default org_id
+          
+          const specialty = 
+            call.retell_llm_dynamic_variables?.specialty ||
+            call.metadata?.collected_dynamic_variables?.specialty ||
+            "urology"; // Default specialty
+
+          if (patientId) {
+            logger.info("Creating intake form for email", {
+              call_id: call.call_id,
+              patient_id: patientId,
+              org_id: orgId,
+              specialty: specialty,
+            });
+
+            const intakeResult = await createOfflineIntakeRequest(
+              db,
+              patientId,
+              orgId,
+              specialty
+            );
+
+            if (intakeResult?.data?.intakeFormUrl) {
+              intakeFormUrl = intakeResult.data.intakeFormUrl;
+              logger.info("Intake form URL created for email", {
+                call_id: call.call_id,
+                intake_url: intakeFormUrl,
+              });
+            } else if (intakeResult?.tinyUrl) {
+              // Fallback for backward compatibility
+              intakeFormUrl = intakeResult.tinyUrl;
+              logger.info("Intake form URL created for email", {
+                call_id: call.call_id,
+                intake_url: intakeFormUrl,
+              });
+            }
+          } else {
+            logger.info("No patient_id available for intake form", {
+              call_id: call.call_id,
+            });
+          }
+        } catch (intakeError) {
+          // Silently log and continue without intake form
+          logger.warn("Failed to create intake form URL", {
+            call_id: call.call_id,
+            error: intakeError.message,
+          });
+        }
+
         // Check for physician name and find profile URL if available
         const physicianName =
           call.call_analysis?.custom_analysis_data?.physician_name;
@@ -900,6 +960,7 @@ router.post("/call/update", async (req, res, next) => {
             call.call_analysis?.custom_analysis_data?.appointment_location,
           physician_name: physicianDisplayName,
           physician_profile_url: physicianProfileUrl,
+          intake_form_url: intakeFormUrl,
           provider_name: providerConfig.name,
           business_name: providerConfig.business_name,
           doctor_name: providerConfig.doctor_name,
@@ -1467,6 +1528,14 @@ function renderAppointmentConfirmationHTML(d) {
                       ${mapUrl ? `<br>&nbsp;&nbsp;<a href="${mapUrl}" target="_blank" style="color:#2563eb;text-decoration:underline;font-size:13px;">📍 View on Google Maps</a>` : ""}
                     </td>
                   </tr>
+                  ${
+                    d.intake_form_url
+                      ? `
+                  <tr>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Intake Form:</strong> <a href="${escapeHTML(d.intake_form_url)}" target="_blank" style="color:#2563eb;text-decoration:underline;">Complete your intake form online</a></td>
+                  </tr>`
+                      : ""
+                  }
                 </table>
               </td>
             </tr>
@@ -1899,75 +1968,6 @@ router.get("/callbacks/list", authMiddleware, async (req, res, next) => {
     });
   } catch (error) {
     logger.error("Error listing callbacks", { error: error.message });
-    next(error);
-  }
-});
-
-/**
- * @swagger
- * /api/v1/retell/test-intake-request:
- *   post:
- *     summary: Test endpoint for creating offline intake requests (No Auth Required)
- *     tags: [Testing]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - patient_id
- *               - org_id
- *               - speciality
- *             properties:
- *               patient_id:
- *                 type: string
- *                 example: "65bee8d7-fee9-4e60-b9d6-1ae276b075b4"
- *               org_id:
- *                 type: integer
- *                 example: 35
- *               speciality:
- *                 type: string
- *                 example: "urology"
- *     responses:
- *       200:
- *         description: Intake request created successfully
- */
-router.post("/test-intake-request", async (req, res, next) => {
-  // No authMiddleware
-  try {
-    const { patient_id, org_id, speciality } = req.body;
-
-    // Validate input
-    if (!patient_id || !org_id || !speciality) {
-      return res.status(400).json({
-        success: false,
-        error: "Missing required fields: patient_id, org_id, and speciality",
-      });
-    }
-
-    logger.info("Testing offline intake request creation", {
-      patient_id,
-      org_id,
-      speciality,
-    });
-
-    // Call the function
-    const result = await createOfflineIntakeRequest(
-      db,
-      patient_id,
-      org_id,
-      speciality,
-    );
-
-    logger.info("Test intake request result", result);
-
-    res.json(result);
-  } catch (error) {
-    logger.error("Test intake request error", {
-      error: error.message,
-      stack: error.stack,
-    });
     next(error);
   }
 });
