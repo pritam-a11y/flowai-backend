@@ -3,6 +3,9 @@ const router = express.Router();
 const logger = require("../utils/logger");
 const db = require("../db/connection");
 const { updateIntakeRequestStatus } = require("../utils/offlineIntakeRequest");
+const RedoxTransformer = require("../utils/redoxTransformer");
+const RedoxAPIService = require("../services/redoxApiService");
+const AuthService = require("../services/authService");
 
 /**
  * @swagger
@@ -494,13 +497,155 @@ router.post("/:hash/verify", async (req, res, next) => {
       });
     }
 
-    //Verify the patient details
+    // Convert date format from MM/DD/YYYY to YYYY-MM-DD
+    const dateParts = date_of_birth.split("/");
+    if (dateParts.length !== 3) {
+      logger.warn("Invalid date format", { date_of_birth, hash });
+      return res.status(400).json({
+        success: false,
+        error: "Invalid date format. Expected MM/DD/YYYY",
+      });
+    }
+    const formattedDob = `${dateParts[2]}-${dateParts[0].padStart(2, "0")}-${dateParts[1].padStart(2, "0")}`;
 
-    res.json({
-      success: true,
-      verified: true, // Change to actual verification result
-      message: "Patient verification successful",
-    });
+    // Retrieve the intake request from database
+    const intakeQuery = `
+      SELECT 
+        id,
+        patient_id,
+        org_id,
+        status,
+        created_at
+      FROM offline_intake_requests
+      WHERE unique_hash = $1
+    `;
+
+    const intakeResult = await db.query(intakeQuery, [hash]);
+
+    if (intakeResult.rows.length === 0) {
+      logger.warn("Intake request not found for hash", { hash });
+      return res.status(404).json({
+        success: false,
+        error: "Intake form not found",
+      });
+    }
+
+    const intakeRequest = intakeResult.rows[0];
+
+    // Check if link is expired (12 hours from creation)
+    const createdAt = new Date(intakeRequest.created_at);
+    const now = new Date();
+    const hoursSinceCreation = (now - createdAt) / (1000 * 60 * 60);
+
+    if (hoursSinceCreation > 12) {
+      logger.info("Intake form link expired during verification", {
+        hash,
+        hoursSinceCreation,
+      });
+      return res.status(410).json({
+        success: false,
+        error: "This intake form link has expired",
+      });
+    }
+
+    // Check if form is already completed
+    if (intakeRequest.status === "completed") {
+      logger.info("Intake form already completed", { hash });
+      return res.status(409).json({
+        success: false,
+        error: "This intake form has already been submitted",
+      });
+    }
+
+    try {
+      // Generate new access token for verification
+      const authService = new AuthService();
+      const accessToken = await authService.getAccessToken();
+
+      // Create search parameters for patient search
+      const searchParams = RedoxTransformer.createPatientSearchByDobNameParams(
+        formattedDob,
+        first_name,
+        last_name
+      );
+
+      logger.info("Searching for patient with Redox", {
+        hash,
+        dob: formattedDob,
+        firstName: first_name,
+        lastName: last_name,
+      });
+
+      // Search for patient using Redox API
+      const searchResponse = await RedoxAPIService.makeRequest(
+        "POST",
+        "/Patient/_search",
+        null,
+        searchParams,
+        accessToken
+      );
+
+      // Transform and extract patient list from response
+      const patients = RedoxTransformer.transformPatientSearchResponse(searchResponse);
+
+      logger.info("Patient search completed", {
+        hash,
+        patientsFound: patients.length,
+        storedPatientId: intakeRequest.patient_id,
+      });
+
+      // Check if any of the found patients match the stored patient ID
+      const matchingPatient = patients.find(
+        (patient) => patient.patientId === intakeRequest.patient_id
+      );
+
+      if (matchingPatient) {
+        logger.info("Patient verification successful", {
+          hash,
+          patientId: intakeRequest.patient_id,
+        });
+
+        res.json({
+          success: true,
+          verified: true,
+          message: "Patient verification successful",
+          data: {
+            patientId: intakeRequest.patient_id,
+            canProceed: true,
+          },
+        });
+      } else {
+        logger.warn("Patient verification failed - no matching patient", {
+          hash,
+          storedPatientId: intakeRequest.patient_id,
+          foundPatientIds: patients.map((p) => p.patientId),
+        });
+
+        res.status(401).json({
+          success: false,
+          verified: false,
+          message: "Patient verification failed",
+          data: {
+            canProceed: false,
+          },
+        });
+      }
+    } catch (redoxError) {
+      logger.error("Error calling Redox API for patient verification", {
+        error: redoxError.message,
+        hash,
+      });
+
+      // Return cannot proceed on any Redox API error
+      return res.status(401).json({
+        success: false,
+        verified: false,
+        message: "Unable to verify patient information",
+        data: {
+          canProceed: false,
+        },
+      });
+    }
   } catch (error) {
     logger.error("Error during patient verification", {
       error: error.message,
