@@ -562,44 +562,56 @@ router.post("/:hash/verify", async (req, res, next) => {
       const authService = new AuthService();
       const accessToken = await authService.getAccessToken();
 
-      // Create search parameters for patient search
-      const searchParams = RedoxTransformer.createPatientSearchByDobNameParams(
-        formattedDob,
-        first_name,
-        last_name
-      );
-
-      logger.info("Searching for patient with Redox", {
+      logger.info("Fetching patient details from Redox", {
         hash,
-        dob: formattedDob,
-        firstName: first_name,
-        lastName: last_name,
+        patientId: intakeRequest.patient_id,
       });
 
-      // Search for patient using Redox API
-      const searchResponse = await RedoxAPIService.makeRequest(
-        "POST",
-        "/Patient/_search",
+      // Fetch patient by ID directly
+      const patientResponse = await RedoxAPIService.makeRequest(
+        "GET",
+        `/Patient/${intakeRequest.patient_id}`,
         null,
-        searchParams,
+        null,
         accessToken
       );
 
-      // Transform and extract patient list from response
-      const patients = RedoxTransformer.transformPatientSearchResponse(searchResponse);
+      // Extract patient details from response
+      const fetchedDetails = RedoxTransformer.extractPatientVerificationDetails(patientResponse);
 
-      logger.info("Patient search completed", {
+      if (!fetchedDetails) {
+        logger.error("Unable to extract patient details from Redox response", {
+          hash,
+          patientId: intakeRequest.patient_id,
+        });
+
+        return res.status(401).json({
+          success: false,
+          verified: false,
+          message: "Unable to verify patient information",
+          data: {
+            canProceed: false,
+          },
+        });
+      }
+
+      // Prepare provided details for comparison
+      const providedDetails = {
+        firstName: first_name,
+        lastName: last_name,
+        birthDate: formattedDob
+      };
+
+      logger.info("Comparing patient details", {
         hash,
-        patientsFound: patients.length,
-        storedPatientId: intakeRequest.patient_id,
+        fetchedDetails,
+        providedDetails,
       });
 
-      // Check if any of the found patients match the stored patient ID
-      const matchingPatient = patients.find(
-        (patient) => patient.patientId === intakeRequest.patient_id
-      );
+      // Perform case-insensitive verification
+      const isVerified = RedoxTransformer.verifyPatientDetails(fetchedDetails, providedDetails);
 
-      if (matchingPatient) {
+      if (isVerified) {
         logger.info("Patient verification successful", {
           hash,
           patientId: intakeRequest.patient_id,
@@ -615,16 +627,17 @@ router.post("/:hash/verify", async (req, res, next) => {
           },
         });
       } else {
-        logger.warn("Patient verification failed - no matching patient", {
+        logger.warn("Patient verification failed - details do not match", {
           hash,
-          storedPatientId: intakeRequest.patient_id,
-          foundPatientIds: patients.map((p) => p.patientId),
+          patientId: intakeRequest.patient_id,
+          fetchedDetails,
+          providedDetails,
         });
 
         res.status(401).json({
           success: false,
           verified: false,
-          message: "Patient verification failed",
+          message: "Patient verification failed - details do not match",
           data: {
             canProceed: false,
           },
@@ -634,6 +647,7 @@ router.post("/:hash/verify", async (req, res, next) => {
       logger.error("Error calling Redox API for patient verification", {
         error: redoxError.message,
         hash,
+        patientId: intakeRequest.patient_id,
       });
 
       // Return cannot proceed on any Redox API error

@@ -1078,6 +1078,71 @@ class RedoxTransformer {
       entry: [messageHeader, appointment],
     };
   }
+
+  /**
+   * Extracts patient verification details from a patient resource
+   * @param {Object} patientResource - The patient resource from Redox API
+   * @returns {Object} - Extracted patient details for verification
+   */
+  static extractPatientVerificationDetails(patientResource) {
+    if (!patientResource) {
+      return null;
+    }
+
+    const details = {
+      family: null,
+      given: null,
+      birthDate: null
+    };
+
+    // Extract name information
+    if (patientResource.name && Array.isArray(patientResource.name) && patientResource.name.length > 0) {
+      const primaryName = patientResource.name.find(n => n.use === 'official') || patientResource.name[0];
+      
+      if (primaryName) {
+        details.family = primaryName.family || null;
+        
+        // Given names are in an array, extract the first one for comparison
+        if (Array.isArray(primaryName.given) && primaryName.given.length > 0) {
+          details.given = primaryName.given[0];
+        }
+      }
+    }
+
+    // Extract birth date
+    if (patientResource.birthDate) {
+      details.birthDate = patientResource.birthDate;
+    }
+
+    return details;
+  }
+
+  /**
+   * Performs case-insensitive comparison of patient details for verification
+   * @param {Object} fetchedDetails - Details from fetched patient
+   * @param {Object} providedDetails - Details provided by user
+   * @returns {boolean} - True if details match, false otherwise
+   */
+  static verifyPatientDetails(fetchedDetails, providedDetails) {
+    if (!fetchedDetails || !providedDetails) {
+      return false;
+    }
+
+    // Compare family name (case-insensitive)
+    const familyMatch = fetchedDetails.family && providedDetails.lastName &&
+      fetchedDetails.family.toLowerCase() === providedDetails.lastName.toLowerCase();
+
+    // Compare given name (case-insensitive)
+    const givenMatch = fetchedDetails.given && providedDetails.firstName &&
+      fetchedDetails.given.toLowerCase() === providedDetails.firstName.toLowerCase();
+
+    // Compare birth date
+    const dobMatch = fetchedDetails.birthDate && providedDetails.birthDate &&
+      fetchedDetails.birthDate === providedDetails.birthDate;
+
+    // All three must match for verification to pass
+    return familyMatch && givenMatch && dobMatch;
+  }
 }
 
 module.exports = RedoxTransformer;
