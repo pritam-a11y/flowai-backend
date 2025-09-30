@@ -10,6 +10,7 @@ const { Resend } = require("resend");
 const callIdStorage = require("../utils/callIdStorage");
 const axios = require("axios");
 const LocationSorter = require("../utils/locationSorter");
+const { createOfflineIntakeRequest } = require("../utils/offlineIntakeRequest");
 const {
   getProviderConfig,
   getDefaultProviderConfig,
@@ -1898,6 +1899,75 @@ router.get("/callbacks/list", authMiddleware, async (req, res, next) => {
     });
   } catch (error) {
     logger.error("Error listing callbacks", { error: error.message });
+    next(error);
+  }
+});
+
+/**
+ * @swagger
+ * /api/v1/retell/test-intake-request:
+ *   post:
+ *     summary: Test endpoint for creating offline intake requests (No Auth Required)
+ *     tags: [Testing]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - patient_id
+ *               - org_id
+ *               - speciality
+ *             properties:
+ *               patient_id:
+ *                 type: string
+ *                 example: "65bee8d7-fee9-4e60-b9d6-1ae276b075b4"
+ *               org_id:
+ *                 type: integer
+ *                 example: 35
+ *               speciality:
+ *                 type: string
+ *                 example: "urology"
+ *     responses:
+ *       200:
+ *         description: Intake request created successfully
+ */
+router.post("/test-intake-request", async (req, res, next) => {
+  // No authMiddleware
+  try {
+    const { patient_id, org_id, speciality } = req.body;
+
+    // Validate input
+    if (!patient_id || !org_id || !speciality) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields: patient_id, org_id, and speciality",
+      });
+    }
+
+    logger.info("Testing offline intake request creation", {
+      patient_id,
+      org_id,
+      speciality,
+    });
+
+    // Call the function
+    const result = await createOfflineIntakeRequest(
+      db,
+      patient_id,
+      org_id,
+      speciality,
+    );
+
+    logger.info("Test intake request result", result);
+
+    res.json(result);
+  } catch (error) {
+    logger.error("Test intake request error", {
+      error: error.message,
+      stack: error.stack,
+    });
     next(error);
   }
 });
