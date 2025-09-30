@@ -500,10 +500,6 @@ router.post("/:hash/verify", async (req, res, next) => {
       success: true,
       verified: true, // Change to actual verification result
       message: "Patient verification successful",
-      data: {
-        patientId: intakeRequest.patient_id,
-        canProceed: true,
-      },
     });
   } catch (error) {
     logger.error("Error during patient verification", {
