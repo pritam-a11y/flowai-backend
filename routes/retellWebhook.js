@@ -845,16 +845,16 @@ router.post("/call/update", async (req, res, next) => {
           // Extract patient_id, org_id, and specialty from dynamic variables
           const patientId = 
             call.retell_llm_dynamic_variables?.patient_id ||
-            call.metadata?.collected_dynamic_variables?.patient_id;
+            call.collected_dynamic_variables?.patient_id;
           
           const orgId = 
             call.retell_llm_dynamic_variables?.org_id ||
-            call.metadata?.collected_dynamic_variables?.org_id ||
+            call.collected_dynamic_variables?.org_id ||
             35; // Default org_id
           
           const specialty = 
             call.retell_llm_dynamic_variables?.specialty ||
-            call.metadata?.collected_dynamic_variables?.specialty ||
+            call.collected_dynamic_variables?.specialty ||
             "urology"; // Default specialty
 
           if (patientId) {
