@@ -244,6 +244,78 @@ class PhysicianSearchService {
     });
     return counts;
   }
+
+  /**
+   * Get all physicians by specialty with formatted data for Retell
+   * @param {string} specialty - Required specialty (one of the 8 available)
+   * @returns {Object} Result with all physicians in that specialty
+   */
+  getPhysiciansBySpecialty(specialty) {
+    try {
+      // Normalize specialty to uppercase
+      const normalizedSpecialty = specialty.toUpperCase().trim();
+      
+      // Validate specialty is one of the 8 available
+      const validSpecialties = [
+        'CARDIOLOGY',
+        'GASTROENTEROLOGY', 
+        'GI_SURGERY',
+        'NEUROLOGY',
+        'OBSTETRICS_GYNECOLOGY',
+        'ONCOLOGY',
+        'ORTHOPEDICS',
+        'UROLOGY'
+      ];
+      
+      if (!validSpecialties.includes(normalizedSpecialty)) {
+        return {
+          success: false,
+          message: `Invalid specialty. Valid specialties are: ${validSpecialties.join(', ')}`,
+          physicians: []
+        };
+      }
+      
+      // Filter physicians by specialty
+      const filteredPhysicians = this.physicians.filter(
+        p => p.specialty === normalizedSpecialty
+      );
+
+      if (filteredPhysicians.length === 0) {
+        return {
+          success: false,
+          message: `No physicians found for specialty: ${normalizedSpecialty}`,
+          physicians: []
+        };
+      }
+
+      // Format physicians with required data
+      const formattedPhysicians = filteredPhysicians.map(physician => ({
+        name: physician.name,
+        specialty: physician.specialty,
+        areasOfExpertise: physician.areasOfExpertise || [],
+        locationNames: physician.locations.map(loc => loc.name)
+      }));
+
+      return {
+        success: true,
+        totalCount: formattedPhysicians.length,
+        specialty: normalizedSpecialty,
+        physicians: formattedPhysicians
+      };
+
+    } catch (error) {
+      logger.error('Error getting physicians by specialty', {
+        error: error.message,
+        specialty
+      });
+      
+      return {
+        success: false,
+        message: 'An error occurred while retrieving physicians',
+        physicians: []
+      };
+    }
+  }
 }
 
 module.exports = new PhysicianSearchService();

@@ -202,7 +202,7 @@ router.post("/webhook", async (req, res, next) => {
  *                     description: Access token from call context
  *               name:
  *                 type: string
- *                 enum: [check_availability, book_appointment, update_appointment, create_patient, find_patient, sort_locations, search_physician]
+ *                 enum: [check_availability, book_appointment, update_appointment, create_patient, find_patient, sort_locations, search_physician, get_physicians_by_specialty]
  *                 description: Function name
  *               args:
  *                 type: object
@@ -231,7 +231,7 @@ router.post("/webhook", async (req, res, next) => {
  *                     description: Provider identifier - precision or uchicago (for sort_locations)
  *                   specialty:
  *                     type: string
- *                     description: Physician specialty (e.g., CARDIOLOGY, ONCOLOGY) - required for search_physician
+ *                     description: Physician specialty (e.g., CARDIOLOGY, ONCOLOGY) - required for search_physician and get_physicians_by_specialty
  *                   firstName:
  *                     type: string
  *                     description: Physician first name - optional for search_physician
@@ -668,6 +668,41 @@ router.post("/function-call", async (req, res, next) => {
           specialty,
           firstName,
           hasAddress: !!address,
+          physiciansFound: searchResult.physicians.length,
+        });
+
+        result = searchResult;
+        break;
+      }
+
+      case "get_physicians_by_specialty": {
+        logger.info("Processing get_physicians_by_specialty function call");
+
+        // Extract specialty from args
+        const { specialty } = args;
+
+        // Validate required field
+        if (!specialty) {
+          logger.warn("get_physicians_by_specialty failed: missing required specialty", {
+            specialty,
+          });
+          return res.status(400).json({
+            success: false,
+            error: "Missing required field: specialty is required",
+          });
+        }
+
+        // Import physician search service
+        const physicianSearchService = require("../services/physicianSearchService");
+
+        // Get all physicians by specialty
+        const searchResult = await physicianSearchService.getPhysiciansBySpecialty(
+          specialty
+        );
+
+        logger.info("get_physicians_by_specialty completed", {
+          specialty,
+          success: searchResult.success,
           physiciansFound: searchResult.physicians.length,
         });
 
