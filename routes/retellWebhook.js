@@ -222,7 +222,7 @@ router.post("/webhook", async (req, res, next) => {
  *                     description: Patient's last name (for find_patient)
  *                   address:
  *                     type: string
- *                     description: Full address string (for sort_locations)
+ *                     description: Full address string (for sort_locations and get_physicians_by_specialty)
  *                   appointmentType:
  *                     type: string
  *                     description: Type of appointment (for sort_locations)
@@ -678,8 +678,8 @@ router.post("/function-call", async (req, res, next) => {
       case "get_physicians_by_specialty": {
         logger.info("Processing get_physicians_by_specialty function call");
 
-        // Extract specialty from args
-        const { specialty } = args;
+        // Extract specialty and address from args
+        const { specialty, address } = args;
 
         // Validate required field
         if (!specialty) {
@@ -695,13 +695,15 @@ router.post("/function-call", async (req, res, next) => {
         // Import physician search service
         const physicianSearchService = require("../services/physicianSearchService");
 
-        // Get all physicians by specialty
+        // Get all physicians by specialty with optional address for distance sorting
         const searchResult = await physicianSearchService.getPhysiciansBySpecialty(
-          specialty
+          specialty,
+          address || null
         );
 
         logger.info("get_physicians_by_specialty completed", {
           specialty,
+          hasAddress: !!address,
           success: searchResult.success,
           physiciansFound: searchResult.physicians.length,
         });

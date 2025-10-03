@@ -248,9 +248,10 @@ class PhysicianSearchService {
   /**
    * Get all physicians by specialty with formatted data for Retell
    * @param {string} specialty - Required specialty (one of the 8 available)
-   * @returns {Object} Result with all physicians in that specialty
+   * @param {string} userAddress - Optional user address for distance-based location sorting
+   * @returns {Promise<Object>} Result with all physicians in that specialty
    */
-  getPhysiciansBySpecialty(specialty) {
+  async getPhysiciansBySpecialty(specialty, userAddress = null) {
     try {
       // Normalize specialty to uppercase
       const normalizedSpecialty = specialty.toUpperCase().trim();
@@ -288,25 +289,67 @@ class PhysicianSearchService {
         };
       }
 
-      // Format physicians with required data
-      const formattedPhysicians = filteredPhysicians.map(physician => ({
-        name: physician.name,
-        specialty: physician.specialty,
-        areasOfExpertise: physician.areasOfExpertise || [],
-        locationNames: physician.locations.map(loc => loc.name)
-      }));
+      // Process physicians with location sorting if address provided
+      const formattedPhysicians = [];
+      
+      for (const physician of filteredPhysicians) {
+        const physicianData = {
+          name: physician.name,
+          specialty: physician.specialty,
+          areasOfExpertise: physician.areasOfExpertise || [],
+          locations: []
+        };
+
+        // If user address is provided, sort locations by distance
+        if (userAddress && this.googleMapsApiKey) {
+          try {
+            const sortedLocations = await this.sortLocationsByDistance(
+              physician.locations,
+              userAddress
+            );
+            // Include name, distance, and duration for each location
+            physicianData.locations = sortedLocations.map(loc => ({
+              name: loc.name,
+              distance: loc.distance || null,
+              duration: loc.duration || null
+            }));
+          } catch (error) {
+            logger.warn('Failed to sort locations by distance for physician', {
+              error: error.message,
+              physicianName: physician.name
+            });
+            // Fall back to locations without distance/duration
+            physicianData.locations = physician.locations.map(loc => ({
+              name: loc.name,
+              distance: null,
+              duration: null
+            }));
+          }
+        } else {
+          // No address provided - return locations without distance/duration
+          physicianData.locations = physician.locations.map(loc => ({
+            name: loc.name,
+            distance: null,
+            duration: null
+          }));
+        }
+
+        formattedPhysicians.push(physicianData);
+      }
 
       return {
         success: true,
         totalCount: formattedPhysicians.length,
         specialty: normalizedSpecialty,
+        addressUsed: userAddress || null,
         physicians: formattedPhysicians
       };
 
     } catch (error) {
       logger.error('Error getting physicians by specialty', {
         error: error.message,
-        specialty
+        specialty,
+        userAddress
       });
       
       return {
