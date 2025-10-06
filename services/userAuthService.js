@@ -414,8 +414,8 @@ class UserAuthService {
       const query = `
         SELECT u.id, u.username, u.email, u.password_hash, u.role, 
                u.org_id, u.is_active, u.failed_login_attempts,
-               u.last_login, o.name as org_name, o.api_key as org_api_key,
-               o.retell_workspace_id
+               u.last_login, u.force_password_reset, o.name as org_name, 
+               o.api_key as org_api_key, o.retell_workspace_id
         FROM users u
         JOIN organisations o ON u.org_id = o.org_id
         WHERE u.email = $1
@@ -519,6 +519,7 @@ class UserAuthService {
         permissions: permissions,
         lastLogin: user.last_login,
         isActive: user.is_active,
+        forcePasswordReset: user.force_password_reset,
       };
     } catch (error) {
       logger.error("User authentication error", { error: error.message });
