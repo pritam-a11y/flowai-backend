@@ -149,6 +149,7 @@ router.post("/login", async (req, res) => {
         org_name: authResult.orgName,
         is_active: authResult.isActive,
         last_login: authResult.lastLogin,
+        force_password_reset: authResult.forcePasswordReset,
       },
     });
   } catch (error) {
@@ -1379,6 +1380,7 @@ router.post("/forgot-password", async (req, res) => {
       `UPDATE users 
        SET password_hash = $1, 
            failed_login_attempts = 0,
+           force_password_reset = true,
            updated_at = NOW() 
        WHERE id = $2`,
       [passwordHash, user.id],

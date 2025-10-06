@@ -854,12 +854,15 @@ class UserAuthService {
 
       // Hash new password
       const newPasswordHash = await bcrypt.hash(newPassword, 10);
-
-      // Update password
       await db.query(
-        "UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2",
+        `UPDATE users 
+         SET password_hash = $1, 
+             force_password_reset = false,
+             updated_at = NOW() 
+         WHERE id = $2`,
         [newPasswordHash, userId],
       );
+      // Update password
 
       logger.info("Password changed successfully", { userId });
     } catch (error) {

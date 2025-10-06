@@ -501,8 +501,8 @@ router.post(
       const insertQuery = `
         INSERT INTO users (
           username, email, first_name, last_name, password_hash, role, org_id, 
-          is_active, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, true, NOW(), NOW())
+          is_active, force_password_reset, created_at, updated_at  
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, true, true, NOW(), NOW())  
         RETURNING id, username, email, first_name, last_name, role, org_id
       `;
 
