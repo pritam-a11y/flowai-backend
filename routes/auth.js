@@ -816,10 +816,10 @@ router.get("/all-orgs", async (req, res) => {
       const WORKSPACE_ACCESS_RULES = {
         "super-admin": "all",
         observer: "all",
-        member: "own_and_assigned",
+        fde: "own_and_assigned",
+        "account-executive": "own_and_assigned",
         "customer-admin": "own",
-        "core-team-member": "own",
-        "analytics-user": "own",
+        "customer-user": "own",
       };
 
       const accessType = WORKSPACE_ACCESS_RULES[decoded.role] || "own";

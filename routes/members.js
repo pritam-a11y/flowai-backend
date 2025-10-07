@@ -10,8 +10,8 @@ const bcrypt = require("bcrypt");
 /**
  * Member Access Rules:
  * - super-admin & observer: Have access to ALL organizations (global access)
- * - member: Has access to their own org (org_id) + assigned orgs (assigned_workspace)
- * - customer-admin, core-team-member, analytics-user: Only their own org (org_id)
+ * - fde & account-executive: Has access to their own org (org_id) + assigned orgs (assigned_workspace)
+ * - customer-admin, customer-user: Only their own org (org_id)
  *
  * When listing members for an org, we include:
  * 1. Users where org_id matches (primary organization)
@@ -23,17 +23,16 @@ const bcrypt = require("bcrypt");
 const ROLE_VISIBILITY_RULES = {
   "super-admin": "all",
   observer: "all",
-  member: "all",
+  fde: "all",
+  "account-executive": "all",
   "customer-admin": "restricted",
-  "core-team-member": "restricted",
-  "analytics-user": "restricted",
+  "customer-user": "restricted",
 };
 
 // Restricted roles can only see these roles
 const RESTRICTED_VISIBLE_ROLES = [
   "customer-admin",
-  "core-team-member",
-  "analytics-user",
+  "customer-user",
 ];
 
 /**
@@ -390,14 +389,13 @@ router.post(
         // Customer admins can only add these specific roles
         const allowedRoles = [
           "customer-admin",
-          "core-team-member",
-          "analytics-user",
+          "customer-user",
         ];
         if (!allowedRoles.includes(role)) {
           return res.status(403).json({
             success: false,
             error:
-              "You can only add members with customer-admin, core-team-member, or analytics-user roles",
+              "You can only add members with customer-admin or customer-user roles",
           });
         }
       }
@@ -420,8 +418,8 @@ router.post(
       if (existingUserCheck.rows.length > 0) {
         const existingUser = existingUserCheck.rows[0];
 
-        // Only allow adding to assigned_workspace if the existing user role is "member"
-        if (existingUser.role === "member") {
+        // Only allow adding to assigned_workspace if the existing user role is "fde" or "account-executive"
+        if (existingUser.role === "fde" || existingUser.role === "account-executive") {
           // Check if org is already in assigned_workspace
           const alreadyAssigned =
             existingUser.assigned_workspace &&
@@ -863,7 +861,7 @@ router.put(
           return res.status(403).json({
             success: false,
             error:
-              "You can only assign customer-admin, core-team-member, or analytics-user roles",
+              "You can only assign customer-admin or customer-user roles",
           });
         }
       }
