@@ -39,6 +39,7 @@ const EXPERTISE_ENUMS = {
   HYPERLIPIDEMIA: 'Hyperlipidemia',
   ECHOCARDIOGRAPHY: 'Echocardiography',
   ADULT_CONGENITAL_HEART_DISEASE: 'Adult Congenital Heart Disease',
+  MINIMALLY_INVASIVE_HEART_SURGERY: 'Minimally Invasive Heart Surgery',
   
   // Vascular
   PERIPHERAL_VASCULAR_DISEASE: 'Peripheral Vascular Disease',
@@ -140,6 +141,7 @@ const EXPERTISE_ENUMS = {
   OSTEOARTHRITIS: 'Osteoarthritis',
   SPINE: 'Spine',
   SCOLIOSIS: 'Scoliosis',
+  CEREBRAL_PALSY: 'Cerebral Palsy',
   
   // Urology - General
   GENERAL_UROLOGY: 'General Urology',

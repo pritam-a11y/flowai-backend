@@ -75,6 +75,7 @@ const PHYSICIAN_EXPERTISE_MAPPING = {
   'Patient Foramen Ovale (PFO)': ['INTERVENTIONAL_CARDIOLOGY'],
   
   // Cardiology - Other
+  'Minimally Invasive Heart Surgery': ['MINIMALLY_INVASIVE_HEART_SURGERY'],
   'Hypertension': ['HYPERTENSION'],
   'Hypertension, Echocardiography, Heart Failure': ['HYPERTENSION', 'ECHOCARDIOGRAPHY', 'HEART_FAILURE'],
   'Hypertension, Preventive Cardiology, Coronary Artery Disease, Echocardiography, Women\'s Heart Disease, General Cardiology': ['HYPERTENSION', 'PREVENTIVE_CARDIOLOGY', 'CORONARY_ARTERY_DISEASE', 'ECHOCARDIOGRAPHY', 'GENERAL_CARDIOLOGY'],
@@ -583,6 +584,7 @@ const PHYSICIAN_EXPERTISE_MAPPING = {
   
   // Orthopedics - Fracture
   'Fracture': ['FRACTURE'],
+  'Cerebral Palsy': ['CEREBRAL_PALSY'],
   'Fracture Care': ['FRACTURE_CARE'],
   'Trauma Orthopaedic Surgery': ['FRACTURE'],
   'Trauma Orthopaedic Surgery, Fracture Care': ['FRACTURE', 'FRACTURE_CARE'],

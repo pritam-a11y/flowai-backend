@@ -649,7 +649,7 @@
       "id": 53,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/husam-h-balkhy",
       "normalizedExpertise": [
-        "SPORTS_MEDICINE"
+        "MINIMALLY_INVASIVE_HEART_SURGERY"
       ]
     },
     {
@@ -2318,8 +2318,7 @@
       ],
       "id": 173,
       "normalizedExpertise": [
-        "COLON_RECTAL_SURGERY",
-        "PROLAPSE"
+        "COLON_RECTAL_SURGERY"
       ]
     },
     {
@@ -3455,8 +3454,7 @@
       "normalizedExpertise": [
         "PROLAPSE",
         "URINARY_INCONTINENCE",
-        "FEMALE_INCONTINENCE",
-        "GENERAL_UROLOGY"
+        "FEMALE_INCONTINENCE"
       ]
     },
     {
@@ -4245,7 +4243,7 @@
         "FRACTURE_CARE",
         "SPINE",
         "SCOLIOSIS",
-        "GENERAL_NEUROLOGY",
+        "CEREBRAL_PALSY",
         "FRACTURE",
         "OSTEOARTHRITIS"
       ]
