@@ -1,8 +1,14 @@
 {
+  "metadata": {
+    "totalMappings": 164,
+    "lastUpdated": "2025-10-08T13:43:59.283Z",
+    "source": "Patient Symptoms.csv",
+    "generatedBy": "scripts/updateConfigFiles.js"
+  },
   "mappings": [
     {
       "symptom": "Black, tarry stools",
-      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+      "expertiseEnum": "COLONOSCOPY"
     },
     {
       "symptom": "Bloating or feeling full quickly",
@@ -10,186 +16,506 @@
     },
     {
       "symptom": "Bright red blood from rectum",
-      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+      "expertiseEnum": "COLONOSCOPY"
     },
     {
       "symptom": "Constipation that keeps coming back",
       "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
     },
     {
-      "symptom": "Crohn's or ulcerative colitis symptoms (blood/mucus, urgency)",
-      "expertiseEnum": "CROHNS_DISEASE"
+      "symptom": "Crohn’s or ulcerative colitis symptoms (blood/mucus, urgency)",
+      "expertiseEnum": "INFLAMMATORY_BOWEL_DISEASE"
     },
     {
-      "symptom": "Diarrhea that won't go away",
-      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
-    },
-    {
-      "symptom": "Difficulty swallowing",
+      "symptom": "Feel food getting stuck & spasms / pain in my Esophagus when I swallow",
       "expertiseEnum": "ESOPHAGEAL_MOTILITY_SWALLOWING_DISORDERS"
     },
     {
-      "symptom": "Heartburn or acid reflux that doesn't improve with antacids",
+      "symptom": "Fatty liver disease (told NAFLD/MASH by my PCP)",
+      "expertiseEnum": "FATTY_LIVER_DISEASE_NAFLD"
+    },
+    {
+      "symptom": "Gallbladder attacks (upper right belly pain after meals)",
+      "expertiseEnum": "HEPATOBILIARY_DISEASES"
+    },
+    {
+      "symptom": "Groin or belly button bulge (possible hernia)",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Heartburn or acid reflux",
       "expertiseEnum": "GERD_ACID_REFLUX"
     },
     {
-      "symptom": "Jaundice (yellow skin or eyes)",
+      "symptom": "History of pancreatitis or repeated attacks",
+      "expertiseEnum": "PANCREAS_PANCREATOBILIARY_DISEASE"
+    },
+    {
+      "symptom": "Irritable bowel symptoms (cramps with diarrhea/constipation)",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Known liver scarring (cirrhosis) with swelling/confusion",
       "expertiseEnum": "LIVER_DISEASES"
     },
     {
-      "symptom": "Nausea or vomiting without a clear cause",
+      "symptom": "Left lower belly pain",
       "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
     },
     {
-      "symptom": "Ongoing stomach pain or discomfort",
+      "symptom": "Ongoing diarrhea",
       "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
     },
     {
-      "symptom": "Unexplained weight loss",
+      "symptom": "Ongoing nausea or vomiting",
       "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
     },
     {
-      "symptom": "Chest pain or pressure",
+      "symptom": "Pain with bowel movements or hemorrhoids",
+      "expertiseEnum": "COLON_RECTAL_SURGERY"
+    },
+    {
+      "symptom": "Possible celiac disease (bloating, diarrhea, weight loss)",
+      "expertiseEnum": "CELIAC_DISEASE"
+    },
+    {
+      "symptom": "Primary sclerosing cholangitis follow-up",
+      "expertiseEnum": "LIVER_DISEASES"
+    },
+    {
+      "symptom": "Right lower belly pain",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Right upper belly pain (under ribs)",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Slow stomach emptying (fullness, nausea hours after eating)",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Throwing up blood (not an emergency visit)",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Trouble swallowing food",
+      "expertiseEnum": "ESOPHAGEAL_MOTILITY_SWALLOWING_DISORDERS"
+    },
+    {
+      "symptom": "Unplanned weight loss with belly symptoms",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Upper belly burning or gnawing pain (indigestion)",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Yellow skin/eyes or abnormal liver tests",
+      "expertiseEnum": "LIVER_DISEASES"
+    },
+    {
+      "symptom": "Abnormal heart tracing (ECG) told by another clinic",
       "expertiseEnum": "GENERAL_CARDIOLOGY"
     },
     {
-      "symptom": "Dizziness, lightheadedness, or fainting",
-      "expertiseEnum": "SYNCOPE_FAINTING"
+      "symptom": "Adult with a heart condition since birth",
+      "expertiseEnum": "ADULT_CONGENITAL_HEART_DISEASE"
     },
     {
-      "symptom": "Fast, irregular, or pounding heartbeat",
-      "expertiseEnum": "ARRHYTHMIAS"
+      "symptom": "Bulging leg veins or heavy, achy legs",
+      "expertiseEnum": "PERIPHERAL_VASCULAR_DISEASE"
     },
     {
-      "symptom": "Heart failure or shortness of breath when lying flat",
-      "expertiseEnum": "HEART_FAILURE"
-    },
-    {
-      "symptom": "High blood pressure that's hard to control",
-      "expertiseEnum": "HYPERTENSION"
-    },
-    {
-      "symptom": "High cholesterol",
-      "expertiseEnum": "HYPERLIPIDEMIA"
-    },
-    {
-      "symptom": "Leg pain or cramping when walking",
-      "expertiseEnum": "PERIPHERAL_ARTERIAL_DISEASE"
-    },
-    {
-      "symptom": "Shortness of breath with activity or at rest",
-      "expertiseEnum": "GENERAL_CARDIOLOGY"
-    },
-    {
-      "symptom": "Sudden chest pain",
+      "symptom": "Chest pain or pressure, especially with activity",
       "expertiseEnum": "CORONARY_ARTERY_DISEASE"
     },
     {
-      "symptom": "Swelling in legs, ankles, or feet",
+      "symptom": "Chest pain spreading to arm, shoulder, back, or jaw",
+      "expertiseEnum": "INTERVENTIONAL_CARDIOLOGY"
+    },
+    {
+      "symptom": "Cold or numb feet with weak pulses",
+      "expertiseEnum": "PERIPHERAL_VASCULAR_DISEASE"
+    },
+    {
+      "symptom": "Concern for heart infection (fever with murmur or IV line)",
+      "expertiseEnum": "GENERAL_CARDIOLOGY"
+    },
+    {
+      "symptom": "Dizziness or lightheadedness with activity",
+      "expertiseEnum": "CARDIAC_ELECTROPHYSIOLOGY"
+    },
+    {
+      "symptom": "Fainting or almost passing out",
+      "expertiseEnum": "SYNCOPE"
+    },
+    {
+      "symptom": "Fast heartbeat on standing, dizziness",
+      "expertiseEnum": "CARDIAC_ELECTROPHYSIOLOGY"
+    },
+    {
+      "symptom": "Follow-up after lung blood clot (pulmonary embolism)",
+      "expertiseEnum": "PULMONARY_EMBOLISM"
+    },
+    {
+      "symptom": "Follow-up for blocked heart arteries (coronary disease)",
+      "expertiseEnum": "CORONARY_ARTERY_DISEASE"
+    },
+    {
+      "symptom": "Foot pain at rest or sores that won’t heal",
+      "expertiseEnum": "PERIPHERAL_VASCULAR_DISEASE"
+    },
+    {
+      "symptom": "Overweight or obesity with weight-related health problems",
+      "expertiseEnum": "OBESITY"
+    },
+    {
+      "symptom": "Heart failure (weak or stiff heart) follow-up",
       "expertiseEnum": "HEART_FAILURE"
     },
     {
-      "symptom": "Confusion, memory problems, or trouble thinking clearly",
-      "expertiseEnum": "DEMENTIA"
+      "symptom": "Heart muscle disease (cardiomyopathy) in family or self",
+      "expertiseEnum": "CARDIOMYOPATHY"
     },
     {
-      "symptom": "Difficulty speaking or understanding speech",
+      "symptom": "Heart racing, fluttering, or skipping beats",
+      "expertiseEnum": "ARRHYTHMIAS"
+    },
+    {
+      "symptom": "High blood pressure (hypertension) hard to control",
+      "expertiseEnum": "HYPERTENSION"
+    },
+    {
+      "symptom": "High cholesterol with trouble taking statins",
+      "expertiseEnum": "HYPERLIPIDEMIA"
+    },
+    {
+      "symptom": "Known or suspected atrial fibrillation",
+      "expertiseEnum": "ATRIAL_FIBRILLATION"
+    },
+    {
+      "symptom": "Known valve problem (aortic, mitral, etc.)",
+      "expertiseEnum": "VALVE_DISEASE"
+    },
+    {
+      "symptom": "Leg pain with walking that gets better with rest",
+      "expertiseEnum": "PERIPHERAL_VASCULAR_DISEASE"
+    },
+    {
+      "symptom": "New heart murmur or told you have a valve problem",
+      "expertiseEnum": "VALVE_DISEASE"
+    },
+    {
+      "symptom": "New leg swelling and pain (possible blood clot)",
+      "expertiseEnum": "PERIPHERAL_VASCULAR_DISEASE"
+    },
+    {
+      "symptom": "Sharp chest pain better when leaning forward",
+      "expertiseEnum": "GENERAL_CARDIOLOGY"
+    },
+    {
+      "symptom": "Short of breath when lying flat or waking up gasping",
+      "expertiseEnum": "HEART_FAILURE"
+    },
+    {
+      "symptom": "Shortness of breath with activity or at rest",
+      "expertiseEnum": "HEART_FAILURE"
+    },
+    {
+      "symptom": "Slow or fast heartbeat noted on home device/ECG",
+      "expertiseEnum": "CARDIAC_ELECTROPHYSIOLOGY"
+    },
+    {
+      "symptom": "Swollen legs or ankles",
+      "expertiseEnum": "HEART_FAILURE"
+    },
+    {
+      "symptom": "Told you have an aortic aneurysm",
+      "expertiseEnum": "AORTIC_ANEURYSMS"
+    },
+    {
+      "symptom": "Told you have carotid narrowing or had a mini-stroke",
       "expertiseEnum": "STROKE"
     },
     {
-      "symptom": "Dizziness or balance problems",
-      "expertiseEnum": "DIZZINESS_OTONEUROLOGY"
+      "symptom": "Get tired quickly; Feel extreme fatigue / unusually weak",
+      "expertiseEnum": "GENERAL_CARDIOLOGY"
     },
     {
-      "symptom": "Headaches that are new, severe, or different than usual",
-      "expertiseEnum": "HEADACHE_DISORDERS_CHRONIC_MIGRAINE"
+      "symptom": "Family history of Heart Disease; Need a preventive check up",
+      "expertiseEnum": "PREVENTIVE_CARDIOLOGY"
     },
     {
-      "symptom": "Numbness, tingling, or weakness in arms, legs, hands, or feet",
+      "symptom": "Feeling of heartburn or indigestion that doesn't seem normal",
+      "expertiseEnum": "GERD_ACID_REFLUX"
+    },
+    {
+      "symptom": "Experience cold sweats along with other symptoms",
+      "expertiseEnum": "GENERAL_CARDIOLOGY"
+    },
+    {
+      "symptom": "Back pain with pain/numbness down leg (sciatica)",
+      "expertiseEnum": "SPINE"
+    },
+    {
+      "symptom": "Balance troubles or frequent falls",
+      "expertiseEnum": "GAIT_BALANCE_DISORDERS"
+    },
+    {
+      "symptom": "Brain tumor follow-up",
+      "expertiseEnum": "BRAIN_TUMORS"
+    },
+    {
+      "symptom": "Burning feet or nerve pain",
       "expertiseEnum": "NEUROPATHY"
     },
     {
-      "symptom": "Seizures or episodes of shaking/staring",
-      "expertiseEnum": "EPILEPSY_SEIZURES"
+      "symptom": "Concussion or ongoing symptoms after a head injury",
+      "expertiseEnum": "CONCUSSION_BRAIN_INJURIES"
     },
     {
-      "symptom": "Sudden weakness on one side of the body",
-      "expertiseEnum": "STROKE"
+      "symptom": "Frequent migraines",
+      "expertiseEnum": "HEADACHE_DISORDERS_CHRONIC_MIGRAINE"
     },
     {
-      "symptom": "Tremor, stiffness, or trouble with movement",
-      "expertiseEnum": "PARKINSONS_DISEASE"
-    },
-    {
-      "symptom": "Vision changes or loss",
+      "symptom": "Hand numbness from nerve trapping (carpal/cubital tunnel)",
       "expertiseEnum": "GENERAL_NEUROLOGY"
     },
     {
-      "symptom": "Abnormal vaginal bleeding",
-      "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
+      "symptom": "Memory loss or worsening forgetfulness",
+      "expertiseEnum": "DEMENTIA"
     },
     {
-      "symptom": "Birth control or family planning needs",
+      "symptom": "Multiple sclerosis – new symptoms or follow-up",
+      "expertiseEnum": "MULTIPLE_SCLEROSIS"
+    },
+    {
+      "symptom": "Neck pain with arm numbness or weakness",
+      "expertiseEnum": "SPINE"
+    },
+    {
+      "symptom": "Numbness or tingling in hands or feet",
+      "expertiseEnum": "NEUROPATHY"
+    },
+    {
+      "symptom": "Pituitary tumor or high hormone levels on labs",
+      "expertiseEnum": "PITUITARY_TUMORS"
+    },
+    {
+      "symptom": "Room-spinning dizziness (vertigo)",
+      "expertiseEnum": "DIZZINESS_OTONEUROLOGY"
+    },
+    {
+      "symptom": "Seizure or new spells with shaking or blackouts",
+      "expertiseEnum": "EPILEPSY_SEIZURES"
+    },
+    {
+      "symptom": "Severe face pain (possible trigeminal neuralgia)",
+      "expertiseEnum": "TRIGEMINAL_NEURALGIA"
+    },
+    {
+      "symptom": "Shaking (tremor) or concern for Parkinson’s",
+      "expertiseEnum": "PARKINSONS_DISEASE"
+    },
+    {
+      "symptom": "Stroke-like symptoms that got better (mini-stroke) or follow-up after stroke",
+      "expertiseEnum": "STROKE"
+    },
+    {
+      "symptom": "Trouble walking, memory changes, and urinary leaks together",
+      "expertiseEnum": "GENERAL_NEUROLOGY"
+    },
+    {
+      "symptom": "Worst new headache or different from usual headaches",
+      "expertiseEnum": "HEADACHE_DISORDERS_CHRONIC_MIGRAINE"
+    },
+    {
+      "symptom": "Abnormal Pap smear (told HSIL/ASC-H) or needs colposcopy",
+      "expertiseEnum": "CERVICAL_CANCER_ABNORMAL_PAP_SMEAR"
+    },
+    {
+      "symptom": "Accidental urine leaks (stress or urge)",
+      "expertiseEnum": "URINARY_INCONTINENCE"
+    },
+    {
+      "symptom": "Birth control counseling (IUD, implant, pills)",
       "expertiseEnum": "CONTRACEPTION_FAMILY_PLANNING"
+    },
+    {
+      "symptom": "Concern for ovarian, uterine, or cervical cancer",
+      "expertiseEnum": "OVARIAN_UTERINE_CERVICAL_CANCER"
+    },
+    {
+      "symptom": "Fibroids causing heavy bleeding or pressure",
+      "expertiseEnum": "UTERINE_FIBROIDS"
+    },
+    {
+      "symptom": "Frequent vaginal infections or discharge concerns",
+      "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
     },
     {
       "symptom": "Heavy or irregular periods",
       "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
     },
     {
-      "symptom": "Menopause symptoms (hot flashes, mood changes)",
+      "symptom": "High-risk pregnancy (twins, preeclampsia history, diabetes, etc.)",
+      "expertiseEnum": "HIGH_RISK_PREGNANCY_MFM"
+    },
+    {
+      "symptom": "Hot flashes, night sweats, or menopause care",
       "expertiseEnum": "PERIMENOPAUSE_MENOPAUSE"
     },
     {
-      "symptom": "Pelvic pain or pressure",
+      "symptom": "Light bleeding or cramping in early pregnancy (non-emergency)",
       "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
     },
     {
-      "symptom": "Pregnancy-related concerns or high-risk pregnancy",
-      "expertiseEnum": "HIGH_RISK_PREGNANCY"
+      "symptom": "Multiple miscarriages",
+      "expertiseEnum": "HIGH_RISK_PREGNANCY_MFM"
     },
     {
-      "symptom": "Problems with bladder control",
-      "expertiseEnum": "FEMALE_INCONTINENCE"
-    },
-    {
-      "symptom": "Feeling of something bulging from the vagina",
+      "symptom": "Pelvic bulge or pressure (possible prolapse)",
       "expertiseEnum": "PROLAPSE"
     },
     {
-      "symptom": "Bone or joint pain that doesn't go away",
+      "symptom": "Pelvic pain (during periods or not)",
+      "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
+    },
+    {
+      "symptom": "Planning a pregnancy (preconception)",
+      "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
+    },
+    {
+      "symptom": "Positive home pregnancy test – first prenatal visit",
+      "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
+    },
+    {
+      "symptom": "Possible sexually transmitted infection (STI)",
+      "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
+    },
+    {
+      "symptom": "Suspected endometriosis (bad period pain, pain with sex)",
+      "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
+    },
+    {
+      "symptom": "Trouble getting pregnant",
+      "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
+    },
+    {
+      "symptom": "Abnormal Pap smear needing specialist",
+      "expertiseEnum": "CERVICAL_CANCER_ABNORMAL_PAP_SMEAR"
+    },
+    {
+      "symptom": "Blood in stool or positive home colon test",
+      "expertiseEnum": "COLON_CANCER"
+    },
+    {
+      "symptom": "Blood in urine without pain",
+      "expertiseEnum": "GENERAL_UROLOGY"
+    },
+    {
+      "symptom": "Brain mass or tumor found on scan",
+      "expertiseEnum": "BRAIN_TUMORS"
+    },
+    {
+      "symptom": "Cancer found but primary site unknown",
+      "expertiseEnum": "GENERAL_ONCOLOGY"
+    },
+    {
+      "symptom": "Changing or unusual skin spot/mole",
+      "expertiseEnum": "MELANOMA"
+    },
+    {
+      "symptom": "High PSA blood test or abnormal prostate exam",
+      "expertiseEnum": "PROSTATE_CANCER"
+    },
+    {
+      "symptom": "High white cells or platelets told by another clinic",
+      "expertiseEnum": "HEMATOLOGY"
+    },
+    {
+      "symptom": "Long-lasting cough or coughing up blood (smoking history)",
+      "expertiseEnum": "LUNG_CANCER"
+    },
+    {
+      "symptom": "Low blood count (anemia) told by another clinic",
+      "expertiseEnum": "HEMATOLOGY"
+    },
+    {
+      "symptom": "Neck lump or hoarseness that won’t go away",
+      "expertiseEnum": "HEAD_NECK"
+    },
+    {
+      "symptom": "New bowel changes plus weight loss",
+      "expertiseEnum": "COLON_CANCER"
+    },
+    {
+      "symptom": "New breast lump or abnormal mammogram",
+      "expertiseEnum": "BREAST_CANCER"
+    },
+    {
+      "symptom": "New lump in a testicle",
+      "expertiseEnum": "TESTICULAR_CANCER"
+    },
+    {
+      "symptom": "Night sweats, fevers, and tiredness",
+      "expertiseEnum": "GENERAL_ONCOLOGY"
+    },
+    {
+      "symptom": "Second opinion for a cancer diagnosis",
+      "expertiseEnum": "GENERAL_ONCOLOGY"
+    },
+    {
+      "symptom": "Swollen lymph node that isn’t going away",
+      "expertiseEnum": "LYMPHOMA"
+    },
+    {
+      "symptom": "Thyroid nodule with concerning test/biopsy",
+      "expertiseEnum": "GENERAL_ONCOLOGY"
+    },
+    {
+      "symptom": "Told you have sarcoma (soft tissue or bone)",
+      "expertiseEnum": "SARCOMAS"
+    },
+    {
+      "symptom": "Unplanned weight loss (clothes getting loose)",
+      "expertiseEnum": "GENERAL_ONCOLOGY"
+    },
+    {
+      "symptom": "Vaginal bleeding after menopause",
+      "expertiseEnum": "OVARIAN_UTERINE_CERVICAL_CANCER"
+    },
+    {
+      "symptom": "Yellow eyes/skin or mass on pancreas/liver scan",
+      "expertiseEnum": "PANCREATIC_CANCER"
+    },
+    {
+      "symptom": "Arthritis pain or swollen joints",
       "expertiseEnum": "OSTEOARTHRITIS"
     },
     {
-      "symptom": "Jaw pain or difficulty opening the mouth",
-      "expertiseEnum": "TMJ"
-    },
-    {
-      "symptom": "Broken bone or fracture",
-      "expertiseEnum": "FRACTURE"
-    },
-    {
-      "symptom": "Back or neck pain",
+      "symptom": "Back or neck pain shooting down arm or leg (pinched nerve)",
       "expertiseEnum": "SPINE"
     },
     {
-      "symptom": "Hip pain or stiffness",
-      "expertiseEnum": "HIP"
+      "symptom": "Broken bone (not an emergency room visit)",
+      "expertiseEnum": "FRACTURE_CARE"
     },
     {
-      "symptom": "Knee pain or instability",
-      "expertiseEnum": "KNEE"
+      "symptom": "Bunions or crooked toes",
+      "expertiseEnum": "FOOT_ANKLE"
     },
     {
-      "symptom": "Shoulder pain or limited movement",
-      "expertiseEnum": "SHOULDER_ELBOW_SPORTS_MEDICINE"
+      "symptom": "Child with gait concerns, scoliosis, or limb differences",
+      "expertiseEnum": "SCOLIOSIS"
     },
     {
-      "symptom": "Sports injury",
-      "expertiseEnum": "SPORTS_MEDICINE"
+      "symptom": "Elbow pain or tennis/golfer’s elbow",
+      "expertiseEnum": "SHOULDER_ELBOW"
     },
     {
-      "symptom": "Hand, wrist, or elbow pain",
+      "symptom": "Finger catches or locks (trigger finger)",
       "expertiseEnum": "HAND_WRIST"
     },
     {
@@ -197,72 +523,148 @@
       "expertiseEnum": "FOOT_ANKLE"
     },
     {
-      "symptom": "Abnormal mole or skin lesion",
-      "expertiseEnum": "MELANOMA"
+      "symptom": "Hand or wrist pain/numbness",
+      "expertiseEnum": "HAND_WRIST"
     },
     {
-      "symptom": "Blood in urine or stool",
-      "expertiseEnum": "GENERAL_ONCOLOGY"
+      "symptom": "Heel pain when first standing (plantar fasciitis)",
+      "expertiseEnum": "FOOT_ANKLE"
     },
     {
-      "symptom": "Breast lump or changes",
-      "expertiseEnum": "BREAST_CANCER"
+      "symptom": "Hip or shoulder labrum tear (told/suspected)",
+      "expertiseEnum": "SPORTS_MEDICINE"
     },
     {
-      "symptom": "Coughing up blood",
-      "expertiseEnum": "LUNG_CANCER"
+      "symptom": "Hip pain or stiffness",
+      "expertiseEnum": "HIP"
     },
     {
-      "symptom": "Fatigue or weakness that won't go away",
-      "expertiseEnum": "GENERAL_ONCOLOGY"
+      "symptom": "Knee ligament injury (ACL or others)",
+      "expertiseEnum": "SPORTS_MEDICINE"
     },
     {
-      "symptom": "Lump or mass anywhere in the body",
-      "expertiseEnum": "GENERAL_ONCOLOGY"
-    },
-     {
-      "symptom": "Swollen lymph node that isn’t going away",
-      "expertiseEnum": "LYMPHOMA"
-    },   
-    {
-      "symptom": "Persistent cough or hoarseness",
-      "expertiseEnum": "LUNG_CANCER"
+      "symptom": "Knee meniscus tear (told/suspected)",
+      "expertiseEnum": "SPORTS_MEDICINE"
     },
     {
-      "symptom": "Unexplained weight loss",
-      "expertiseEnum": "GENERAL_ONCOLOGY"
+      "symptom": "Knee pain with walking, stairs, or sports",
+      "expertiseEnum": "KNEE"
     },
     {
-      "symptom": "Blood in urine",
+      "symptom": "Lower back pain without red flags",
+      "expertiseEnum": "SPINE"
+    },
+    {
+      "symptom": "Neck pain without red flags",
+      "expertiseEnum": "SPINE"
+    },
+    {
+      "symptom": "Numbness/tingling in hands at night (possible carpal tunnel)",
+      "expertiseEnum": "HAND_WRIST"
+    },
+    {
+      "symptom": "Old fracture not healing or healed crooked",
+      "expertiseEnum": "FRACTURE_CARE"
+    },
+    {
+      "symptom": "Possible hairline/stress fracture",
+      "expertiseEnum": "FRACTURE_CARE"
+    },
+    {
+      "symptom": "Rotator cuff tear or shoulder impingement (told/suspected)",
+      "expertiseEnum": "SHOULDER_ELBOW"
+    },
+    {
+      "symptom": "Shoulder pain or trouble lifting arm",
+      "expertiseEnum": "SHOULDER_ELBOW"
+    },
+    {
+      "symptom": "Sprained ankle, knee, or wrist",
+      "expertiseEnum": "SPORTS_MEDICINE"
+    },
+    {
+      "symptom": "Tendon pain (Achilles, kneecap, etc.)",
+      "expertiseEnum": "SPORTS_MEDICINE"
+    },
+    {
+      "symptom": "Thickened cords in palm pulling fingers in",
+      "expertiseEnum": "HAND_WRIST"
+    },
+    {
+      "symptom": "Told you have a slipped or herniated disc",
+      "expertiseEnum": "SPINE"
+    },
+    {
+      "symptom": "Accidental urine leaks with cough/exercise (women)",
+      "expertiseEnum": "INCONTINENCE"
+    },
+    {
+      "symptom": "Bladder pain syndrome (painful bladder)",
       "expertiseEnum": "BLADDER"
     },
     {
-      "symptom": "Difficulty urinating or weak stream",
-      "expertiseEnum": "PROSTATE"
+      "symptom": "Bladder problems from nerve disease",
+      "expertiseEnum": "BLADDER"
     },
     {
-      "symptom": "Erectile dysfunction",
+      "symptom": "Blood in urine without pain",
+      "expertiseEnum": "UROLOGIC_ONCOLOGY"
+    },
+    {
+      "symptom": "Burning or pain when peeing (possible UTI)",
+      "expertiseEnum": "GENERAL_UROLOGY"
+    },
+    {
+      "symptom": "Child with urinary/kidney concerns",
+      "expertiseEnum": "PEDIATRIC_UROLOGY"
+    },
+    {
+      "symptom": "Curved or painful erections (Peyronie’s)",
       "expertiseEnum": "ERECTILE_DYSFUNCTION"
     },
     {
-      "symptom": "Frequent urination or urgency",
+      "symptom": "Fluid or enlarged veins around testicle (hydrocele/varicocele)",
       "expertiseEnum": "GENERAL_UROLOGY"
     },
     {
-      "symptom": "Kidney stones or severe flank pain",
-      "expertiseEnum": "STONES"
-    },
-    {
-      "symptom": "Loss of bladder control",
+      "symptom": "Going to the bathroom very often or urgently",
       "expertiseEnum": "URINARY_INCONTINENCE"
     },
     {
-      "symptom": "Male fertility concerns",
+      "symptom": "High PSA test or abnormal prostate exam",
+      "expertiseEnum": "PROSTATE"
+    },
+    {
+      "symptom": "Male infertility (low sperm count told by prior test)",
       "expertiseEnum": "MALE_INFERTILITY"
     },
     {
-      "symptom": "Testicular pain or lump",
+      "symptom": "Men: weak stream, getting up at night, or straining to pee",
       "expertiseEnum": "GENERAL_UROLOGY"
+    },
+    {
+      "symptom": "Narrow urethra (weak stream after injury/surgery)",
+      "expertiseEnum": "URETHRAL_STRICTURE"
+    },
+    {
+      "symptom": "Repeat urinary infections",
+      "expertiseEnum": "GENERAL_UROLOGY"
+    },
+    {
+      "symptom": "Severe side or back pain with nausea (possible kidney stone)",
+      "expertiseEnum": "STONES"
+    },
+    {
+      "symptom": "Testicle pain or swelling (not sudden severe)",
+      "expertiseEnum": "GENERAL_UROLOGY"
+    },
+    {
+      "symptom": "Trouble getting or keeping an erection",
+      "expertiseEnum": "ERECTILE_DYSFUNCTION"
+    },
+    {
+      "symptom": "Trouble starting urine or emptying bladder",
+      "expertiseEnum": "URETHRAL_STRICTURE"
     }
   ]
 }

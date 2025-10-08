@@ -278,7 +278,7 @@ class SymptomPhysicianMatcher {
    * @returns {Promise<Object>} Test result
    */
   async test(
-    symptomText = 'I have severe chest pain and shortness of breath',
+    symptomText = 'Unexplained weight loss',
     address = '123 Main St, Chicago, IL 60601'
   ) {
     logger.info('Testing symptom physician matcher', { symptomText, address });
