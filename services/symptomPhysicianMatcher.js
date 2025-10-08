@@ -39,16 +39,6 @@ class SymptomPhysicianMatcher {
       return [];
     }
 
-    // Single location - no need to call API
-    if (locations.length === 1) {
-      return [{
-        name: locations[0].name,
-        address: this.truncateAddress(locations[0].address),
-        distance: null,
-        duration: null
-      }];
-    }
-
     try {
       const destinations = locations.map(loc => loc.address);
 
@@ -240,12 +230,19 @@ class SymptomPhysicianMatcher {
       physiciansWithDistance.sort((a, b) => a.closestDistance - b.closestDistance);
 
       // Step 4: Take top 3 physicians and format response
-      const top3Physicians = physiciansWithDistance.slice(0, 3).map(item => ({
-        name: item.physician.name,
-        specialty: item.physician.specialty,
-        areasOfExpertise: item.physician.areasOfExpertise || [],
-        locations: item.sortedLocations
-      }));
+      // Convert normalized expertise enums to display names for better readability
+      const top3Physicians = physiciansWithDistance.slice(0, 3).map(item => {
+        const displayExpertise = (item.physician.normalizedExpertise || []).map(enumKey => 
+          getExpertiseDisplayName(enumKey)
+        );
+        
+        return {
+          name: item.physician.name,
+          specialty: item.physician.specialty,
+          areasOfExpertise: displayExpertise,
+          locations: item.sortedLocations
+        };
+      });
 
       logger.info('Successfully matched physicians to symptoms', {
         expertiseEnum,
