@@ -109,6 +109,19 @@ class OpenAISymptomClassifier {
 
       const classifiedExpertise = response.data.choices[0].message.content.trim();
 
+      // Handle MANUAL_REVIEW_REQUIRED response
+      if (classifiedExpertise === 'MANUAL_REVIEW_REQUIRED') {
+        logger.info('Symptoms require manual review', {
+          symptomText: symptomText.substring(0, 100)
+        });
+
+        return {
+          success: false,
+          error: 'These symptoms require manual review. Please contact our office directly for assistance.',
+          requiresManualReview: true
+        };
+      }
+
       // Validate that the returned enum is valid
       const allEnums = getAllExpertiseEnums();
       if (!allEnums.includes(classifiedExpertise)) {
@@ -116,7 +129,7 @@ class OpenAISymptomClassifier {
           returned: classifiedExpertise,
           validEnums: allEnums
         });
-        
+
         throw new Error(`OpenAI returned invalid expertise area: ${classifiedExpertise}`);
       }
 
