@@ -240,6 +240,7 @@ class SymptomPhysicianMatcher {
           name: item.physician.name,
           specialty: item.physician.specialty,
           areasOfExpertise: displayExpertise,
+          languages: item.physician.languages || [],
           locations: item.sortedLocations
         };
       });
