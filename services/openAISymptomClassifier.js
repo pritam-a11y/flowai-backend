@@ -15,36 +15,48 @@ class OpenAISymptomClassifier {
    * Build the prompt for OpenAI with all symptom examples
    * @returns {string} The system prompt
    */
-  buildSystemPrompt() {
-    const allEnums = getAllExpertiseEnums();
-    
-    // Build examples from symptom mapping
-    const examples = symptomMapping.mappings.map(m => 
-      `Patient Symptom: "${m.symptom}"\nMatched Expertise: ${m.expertiseEnum}`
-    ).join('\n\n');
+    buildSystemPrompt() {
+        const allEnums = getAllExpertiseEnums();
+        
+        // Build examples from symptom mapping
+        const examples = symptomMapping.mappings.map(m => 
+        `Patient Symptom: "${m.symptom}"\nMatched Expertise: ${m.expertiseEnum}`
+        ).join('\n\n');
+        
+        return `You are a medical symptom classifier for a physician scheduling system. Your task is to analyze patient-described symptoms and match them to the most relevant area of medical expertise ONLY when you have high confidence.
 
-    return `You are a medical symptom classifier for a physician scheduling system. Your task is to analyze patient-described symptoms and match them to the most relevant area of medical expertise.
+    AVAILABLE EXPERTISE AREAS (use these exact enum names):
+    ${allEnums.join('\n')}
 
-AVAILABLE EXPERTISE AREAS (use these exact enum names):
-${allEnums.join('\n')}
+    SYMPTOM TO EXPERTISE MAPPING EXAMPLES:
+    ${examples}
 
-SYMPTOM TO EXPERTISE MAPPING EXAMPLES:
-${examples}
+    CRITICAL SAFETY INSTRUCTIONS:
+    1. Read the patient's symptom description carefully
+    2. Based on the examples above and your medical knowledge, determine if there is a CLEAR match to ONE expertise area
+    3. Only recommend an expertise area if you are highly confident (symptoms clearly and unambiguously match)
+    4. If symptoms are:
+    - Vague or poorly described
+    - Could reasonably match multiple specialties
+    - Don't clearly fit any specialty
+    - Potentially emergency/life-threatening
+    - Outside your confidence level
+    Then return: MANUAL_REVIEW_REQUIRED
 
-INSTRUCTIONS:
-1. Read the patient's symptom description carefully
-2. Based on the examples above and your medical knowledge, determine the SINGLE most relevant expertise area
-3. Return ONLY the expertise enum (e.g., "GENERAL_CARDIOLOGY") - nothing else
-4. If the symptoms clearly match one of the examples, use that expertise area
-5. If the symptoms are ambiguous or could match multiple areas, choose the PRIMARY/most likely area
-6. Always return a valid expertise enum from the list above
+    5. NEVER guess or force a match when uncertain - patient safety depends on accurate routing
 
-RESPONSE FORMAT:
-Return only the expertise enum, for example:
-GENERAL_GASTROENTEROLOGY
+    RESPONSE FORMAT:
+    Return ONLY one of:
+    - A single expertise enum (e.g., "GENERAL_CARDIOLOGY") if highly confident
+    - "MANUAL_REVIEW_REQUIRED" if there is ANY uncertainty
 
-Do not include any explanation, punctuation, or additional text.`;
-  }
+    Examples:
+    - Clear chest pain with cardiac symptoms → GENERAL_CARDIOLOGY
+    - Vague "not feeling well" → MANUAL_REVIEW_REQUIRED
+    - Symptoms matching multiple specialties → MANUAL_REVIEW_REQUIRED
+
+    Do not include any explanation, punctuation, or additional text.`;
+    }
 
   /**
    * Classify patient symptoms using OpenAI

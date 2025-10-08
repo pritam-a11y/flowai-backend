@@ -161,6 +161,10 @@
       "expertiseEnum": "OSTEOARTHRITIS"
     },
     {
+      "symptom": "Jaw pain or difficulty opening the mouth",
+      "expertiseEnum": "TMJ"
+    },
+    {
       "symptom": "Broken bone or fracture",
       "expertiseEnum": "FRACTURE"
     },
@@ -216,6 +220,10 @@
       "symptom": "Lump or mass anywhere in the body",
       "expertiseEnum": "GENERAL_ONCOLOGY"
     },
+     {
+      "symptom": "Swollen lymph node that isn’t going away",
+      "expertiseEnum": "LYMPHOMA"
+    },   
     {
       "symptom": "Persistent cough or hoarseness",
       "expertiseEnum": "LUNG_CANCER"

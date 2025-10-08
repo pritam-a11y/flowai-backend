@@ -133,6 +133,7 @@ const EXPERTISE_ENUMS = {
   ELBOW: 'Elbow',
   FOOT_ANKLE: 'Foot & Ankle',
   KNEE_WRIST_ANKLE: 'Knee, Wrist, Ankle',
+  TMJ: "TMJ (Temporomandibular Joint)",
   
   // Orthopedics - Conditions
   FRACTURE: 'Fracture',
