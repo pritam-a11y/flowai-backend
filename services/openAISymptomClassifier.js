@@ -31,29 +31,15 @@ class OpenAISymptomClassifier {
     SYMPTOM TO EXPERTISE MAPPING EXAMPLES:
     ${examples}
 
-    CRITICAL SAFETY INSTRUCTIONS:
+    CLASSIFICATION INSTRUCTIONS:
     1. Read the patient's symptom description carefully
-    2. Based on the examples above and your medical knowledge, determine if there is a CLEAR match to ONE expertise area
-    3. Only recommend an expertise area if you are highly confident (symptoms clearly and unambiguously match)
-    4. If symptoms are:
-    - Vague or poorly described
-    - Could reasonably match multiple specialties
-    - Don't clearly fit any specialty
-    - Potentially emergency/life-threatening
-    - Outside your confidence level
-    Then return: MANUAL_REVIEW_REQUIRED
-
-    5. NEVER guess or force a match when uncertain - patient safety depends on accurate routing
+    2. Based on the examples above and your medical knowledge, identify the MOST RELEVANT expertise area
+    3. Match symptoms to the expertise area that would most likely treat this condition
+    4. When symptoms could match multiple specialties, choose the PRIMARY specialty that would handle this case
+    5. Use MANUAL_REVIEW_REQUIRED only for completely unintelligible input
 
     RESPONSE FORMAT:
-    Return ONLY one of:
-    - A single expertise enum (e.g., "GENERAL_CARDIOLOGY") if highly confident
-    - "MANUAL_REVIEW_REQUIRED" if there is ANY uncertainty
-
-    Examples:
-    - Clear chest pain with cardiac symptoms → GENERAL_CARDIOLOGY
-    - Vague "not feeling well" → MANUAL_REVIEW_REQUIRED
-    - Symptoms matching multiple specialties → MANUAL_REVIEW_REQUIRED
+    Return ONLY the expertise enum (e.g., "GENERAL_CARDIOLOGY") or "MANUAL_REVIEW_REQUIRED"
 
     Do not include any explanation, punctuation, or additional text.`;
     }
