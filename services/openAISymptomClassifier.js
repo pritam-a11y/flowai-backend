@@ -1,0 +1,170 @@
+require('dotenv').config();
+const axios = require('axios');
+const logger = require('../utils/logger');
+const symptomMapping = require('../config/symptomExpertiseMapping.json');
+const { EXPERTISE_ENUMS, getAllExpertiseEnums } = require('../config/expertiseEnums');
+
+class OpenAISymptomClassifier {
+  constructor() {
+    this.apiKey = process.env.OPENAI_API_KEY;
+    this.model = 'gpt-4o';
+    this.apiUrl = 'https://api.openai.com/v1/chat/completions';
+  }
+
+  /**
+   * Build the prompt for OpenAI with all symptom examples
+   * @returns {string} The system prompt
+   */
+  buildSystemPrompt() {
+    const allEnums = getAllExpertiseEnums();
+    
+    // Build examples from symptom mapping
+    const examples = symptomMapping.mappings.map(m => 
+      `Patient Symptom: "${m.symptom}"\nMatched Expertise: ${m.expertiseEnum}`
+    ).join('\n\n');
+
+    return `You are a medical symptom classifier for a physician scheduling system. Your task is to analyze patient-described symptoms and match them to the most relevant area of medical expertise.
+
+AVAILABLE EXPERTISE AREAS (use these exact enum names):
+${allEnums.join('\n')}
+
+SYMPTOM TO EXPERTISE MAPPING EXAMPLES:
+${examples}
+
+INSTRUCTIONS:
+1. Read the patient's symptom description carefully
+2. Based on the examples above and your medical knowledge, determine the SINGLE most relevant expertise area
+3. Return ONLY the expertise enum (e.g., "GENERAL_CARDIOLOGY") - nothing else
+4. If the symptoms clearly match one of the examples, use that expertise area
+5. If the symptoms are ambiguous or could match multiple areas, choose the PRIMARY/most likely area
+6. Always return a valid expertise enum from the list above
+
+RESPONSE FORMAT:
+Return only the expertise enum, for example:
+GENERAL_GASTROENTEROLOGY
+
+Do not include any explanation, punctuation, or additional text.`;
+  }
+
+  /**
+   * Classify patient symptoms using OpenAI
+   * @param {string} symptomText - Patient's symptom description
+   * @returns {Promise<Object>} Classification result with expertise enum
+   */
+  async classifySymptoms(symptomText) {
+    try {
+      if (!this.apiKey) {
+        throw new Error('OPENAI_API_KEY is not configured in environment variables');
+      }
+
+      if (!symptomText || typeof symptomText !== 'string' || !symptomText.trim()) {
+        throw new Error('Invalid symptom text provided');
+      }
+
+      logger.info('Classifying symptoms with OpenAI', {
+        symptomLength: symptomText.length,
+        model: this.model
+      });
+
+      const response = await axios.post(
+        this.apiUrl,
+        {
+          model: this.model,
+          messages: [
+            {
+              role: 'system',
+              content: this.buildSystemPrompt()
+            },
+            {
+              role: 'user',
+              content: `Patient symptoms: ${symptomText}`
+            }
+          ],
+          temperature: 0.3, // Lower temperature for more consistent results
+          max_tokens: 50, // We only need the enum back
+          top_p: 1,
+          frequency_penalty: 0,
+          presence_penalty: 0
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 30000 // 30 second timeout
+        }
+      );
+
+      const classifiedExpertise = response.data.choices[0].message.content.trim();
+
+      // Validate that the returned enum is valid
+      const allEnums = getAllExpertiseEnums();
+      if (!allEnums.includes(classifiedExpertise)) {
+        logger.warn('OpenAI returned invalid expertise enum', {
+          returned: classifiedExpertise,
+          validEnums: allEnums
+        });
+        
+        throw new Error(`OpenAI returned invalid expertise area: ${classifiedExpertise}`);
+      }
+
+      logger.info('Successfully classified symptoms', {
+        expertise: classifiedExpertise,
+        tokensUsed: response.data.usage?.total_tokens || 0
+      });
+
+      return {
+        success: true,
+        expertiseEnum: classifiedExpertise,
+        tokensUsed: response.data.usage?.total_tokens || 0
+      };
+
+    } catch (error) {
+      // Handle OpenAI API errors
+      if (error.response) {
+        logger.error('OpenAI API error', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data
+        });
+
+        return {
+          success: false,
+          error: `OpenAI API error: ${error.response.data?.error?.message || error.response.statusText}`
+        };
+      }
+
+      // Handle network/timeout errors
+      if (error.code === 'ECONNABORTED') {
+        logger.error('OpenAI request timeout', { error: error.message });
+        return {
+          success: false,
+          error: 'OpenAI request timed out. Please try again.'
+        };
+      }
+
+      // Handle other errors
+      logger.error('Error classifying symptoms', {
+        error: error.message,
+        stack: error.stack
+      });
+
+      return {
+        success: false,
+        error: error.message || 'An error occurred during symptom classification'
+      };
+    }
+  }
+
+  /**
+   * Test the classifier with a sample symptom
+   * @param {string} symptomText - Test symptom description
+   * @returns {Promise<Object>} Test result
+   */
+  async test(symptomText = 'I have severe chest pain and shortness of breath') {
+    logger.info('Testing OpenAI symptom classifier', { symptomText });
+    return await this.classifySymptoms(symptomText);
+  }
+}
+
+module.exports = new OpenAISymptomClassifier();

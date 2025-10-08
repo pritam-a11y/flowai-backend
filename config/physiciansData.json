@@ -34,10 +34,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/adam-vohra",
       "id": 8,
-      "areasOfExpertise": [
-        "Coronary Artery Disease",
-        "Cardiac Catheterization",
-        "Cardiac CT Angiography"
+      "normalizedExpertise": [
+        "CORONARY_ARTERY_DISEASE",
+        "CARDIAC_CATHETERIZATION"
       ]
     },
     {
@@ -61,12 +60,12 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/alexandru-marginean",
       "id": 22,
-      "areasOfExpertise": [
-        "Preventive Cardiology",
-        "CAD",
-        "Heart Failure",
-        "Arrhythmias",
-        "Sports Cardiology"
+      "normalizedExpertise": [
+        "PREVENTIVE_CARDIOLOGY",
+        "CORONARY_ARTERY_DISEASE",
+        "HEART_FAILURE",
+        "ARRHYTHMIAS",
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -89,9 +88,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/amber-e-johnson",
       "id": 14,
-      "areasOfExpertise": [
-        "Preventive Cardiology",
-        "General Cardiology"
+      "normalizedExpertise": [
+        "PREVENTIVE_CARDIOLOGY",
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -113,8 +112,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/amber-e-johnson",
       "id": 26,
-      "areasOfExpertise": [
-        "General/Preventive Cardiology"
+      "normalizedExpertise": [
+        "GENERAL_CARDIOLOGY",
+        "PREVENTIVE_CARDIOLOGY"
       ]
     },
     {
@@ -141,10 +141,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/andrew-beaser",
       "id": 3,
-      "areasOfExpertise": [
-        "Catheter Ablation of Cardiac Arrhythmias",
-        "Pacemakers & Defibrillators",
-        "Ventricular Tachycardia, Hypertrophic Cardiomyopathy"
+      "normalizedExpertise": [
+        "CARDIAC_ELECTROPHYSIOLOGY",
+        "VENTRICULAR_TACHYCARDIA",
+        "CARDIOMYOPATHY"
       ]
     },
     {
@@ -167,10 +167,11 @@
       ],
       "id": 23,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/angel-de-la-cruz-tejada",
-      "areasOfExpertise": [
-        "Coronary Artery Disease, Hypertension",
-        "Arrhythmias",
-        "Heart Failure, Non-Invasive Cardiac (Heart) Testing"
+      "normalizedExpertise": [
+        "CORONARY_ARTERY_DISEASE",
+        "HYPERTENSION",
+        "ARRHYTHMIAS",
+        "HEART_FAILURE"
       ]
     },
     {
@@ -193,10 +194,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ann-nguyen",
       "id": 27,
-      "areasOfExpertise": [
-        "Ventricular Assist Devices (VADs)",
-        "Cardiomyopathy",
-        "Heart Transplant"
+      "normalizedExpertise": [
+        "VENTRICULAR_ASSIST_DEVICES",
+        "CARDIOMYOPATHY",
+        "HEART_TRANSPLANT"
       ]
     },
     {
@@ -219,9 +220,11 @@
       ],
       "id": 39,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/anthony-kanelidis",
-      "areasOfExpertise": [
-        "Heart Failure",
-        "Heart Transplant, Cardiomyopathy, Ventricular Assist Devices (VADs)"
+      "normalizedExpertise": [
+        "HEART_FAILURE",
+        "HEART_TRANSPLANT",
+        "CARDIOMYOPATHY",
+        "VENTRICULAR_ASSIST_DEVICES"
       ]
     },
     {
@@ -248,10 +251,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/atman-p-shah",
       "id": 6,
-      "areasOfExpertise": [
-        "Coronary & Structural Heart Interventions",
-        "PFO",
-        "Aortic Valve Stenosis"
+      "normalizedExpertise": [
+        "INTERVENTIONAL_CARDIOLOGY",
+        "VALVE_DISEASE"
       ]
     },
     {
@@ -289,10 +291,10 @@
       ],
       "id": 37,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/bow-young-chung",
-      "areasOfExpertise": [
-        "Ventricular Assist Devices (VADs)",
-        "Cardiomyopathy",
-        "Heart Transplant"
+      "normalizedExpertise": [
+        "VENTRICULAR_ASSIST_DEVICES",
+        "CARDIOMYOPATHY",
+        "HEART_TRANSPLANT"
       ]
     },
     {
@@ -315,11 +317,11 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/cevher-ozcan",
       "id": 29,
-      "areasOfExpertise": [
-        "Syncope (Fainting)",
-        "Atrial Fibrillation",
-        "Arrhythmias",
-        "Ventricular Tachycardia"
+      "normalizedExpertise": [
+        "SYNCOPE_FAINTING",
+        "ATRIAL_FIBRILLATION",
+        "ARRHYTHMIAS",
+        "VENTRICULAR_TACHYCARDIA"
       ]
     },
     {
@@ -346,8 +348,8 @@
       ],
       "id": 43,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/chelsea-dorsey",
-      "areasOfExpertise": [
-        "Vascular Surgery"
+      "normalizedExpertise": [
+        "PERIPHERAL_VASCULAR_DISEASE"
       ]
     },
     {
@@ -369,12 +371,11 @@
       ],
       "id": 55,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/christopher-t-salerno",
-      "areasOfExpertise": [
-        "Mechanical Circulatory Support",
-        "Heart Transplant",
-        "Heart Failure",
-        "Chief",
-        "Section of Cardiac Surgery"
+      "normalizedExpertise": [
+        "VENTRICULAR_ASSIST_DEVICES",
+        "HEART_TRANSPLANT",
+        "HEART_FAILURE",
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -401,12 +402,7 @@
       ],
       "id": 52,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/christopher-skelly",
-      "areasOfExpertise": [
-        "Mesenteric Ischemia",
-        "Carotid Artery Disease",
-        "Aortic Surgery",
-        "Complex Aortic Pathology"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Clayton",
@@ -433,12 +429,8 @@
       ],
       "id": 42,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/clayton-brinster",
-      "areasOfExpertise": [
-        "Renal Artery Disease",
-        "Abdominal Aortic Aneurysms",
-        "Mesenteric Artery Disease",
-        "Carotid Artery Disease",
-        "Aortic Disease"
+      "normalizedExpertise": [
+        "AORTIC_DISEASE"
       ]
     },
     {
@@ -460,12 +452,9 @@
       ],
       "id": 49,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/david-onsager",
-      "areasOfExpertise": [
-        "Thoracic Surgery",
-        "Cardiac Surgery",
-        "Transplant",
-        "Coronary Artery Bypass Surgery",
-        "Mechanical Circulatory Support"
+      "normalizedExpertise": [
+        "HEART_TRANSPLANT",
+        "VENTRICULAR_ASSIST_DEVICES"
       ]
     },
     {
@@ -497,10 +486,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/francis-alenghat",
       "id": 20,
-      "areasOfExpertise": [
-        "Coronary Artery Disease",
-        "Preventive Cardiology",
-        "General Cardiology"
+      "normalizedExpertise": [
+        "CORONARY_ARTERY_DISEASE",
+        "PREVENTIVE_CARDIOLOGY",
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -528,11 +517,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/gaurav-a-upadhyay",
       "id": 4,
-      "areasOfExpertise": [
-        "Conduction System Pacing",
-        "Cardiac Resynchronization",
-        "Catheter Ablation",
-        "Heart Failure"
+      "normalizedExpertise": [
+        "CARDIAC_ELECTROPHYSIOLOGY",
+        "HEART_FAILURE"
       ]
     },
     {
@@ -554,9 +541,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/gene-kim",
       "id": 38,
-      "areasOfExpertise": [
-        "Transplant",
-        "Hypertrophic Cardiomyopathy"
+      "normalizedExpertise": [
+        "HEART_TRANSPLANT"
       ]
     },
     {
@@ -583,14 +569,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/hena-patel",
       "id": 56,
-      "areasOfExpertise": [
-        "Women's Heart Disease",
-        "Echocardiography",
-        "Preventive Cardiology",
-        "Cardiac MRI",
-        "Cardiac Side Effects of Cancer Therapy",
-        "General Cardiology",
-        "Cardio-Obstetrics"
+      "normalizedExpertise": [
+        "ECHOCARDIOGRAPHY",
+        "PREVENTIVE_CARDIOLOGY",
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -612,8 +594,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/henry-huang",
       "id": 5,
-      "areasOfExpertise": [
-        "General Cardiology"
+      "normalizedExpertise": [
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -636,12 +618,9 @@
       ],
       "id": 48,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/hiroto-kitahara",
-      "areasOfExpertise": [
-        "Robotic Heart Surgery",
-        "Heart Failure",
-        "Arrhythmias",
-        "Coronary Artery Bypass Surgery",
-        "Minimally Invasive Cardiac Surgery"
+      "normalizedExpertise": [
+        "HEART_FAILURE",
+        "ARRHYTHMIAS"
       ]
     },
     {
@@ -669,11 +648,8 @@
       ],
       "id": 53,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/husam-h-balkhy",
-      "areasOfExpertise": [
-        "Robotic Heart Surgery",
-        "Atrial Fibrillation Surgery",
-        "Total Endoscopic Coronary Artery Bypass (TECAB) Surgery",
-        "Minimally Invasive Surgery"
+      "normalizedExpertise": [
+        "SPORTS_MEDICINE"
       ]
     },
     {
@@ -695,9 +671,8 @@
       ],
       "id": 28,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ibett-colina-garcia",
-      "areasOfExpertise": [
-        "General Cardiology",
-        "Women's Heart Health"
+      "normalizedExpertise": [
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -724,11 +699,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jay-khambhati",
       "id": 10,
-      "areasOfExpertise": [
-        "Coronary Artery Disease",
-        "TAVR",
-        "Mitral Clip",
-        "Patient Foramen Ovale (PFO)"
+      "normalizedExpertise": [
+        "CORONARY_ARTERY_DISEASE",
+        "INTERVENTIONAL_CARDIOLOGY"
       ]
     },
     {
@@ -750,11 +723,13 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jeanne-decara",
       "id": 16,
-      "areasOfExpertise": [
-        "Cardio-Oncology (Director, Cardio-Oncology Program at U Chicago)",
-        "Hypertension, Echocardiography, Heart Failure",
-        "Coronary artery Disease, Heart Valve Disease",
-        "Women's Heart Disease, Cardiac Side Effects of Cancer Therapy, General Cardiology"
+      "normalizedExpertise": [
+        "GENERAL_CARDIOLOGY",
+        "HYPERTENSION",
+        "ECHOCARDIOGRAPHY",
+        "HEART_FAILURE",
+        "CORONARY_ARTERY_DISEASE",
+        "VALVE_DISEASE"
       ]
     },
     {
@@ -776,8 +751,8 @@
       ],
       "id": 30,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jeremy-treger",
-      "areasOfExpertise": [
-        "General Cardiology"
+      "normalizedExpertise": [
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -799,10 +774,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jonathan-grinstein",
       "id": 36,
-      "areasOfExpertise": [
-        "Congestive Heart Failure",
-        "Ventricular Assist Devices (VADs)",
-        "Heart Transplant"
+      "normalizedExpertise": [
+        "VENTRICULAR_ASSIST_DEVICES",
+        "HEART_TRANSPLANT"
       ]
     },
     {
@@ -824,8 +798,8 @@
       ],
       "id": 33,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jonathan-lattell",
-      "areasOfExpertise": [
-        "General Cardiology"
+      "normalizedExpertise": [
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -852,11 +826,11 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jonathan-d-paul",
       "id": 9,
-      "areasOfExpertise": [
-        "Pulmonary Embolism Therapies",
-        "DVT",
-        "Coronary Artery Disease",
-        "Peripheral Arterial Disease"
+      "normalizedExpertise": [
+        "PULMONARY_EMBOLISM",
+        "PERIPHERAL_VASCULAR_DISEASE",
+        "CORONARY_ARTERY_DISEASE",
+        "PERIPHERAL_ARTERIAL_DISEASE"
       ]
     },
     {
@@ -878,9 +852,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/karima-addetia",
       "id": 18,
-      "areasOfExpertise": [
-        "Echocardiography",
-        "General Cardiology"
+      "normalizedExpertise": [
+        "ECHOCARDIOGRAPHY",
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -902,8 +876,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/kathleen-drinan",
       "id": 25,
-      "areasOfExpertise": [
-        "General/Preventive Cardiology"
+      "normalizedExpertise": [
+        "GENERAL_CARDIOLOGY",
+        "PREVENTIVE_CARDIOLOGY"
       ]
     },
     {
@@ -925,9 +900,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/leo-gozdecki",
       "id": 15,
-      "areasOfExpertise": [
-        "Preventive Cardiology",
-        "General Cardiology"
+      "normalizedExpertise": [
+        "PREVENTIVE_CARDIOLOGY",
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -954,10 +929,9 @@
       ],
       "id": 45,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/luka-pocivavsek",
-      "areasOfExpertise": [
-        "Aortic Disease",
-        "Cerebrovascular Disease",
-        "Peripheral Vascular Disease"
+      "normalizedExpertise": [
+        "AORTIC_DISEASE",
+        "PERIPHERAL_VASCULAR_DISEASE"
       ]
     },
     {
@@ -979,9 +953,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/manreet-kanwar",
       "id": 13,
-      "areasOfExpertise": [
-        "Heart Failure",
-        "Heart Transplant"
+      "normalizedExpertise": [
+        "HEART_FAILURE",
+        "HEART_TRANSPLANT"
       ]
     },
     {
@@ -1003,8 +977,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/mark-belkin",
       "id": 19,
-      "areasOfExpertise": [
-        "General Cardiology"
+      "normalizedExpertise": [
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -1026,8 +1000,8 @@
       ],
       "id": 32,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/martin-gruca",
-      "areasOfExpertise": [
-        "General Cardiology"
+      "normalizedExpertise": [
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -1054,13 +1028,13 @@
       ],
       "id": 35,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/matthew-sorrentino",
-      "areasOfExpertise": [
-        "Coronary Artery Disease",
-        "Echocardiography",
-        "General Cardiology",
-        "Hyperlipidemia",
-        "Hypertension",
-        "Preventive Cardiology"
+      "normalizedExpertise": [
+        "CORONARY_ARTERY_DISEASE",
+        "ECHOCARDIOGRAPHY",
+        "GENERAL_CARDIOLOGY",
+        "HYPERLIPIDEMIA",
+        "HYPERTENSION",
+        "PREVENTIVE_CARDIOLOGY"
       ]
     },
     {
@@ -1082,10 +1056,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/michael-h-davidson",
       "id": 17,
-      "areasOfExpertise": [
-        "Preventive Cardiology",
-        "Lipid Disorders",
-        "Cardiovascular Risk Reduction"
+      "normalizedExpertise": [
+        "PREVENTIVE_CARDIOLOGY",
+        "HYPERLIPIDEMIA"
       ]
     },
     {
@@ -1117,15 +1090,10 @@
       ],
       "id": 24,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/michael-earing",
-      "areasOfExpertise": [
-        "Connective Tissue Diseases",
-        "Echocardiography",
-        "Aortic Aneurysms",
-        "Marfan Syndrome",
-        "Congenital Heart Disease in Children",
-        "Adult Congenital Heart Disease",
-        "Pulmonary Arterial Hypertension",
-        "Hypertrophic Cardiomyopathy"
+      "normalizedExpertise": [
+        "ECHOCARDIOGRAPHY",
+        "AORTIC_ANEURYSMS",
+        "ADULT_CONGENITAL_HEART_DISEASE"
       ]
     },
     {
@@ -1154,16 +1122,8 @@
       ],
       "id": 54,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/miroslav-peev",
-      "areasOfExpertise": [
-        "Aortic Surgery",
-        "Coronary Revascularization",
-        "Mitral and Tricuspid Valve Pathology",
-        "Cardiac Tumors",
-        "Heart Defects",
-        "Minimally Invasive & Robotic Heart Surgery",
-        "Aortic Aneurysms",
-        "Aortic Dissection",
-        "Atrial Fibrillation Surgery"
+      "normalizedExpertise": [
+        "AORTIC_ANEURYSMS"
       ]
     },
     {
@@ -1186,13 +1146,10 @@
       ],
       "id": 46,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/narutoshi-hibino",
-      "areasOfExpertise": [
-        "Neonatal Cardiac Surgery",
-        "Venticular Assist Devices",
-        "Heart Transplant",
-        "Congenital Heart Disease",
-        "Aortic Aneurysms",
-        "Heart Valve Disease"
+      "normalizedExpertise": [
+        "HEART_TRANSPLANT",
+        "AORTIC_ANEURYSMS",
+        "VALVE_DISEASE"
       ]
     },
     {
@@ -1214,12 +1171,11 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nikhil-narang",
       "id": 11,
-      "areasOfExpertise": [
-        "Advanced Heart Failure",
-        "Transplant",
-        "Mechanical Circulatory Support",
-        "LVAD",
-        "Cardiac Amyloidosis"
+      "normalizedExpertise": [
+        "HEART_FAILURE",
+        "HEART_TRANSPLANT",
+        "VENTRICULAR_ASSIST_DEVICES",
+        "CARDIOMYOPATHY"
       ]
     },
     {
@@ -1244,14 +1200,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nitasha-sarswat",
       "id": 40,
-      "areasOfExpertise": [
-        "Cardiac Synchronization Therapy",
-        "Ventricular Assist Devices",
-        "Heart Transplant",
-        "Heart Failure",
-        "Cardiac Critical Care",
-        "Women's Heart Disease",
-        "Cardiac Amyloidosis"
+      "normalizedExpertise": [
+        "HEART_TRANSPLANT",
+        "HEART_FAILURE",
+        "CARDIOMYOPATHY"
       ]
     },
     {
@@ -1273,13 +1225,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/prateek-sharma",
       "id": 57,
-      "areasOfExpertise": [
-        "Ischemic Heart Disease",
-        "Carotid Artery Disease",
-        "Aortic Disease",
-        "Pulmonary Arterial Hypertension",
-        "Pulmonary Embolism Therapies",
-        "Coronary Artery Disease"
+      "normalizedExpertise": [
+        "AORTIC_DISEASE",
+        "PULMONARY_EMBOLISM",
+        "CORONARY_ARTERY_DISEASE"
       ]
     },
     {
@@ -1301,10 +1250,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/rishi-arora",
       "id": 1,
-      "areasOfExpertise": [
-        "Atrial Fibrillation",
-        "Arrhythmias",
-        "Catheter Ablation of Cardiac Arrhythmias"
+      "normalizedExpertise": [
+        "ATRIAL_FIBRILLATION",
+        "ARRHYTHMIAS",
+        "CARDIAC_ELECTROPHYSIOLOGY"
       ]
     },
     {
@@ -1336,13 +1285,9 @@
       ],
       "id": 44,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ross-milner",
-      "areasOfExpertise": [
-        "Abdominal Aortic Aneurysms",
-        "Renal Artery Disease",
-        "Mesenteric Artery Disease",
-        "Carotid Artery Disease",
-        "Aortic Disease",
-        "Peripheral Arterial Disease"
+      "normalizedExpertise": [
+        "AORTIC_DISEASE",
+        "PERIPHERAL_ARTERIAL_DISEASE"
       ]
     },
     {
@@ -1365,10 +1310,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sandeep-nathan",
       "id": 7,
-      "areasOfExpertise": [
-        "Acute Coronary Syndrome",
-        "Antiplatelet Therapies",
-        "Coronary Artery Disease"
+      "normalizedExpertise": [
+        "CORONARY_ARTERY_DISEASE"
       ]
     },
     {
@@ -1395,12 +1338,7 @@
       ],
       "id": 51,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sara-gaines",
-      "areasOfExpertise": [
-        "Arteriovenous Fistula Revision",
-        "Dialysis Access Procedures",
-        "Venous Insufficiency",
-        "Varicose Veins"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Sara",
@@ -1421,8 +1359,8 @@
       ],
       "id": 12,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sara-kalantari",
-      "areasOfExpertise": [
-        "Heart Transplant"
+      "normalizedExpertise": [
+        "HEART_TRANSPLANT"
       ]
     },
     {
@@ -1444,8 +1382,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/srinath-yeshwant",
       "id": 31,
-      "areasOfExpertise": [
-        "General Cardiology"
+      "normalizedExpertise": [
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -1472,8 +1410,8 @@
       ],
       "id": 34,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/stanley-swat",
-      "areasOfExpertise": [
-        "General Cardiology"
+      "normalizedExpertise": [
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -1496,11 +1434,9 @@
       ],
       "id": 50,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/takeyoshi-ota",
-      "areasOfExpertise": [
-        "Aotric Surgery",
-        "Ventricular Assist Devices",
-        "Heart Transplant",
-        "Heart Failure"
+      "normalizedExpertise": [
+        "HEART_TRANSPLANT",
+        "HEART_FAILURE"
       ]
     },
     {
@@ -1537,9 +1473,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/tamar-polonsky",
       "id": 21,
-      "areasOfExpertise": [
-        "General Cardiology",
-        "Preventive Cardiology, Hypertension, Coronary Artery Disease, Echocardiography, Women's Heart Disease"
+      "normalizedExpertise": [
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -1566,13 +1501,9 @@
       ],
       "id": 41,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/trissa-a-babrowski",
-      "areasOfExpertise": [
-        "Renal Artery Disease",
-        "Abdominal Aortic Aneurysms",
-        "Mesenteric Artery Disease",
-        "Carotid Artery Disease",
-        "Aortic Disease",
-        "Peripheral Arterial Disease"
+      "normalizedExpertise": [
+        "AORTIC_DISEASE",
+        "PERIPHERAL_ARTERIAL_DISEASE"
       ]
     },
     {
@@ -1595,14 +1526,10 @@
       ],
       "id": 47,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/valluvan-jeevanandam",
-      "areasOfExpertise": [
-        "Ventricular Assist Devices (VADs)",
-        "Heart Transplant",
-        "Valvuloplasty",
-        "Heart Failure",
-        "Artificial Hearts",
-        "Minimally Invasive Cardiac Surgery",
-        "Bloodless Heart Surgery"
+      "normalizedExpertise": [
+        "VENTRICULAR_ASSIST_DEVICES",
+        "HEART_TRANSPLANT",
+        "HEART_FAILURE"
       ]
     },
     {
@@ -1629,11 +1556,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/zaid-aziz",
       "id": 2,
-      "areasOfExpertise": [
-        "Catheter Ablation",
-        "Pacemakers & Defibrillators",
-        "Atrial Fibrillation",
-        "Ventricular Tachycardia"
+      "normalizedExpertise": [
+        "CARDIAC_ELECTROPHYSIOLOGY",
+        "ATRIAL_FIBRILLATION",
+        "VENTRICULAR_TACHYCARDIA"
       ]
     },
     {
@@ -1654,10 +1580,9 @@
         }
       ],
       "id": 174,
-      "areasOfExpertise": [
-        "Inflammatory Bowel Disease",
-        "Crohn’s",
-        "Ulcerative Colitis"
+      "normalizedExpertise": [
+        "INFLAMMATORY_BOWEL_DISEASE",
+        "ULCERATIVE_COLITIS"
       ]
     },
     {
@@ -1679,11 +1604,10 @@
       ],
       "id": 168,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/anand-a-patel",
-      "areasOfExpertise": [
-        "GERD",
-        "Esophageal motility",
-        "Dysphagia",
-        "Functional GI disorders"
+      "normalizedExpertise": [
+        "GERD_ACID_REFLUX",
+        "ESOPHAGEAL_MOTILITY_SWALLOWING_DISORDERS",
+        "GENERAL_GASTROENTEROLOGY"
       ]
     },
     {
@@ -1710,9 +1634,8 @@
       ],
       "id": 158,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/anjana-pillai",
-      "areasOfExpertise": [
-        "Liver Diseases",
-        "Liver Transplant"
+      "normalizedExpertise": [
+        "LIVER_DISEASES"
       ]
     },
     {
@@ -1734,10 +1657,10 @@
       ],
       "id": 175,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ankit-nayyar",
-      "areasOfExpertise": [
-        "General Gastroenterology",
-        "Endoscopy",
-        "Colonoscopy"
+      "normalizedExpertise": [
+        "GENERAL_GASTROENTEROLOGY",
+        "ENDOSCOPY",
+        "COLONOSCOPY"
       ]
     },
     {
@@ -1775,11 +1698,9 @@
       ],
       "id": 160,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/benjamin-h-levy-iii",
-      "areasOfExpertise": [
-        "Colon Cancer Prevention",
-        "Liver Diseases",
-        "Gastroesophageal Reflux Disease (GERD)",
-        "Inflammatory Bowel Disease (IBD)"
+      "normalizedExpertise": [
+        "COLON_CANCER",
+        "LIVER_DISEASES"
       ]
     },
     {
@@ -1806,8 +1727,8 @@
       ],
       "id": 153,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/bradford-chong",
-      "areasOfExpertise": [
-        "Gastroenterology"
+      "normalizedExpertise": [
+        "GENERAL_GASTROENTEROLOGY"
       ]
     },
     {
@@ -1834,10 +1755,8 @@
       ],
       "id": 159,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/carol-e-semrad",
-      "areasOfExpertise": [
-        "Celiac Disease",
-        "Diarrheal Diseases",
-        "Nutrition Education"
+      "normalizedExpertise": [
+        "CELIAC_DISEASE"
       ]
     },
     {
@@ -1859,8 +1778,8 @@
       ],
       "id": 152,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/david-atlas",
-      "areasOfExpertise": [
-        "Colon Cancer Prevention"
+      "normalizedExpertise": [
+        "COLON_CANCER"
       ]
     },
     {
@@ -1887,11 +1806,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/david-rubin",
       "id": 149,
-      "areasOfExpertise": [
-        "Inflammatory Bowel Disease",
-        "Ulcerative Colitis",
-        "Crohn’s Disease",
-        "Dysplasia surveillance"
+      "normalizedExpertise": [
+        "INFLAMMATORY_BOWEL_DISEASE",
+        "ULCERATIVE_COLITIS",
+        "GENERAL_GASTROENTEROLOGY"
       ]
     },
     {
@@ -1914,10 +1832,8 @@
       ],
       "id": 161,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/dennis-d-chen",
-      "areasOfExpertise": [
-        "Barrett's Esophagus",
-        "Gastrointestinal Cancers",
-        "Pancreatic Diseases"
+      "normalizedExpertise": [
+        "PANCREAS_PANCREATOBILIARY_DISEASE"
       ]
     },
     {
@@ -1944,10 +1860,7 @@
       ],
       "id": 155,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/edwin-k-mcdonald-iv",
-      "areasOfExpertise": [
-        "Small Bowel Disorders",
-        "Obesity"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Grace",
@@ -1969,16 +1882,9 @@
       ],
       "id": 162,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/grace-kim",
-      "areasOfExpertise": [
-        "Endoscopy",
-        "ERCP",
-        "Therapeutic/Diagnostic Endocopic Ultrasound",
-        "Biliary Diseases",
-        "Barrett's Esophagus",
-        "Gastrointestinal Cancers",
-        "Colorectal Cancer",
-        "Pancreatic Cancer",
-        "Pancreatic Diseases"
+      "normalizedExpertise": [
+        "ENDOSCOPY",
+        "PANCREAS_PANCREATOBILIARY_DISEASE"
       ]
     },
     {
@@ -1999,11 +1905,9 @@
         }
       ],
       "id": 178,
-      "areasOfExpertise": [
-        "GERD",
-        "Dysphagia",
-        "Achalasia",
-        "Esophageal motility"
+      "normalizedExpertise": [
+        "GERD_ACID_REFLUX",
+        "ESOPHAGEAL_MOTILITY_SWALLOWING_DISORDERS"
       ]
     },
     {
@@ -2024,10 +1928,8 @@
         }
       ],
       "id": 176,
-      "areasOfExpertise": [
-        "Liver Disease",
-        "Cirrhosis",
-        "Transplant Hepatology"
+      "normalizedExpertise": [
+        "LIVER_DISEASES"
       ]
     },
     {
@@ -2054,13 +1956,10 @@
       ],
       "id": 157,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/joel-pekow",
-      "areasOfExpertise": [
-        "Colon Cancer",
-        "Ulcerative Colitis",
-        "Crohn's Disease",
-        "Colon Cancer Prevention",
-        "Imflammatory Bowel Disease",
-        "Fecal Microbiota Transplant"
+      "normalizedExpertise": [
+        "COLON_CANCER",
+        "ULCERATIVE_COLITIS",
+        "CROHNS_DISEASE"
       ]
     },
     {
@@ -2082,9 +1981,9 @@
       ],
       "id": 167,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/marc-bissonnette",
-      "areasOfExpertise": [
-        "Liver Diseases",
-        "Colonoscopy"
+      "normalizedExpertise": [
+        "LIVER_DISEASES",
+        "COLONOSCOPY"
       ]
     },
     {
@@ -2106,13 +2005,9 @@
       ],
       "id": 156,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/matthew-odenwald",
-      "areasOfExpertise": [
-        "Cirrhosis",
-        "Fatty Liver Disease",
-        "Hepatitis",
-        "Liver Cancer",
-        "Liver Diseases",
-        "Liver Transplant"
+      "normalizedExpertise": [
+        "LIVER_DISEASES",
+        "FATTY_LIVER_DISEASE_NAFLD"
       ]
     },
     {
@@ -2133,11 +2028,9 @@
         }
       ],
       "id": 165,
-      "areasOfExpertise": [
-        "Liver disease",
-        "Cirrhosis",
-        "Liver transplantation",
-        "NAFLD/NASH"
+      "normalizedExpertise": [
+        "LIVER_DISEASES",
+        "FATTY_LIVER_DISEASE_NAFLD"
       ]
     },
     {
@@ -2163,12 +2056,7 @@
         }
       ],
       "id": 151,
-      "areasOfExpertise": [
-        "General GI Complaints",
-        "Swallowing Disorders",
-        "Esophagus Conditions",
-        "Acid Reflux"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Nina",
@@ -2195,9 +2083,8 @@
       ],
       "id": 166,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nina-gupta",
-      "areasOfExpertise": [
-        "Abdominal Pain",
-        "Colonoscopy"
+      "normalizedExpertise": [
+        "COLONOSCOPY"
       ]
     },
     {
@@ -2219,10 +2106,9 @@
       ],
       "id": 150,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/russell-d-cohen",
-      "areasOfExpertise": [
-        "Inflammatory Bowel Disease",
-        "Crohn’s Disease",
-        "Ulcerative Colitis"
+      "normalizedExpertise": [
+        "INFLAMMATORY_BOWEL_DISEASE",
+        "ULCERATIVE_COLITIS"
       ]
     },
     {
@@ -2249,8 +2135,8 @@
       ],
       "id": 154,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/shilpa-kailas",
-      "areasOfExpertise": [
-        "Colon Cancer"
+      "normalizedExpertise": [
+        "COLON_CANCER"
       ]
     },
     {
@@ -2277,10 +2163,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sonia-kupfer",
       "id": 163,
-      "areasOfExpertise": [
-        "Hereditary GI cancer syndromes",
-        "Lynch syndrome",
-        "Familial adenomatous polyposis"
+      "normalizedExpertise": [
+        "COLON_CANCER"
       ]
     },
     {
@@ -2301,11 +2185,9 @@
         }
       ],
       "id": 177,
-      "areasOfExpertise": [
-        "Cirrhosis",
-        "Hepatitis",
-        "NAFLD/NASH",
-        "Transplant Hepatology"
+      "normalizedExpertise": [
+        "LIVER_DISEASES",
+        "FATTY_LIVER_DISEASE_NAFLD"
       ]
     },
     {
@@ -2332,11 +2214,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/uzma-siddiqui",
       "id": 164,
-      "areasOfExpertise": [
-        "Endoscopic ultrasound (EUS)",
-        "ERCP",
-        "Pancreaticobiliary disease",
-        "Complex polypectomy"
+      "normalizedExpertise": [
+        "ENDOSCOPY",
+        "PANCREAS_PANCREATOBILIARY_DISEASE"
       ]
     },
     {
@@ -2358,9 +2238,10 @@
       ],
       "id": 172,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jeffrey-b-matthews",
-      "areasOfExpertise": [
-        "Hepato-pancreato-biliary surgery",
-        "Complex GI surgery"
+      "normalizedExpertise": [
+        "LIVER_DISEASES",
+        "PANCREAS_PANCREATOBILIARY_DISEASE",
+        "COLON_RECTAL_SURGERY"
       ]
     },
     {
@@ -2382,11 +2263,9 @@
       ],
       "id": 169,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/john-c-alverdy",
-      "areasOfExpertise": [
-        "Complex GI surgery",
-        "Foregut",
-        "Intestinal failure",
-        "Sepsis in surgery"
+      "normalizedExpertise": [
+        "COLON_RECTAL_SURGERY",
+        "GENERAL_GASTROENTEROLOGY"
       ]
     },
     {
@@ -2413,11 +2292,11 @@
       ],
       "id": 171,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/mitchell-c-posner",
-      "areasOfExpertise": [
-        "Pancreas",
-        "Hepatobiliary",
-        "Gastrointestinal cancers",
-        "Multidisciplinary cancer care"
+      "normalizedExpertise": [
+        "PANCREAS_PANCREATOBILIARY_DISEASE",
+        "HEPATOBILIARY_DISEASES",
+        "COLON_CANCER",
+        "GENERAL_ONCOLOGY"
       ]
     },
     {
@@ -2438,11 +2317,9 @@
         }
       ],
       "id": 173,
-      "areasOfExpertise": [
-        "Colon & rectal surgery",
-        "IBD surgery",
-        "Diverticulitis",
-        "Pelvic floor"
+      "normalizedExpertise": [
+        "COLON_RECTAL_SURGERY",
+        "PROLAPSE"
       ]
     },
     {
@@ -2464,11 +2341,10 @@
       ],
       "id": 180,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/samer-kassar",
-      "areasOfExpertise": [
-        "Liver",
-        "Pancreas",
-        "Biliary",
-        "Complex GI Surgery"
+      "normalizedExpertise": [
+        "LIVER_DISEASES",
+        "PANCREAS_PANCREATOBILIARY_DISEASE",
+        "COLON_RECTAL_SURGERY"
       ]
     },
     {
@@ -2490,10 +2366,8 @@
       ],
       "id": 179,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/allison-dalton",
-      "areasOfExpertise": [
-        "Colon & Rectal Surgery",
-        "IBD Surgery",
-        "Minimally Invasive & Robotic Surgery"
+      "normalizedExpertise": [
+        "COLON_RECTAL_SURGERY"
       ]
     },
     {
@@ -2515,11 +2389,8 @@
       ],
       "id": 170,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/vivek-n-prachand",
-      "areasOfExpertise": [
-        "Bariatric surgery",
-        "Revisional bariatric surgery",
-        "Duodenal switch",
-        "Complex foregut"
+      "normalizedExpertise": [
+        "GENERAL_GASTROENTEROLOGY"
       ]
     },
     {
@@ -2551,15 +2422,8 @@
       ],
       "id": 126,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/adil-javed",
-      "areasOfExpertise": [
-        "Acute Disseminated Encephalomyelitis (ADEM)",
-        "Lupus",
-        "Multiple Sclerosis",
-        "Connective Tissue Diseases",
-        "Sjogren's Syndrome",
-        "Neurosarcoidosis",
-        "Demyelinating Disease",
-        "MOG Antibody Disease"
+      "normalizedExpertise": [
+        "MULTIPLE_SCLEROSIS"
       ]
     },
     {
@@ -2581,11 +2445,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/bakhtiar-yamini",
       "id": 129,
-      "areasOfExpertise": [
-        "Pediatric brain tumors",
-        "Chiari malformation",
-        "Hydrocephalus",
-        "Epilepsy surgery (pediatric)"
+      "normalizedExpertise": [
+        "BRAIN_TUMORS",
+        "GENERAL_NEUROLOGY",
+        "EPILEPSY_SEIZURES"
       ]
     },
     {
@@ -2612,14 +2475,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/behzad-elahi",
       "id": 130,
-      "areasOfExpertise": [
-        "Movement Disorders",
-        "Parkinson's Disease",
-        "Deep Brain Stimulation",
-        "Dystonia",
-        "Chorea",
-        "Myclonus",
-        "Neuromonitoring"
+      "normalizedExpertise": [
+        "PARKINSONS_DISEASE"
       ]
     },
     {
@@ -2641,12 +2498,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/carlos-lara",
       "id": 138,
-      "areasOfExpertise": [
-        "Muscular dystrophies",
-        "Myopathies",
-        "Myasthenia gravis",
-        "Hereditary neuropathies",
-        "CIDP"
+      "normalizedExpertise": [
+        "NEUROPATHY"
       ]
     },
     {
@@ -2669,12 +2522,8 @@
       ],
       "id": 143,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/christopher-m-gomez",
-      "areasOfExpertise": [
-        "Ataxia Telangiectasia",
-        "Gait & Balance Disorders",
-        "Spinocerebellar Ataxias",
-        "Congenital Myasthenic Syndromes",
-        "Hereditary Parkinson's Disease"
+      "normalizedExpertise": [
+        "GAIT_BALANCE_DISORDERS"
       ]
     },
     {
@@ -2696,12 +2545,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/daniel-orozco",
       "id": 140,
-      "areasOfExpertise": [
-        "Epilepsy",
-        "Parkinson's disease",
-        "Essential tremor",
-        "Huntington’s disease",
-        "Migraine"
+      "normalizedExpertise": [
+        "EPILEPSY_SEIZURES",
+        "PARKINSONS_DISEASE",
+        "HEADACHE_DISORDERS_CHRONIC_MIGRAINE"
       ]
     },
     {
@@ -2728,10 +2575,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/david-satzer",
       "id": 119,
-      "areasOfExpertise": [
-        "DBS",
-        "Neuromodulation",
-        "Functional neurosurgery"
+      "normalizedExpertise": [
+        "PARKINSONS_DISEASE"
       ]
     },
     {
@@ -2763,11 +2608,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/Edwin-Ramos",
       "id": 121,
-      "areasOfExpertise": [
-        "Spinal tumors",
-        "Complex spine",
-        "Minimally invasive spine",
-        "Metastatic spine disease"
+      "normalizedExpertise": [
+        "SPINE"
       ]
     },
     {
@@ -2794,14 +2636,8 @@
       ],
       "id": 128,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/james-r-brorson",
-      "areasOfExpertise": [
-        "Stroke",
-        "Cerebrovascular Diseases",
-        "Brain Aneurysm",
-        "Cerebral Ischemia",
-        "Ischemic Stroke",
-        "Vascular Dementia",
-        "Arteriovenous Malformations"
+      "normalizedExpertise": [
+        "STROKE"
       ]
     },
     {
@@ -2828,11 +2664,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/james-siegler",
       "id": 134,
-      "areasOfExpertise": [
-        "Ischemic stroke",
-        "TIA",
-        "Secondary stroke prevention",
-        "Neurohospitalist care"
+      "normalizedExpertise": [
+        "STROKE"
       ]
     },
     {
@@ -2859,15 +2692,8 @@
       ],
       "id": 145,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/james-h-tonsgard",
-      "areasOfExpertise": [
-        "Intellectual Disabilities",
-        "Genetic Brain Disease",
-        "Epilepsy",
-        "Pediatric Epilepsy",
-        "Autism Spectrum Disorder",
-        "Neurofibromatosis",
-        "Neurocutaneous Disorders",
-        "Seizures"
+      "normalizedExpertise": [
+        "EPILEPSY_SEIZURES"
       ]
     },
     {
@@ -2899,14 +2725,8 @@
       ],
       "id": 147,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/kenneth-lee",
-      "areasOfExpertise": [
-        "Insomnia",
-        "Sleep Disorders",
-        "Obstructive Sleep Apnea",
-        "Narcolepsy",
-        "Central Sleep Apnea",
-        "Periodic Limb Movement Disorder",
-        "Parasomnias"
+      "normalizedExpertise": [
+        "GENERAL_NEUROLOGY"
       ]
     },
     {
@@ -2928,11 +2748,11 @@
       ],
       "id": 146,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/lakshmi-warrior",
-      "areasOfExpertise": [
-        "Migraine Headaches",
-        "Concussion & Brain Injuries",
-        "Stroke",
-        "Dementia"
+      "normalizedExpertise": [
+        "HEADACHE_DISORDERS_CHRONIC_MIGRAINE",
+        "CONCUSSION_BRAIN_INJURIES",
+        "STROKE",
+        "DEMENTIA"
       ]
     },
     {
@@ -2954,8 +2774,8 @@
       ],
       "id": 142,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/lauren-singer",
-      "areasOfExpertise": [
-        "Brain & Spinal Tumors"
+      "normalizedExpertise": [
+        "BRAIN_TUMORS"
       ]
     },
     {
@@ -2977,9 +2797,8 @@
       ],
       "id": 127,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/marcello-cherchi",
-      "areasOfExpertise": [
-        "Otoneurology",
-        "Dizziness"
+      "normalizedExpertise": [
+        "DIZZINESS_OTONEUROLOGY"
       ]
     },
     {
@@ -3006,16 +2825,9 @@
       ],
       "id": 137,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/margaret-a-kaystacey",
-      "areasOfExpertise": [
-        "Insomnia",
-        "Sleep Disorders",
-        "Obstructive Sleep Apnea",
-        "Narcolepsy",
-        "Central Sleep Apnea",
-        "Periodic Limb Movement Disorder",
-        "Parasomnias",
-        "Migraine Headaches",
-        "Restless Legs Syndrome"
+      "normalizedExpertise": [
+        "GENERAL_NEUROLOGY",
+        "HEADACHE_DISORDERS_CHRONIC_MIGRAINE"
       ]
     },
     {
@@ -3042,13 +2854,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/martin-herman",
       "id": 124,
-      "areasOfExpertise": [
-        "Minimally invasive spine",
-        "Spinal fusions",
-        "Spine fracture repair",
-        "Spinal tumors",
-        "Microdiscectomy",
-        "Foraminotomy"
+      "normalizedExpertise": [
+        "SPINE"
       ]
     },
     {
@@ -3070,9 +2877,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/mohamad-bydon",
       "id": 148,
-      "areasOfExpertise": [
-        "Minimally invasive & robotic spine surgery",
-        "Complex spinal disorders"
+      "normalizedExpertise": [
+        "SPINE"
       ]
     },
     {
@@ -3099,10 +2905,8 @@
       ],
       "id": 125,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/naoum-p-issa",
-      "areasOfExpertise": [
-        "Epilepsy",
-        "Seizures",
-        "Director - Epilepsy Research"
+      "normalizedExpertise": [
+        "EPILEPSY_SEIZURES"
       ]
     },
     {
@@ -3130,14 +2934,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/paramita-das",
       "id": 122,
-      "areasOfExpertise": [
-        "Pituitary Tumors",
-        "Brain Tumors",
-        "Pediatric Brain & Spinal Cord Tumors",
-        "Minimally Invasive Neurosurgery",
-        "Schwannomas",
-        "Trigeminal Neuralgia",
-        "Meningiomas"
+      "normalizedExpertise": [
+        "PITUITARY_TUMORS",
+        "BRAIN_TUMORS",
+        "TRIGEMINAL_NEURALGIA"
       ]
     },
     {
@@ -3169,9 +2969,8 @@
       ],
       "id": 132,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/pei-ning-hsu",
-      "areasOfExpertise": [
-        "Chronic migraine",
-        "Headache disorders"
+      "normalizedExpertise": [
+        "HEADACHE_DISORDERS_CHRONIC_MIGRAINE"
       ]
     },
     {
@@ -3199,15 +2998,9 @@
       ],
       "id": 123,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/peleg-m-horowitz",
-      "areasOfExpertise": [
-        "Pituitary Tumors",
-        "Brain Tumors",
-        "Gliomas",
-        "Schwannomas",
-        "Brain Metastases",
-        "Meningioma",
-        "Skull Base Tumors",
-        "Head & Neck Cancer"
+      "normalizedExpertise": [
+        "PITUITARY_TUMORS",
+        "BRAIN_TUMORS"
       ]
     },
     {
@@ -3229,11 +3022,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/peter-warnke",
       "id": 118,
-      "areasOfExpertise": [
-        "Deep Brain Stimulation (DBS)",
-        "Epilepsy surgery",
-        "Trigeminal neuralgia",
-        "Movement disorders surgery"
+      "normalizedExpertise": [
+        "PARKINSONS_DISEASE",
+        "EPILEPSY_SEIZURES",
+        "TRIGEMINAL_NEURALGIA"
       ]
     },
     {
@@ -3255,9 +3047,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/rachel-mehendale",
       "id": 135,
-      "areasOfExpertise": [
-        "Brain & spinal cord disorders",
-        "General neurology"
+      "normalizedExpertise": [
+        "GENERAL_NEUROLOGY"
       ]
     },
     {
@@ -3279,11 +3070,10 @@
       ],
       "id": 120,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sean-p-polster",
-      "areasOfExpertise": [
-        "Brain tumors",
-        "Pituitary tumors",
-        "Skull base",
-        "Clinical trials"
+      "normalizedExpertise": [
+        "BRAIN_TUMORS",
+        "PITUITARY_TUMORS",
+        "GENERAL_ONCOLOGY"
       ]
     },
     {
@@ -3305,10 +3095,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/shubadra-priyadarshini",
       "id": 139,
-      "areasOfExpertise": [
-        "Neuromuscular disorders",
-        "Myasthenia gravis",
-        "Neuropathies"
+      "normalizedExpertise": [
+        "NEUROPATHY"
       ]
     },
     {
@@ -3335,15 +3123,13 @@
       ],
       "id": 133,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/staci-l-graf",
-      "areasOfExpertise": [
-        "Epilepsy",
-        "Seizures",
-        "Headache",
-        "Dementia",
-        "Parkinson’s disease",
-        "Stroke",
-        "MS",
-        "Neuropathy"
+      "normalizedExpertise": [
+        "EPILEPSY_SEIZURES",
+        "HEADACHE_DISORDERS_CHRONIC_MIGRAINE",
+        "DEMENTIA",
+        "STROKE",
+        "MULTIPLE_SCLEROSIS",
+        "NEUROPATHY"
       ]
     },
     {
@@ -3367,20 +3153,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/tao-xie",
       "id": 144,
-      "areasOfExpertise": [
-        "Hemifacial Spasm",
-        "Tics",
-        "Tremor",
-        "Tourette Syndrome",
-        "Huntington's Disease",
-        "Movement Disorders",
-        "Progressive Supranuclear Palsy",
-        "Parkinson's Disease",
-        "Botox Therapy",
-        "Deep Brain Stimulation",
-        "Dystonia",
-        "Multiple System Atrophy",
-        "Blepharospasm"
+      "normalizedExpertise": [
+        "PARKINSONS_DISEASE"
       ]
     },
     {
@@ -3409,11 +3183,8 @@
       ],
       "id": 136,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/tareq-kasshout",
-      "areasOfExpertise": [
-        "Ischemic Stroke",
-        "Brain Aneurysms",
-        "Stroke",
-        "Arteriovenous Malformations"
+      "normalizedExpertise": [
+        "STROKE"
       ]
     },
     {
@@ -3445,11 +3216,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/veronica-cipriani",
       "id": 131,
-      "areasOfExpertise": [
-        "Multiple sclerosis",
-        "Neuromyelitis optica",
-        "Autoimmune encephalitis",
-        "Demyelinating disease"
+      "normalizedExpertise": [
+        "MULTIPLE_SCLEROSIS"
       ]
     },
     {
@@ -3471,10 +3239,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/william-roth",
       "id": 141,
-      "areasOfExpertise": [
-        "General neurology",
-        "Headache",
-        "Cognitive disorders"
+      "normalizedExpertise": [
+        "GENERAL_NEUROLOGY",
+        "HEADACHE_DISORDERS_CHRONIC_MIGRAINE",
+        "DEMENTIA"
       ]
     },
     {
@@ -3496,9 +3264,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ashish-premkumar",
       "id": 108,
-      "areasOfExpertise": [
-        "High-risk pregnancy",
-        "Maternal-fetal diagnosis & management"
+      "normalizedExpertise": [
+        "HIGH_RISK_PREGNANCY"
       ]
     },
     {
@@ -3520,12 +3287,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/christina-lewicky-gaupp",
       "id": 113,
-      "areasOfExpertise": [
-        "Pelvic floor disorders",
-        "Prolapse",
-        "Urinary/fecal incontinence",
-        "Birth trauma",
-        "Urogenital fistulas"
+      "normalizedExpertise": [
+        "PROLAPSE",
+        "FEMALE_INCONTINENCE",
+        "GENERAL_OBSTETRICS_GYNECOLOGY"
       ]
     },
     {
@@ -3547,11 +3312,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ernst-lengyel",
       "id": 109,
-      "areasOfExpertise": [
-        "Ovarian",
-        "Cervical",
-        "Endometrial cancers",
-        "Advanced surgical techniques"
+      "normalizedExpertise": [
+        "OVARIAN_UTERINE_CERVICAL_CANCER",
+        "CERVICAL_CANCER_ABNORMAL_PAP",
+        "GENERAL_ONCOLOGY"
       ]
     },
     {
@@ -3573,11 +3337,7 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jacques-abramowicz",
       "id": 116,
-      "areasOfExpertise": [
-        "Maternal Fetal Medicine",
-        "Gynecologic Ultrasound",
-        "High Risk Pregnancy"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Jana",
@@ -3598,10 +3358,8 @@
       ],
       "id": 104,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jana-j-richards",
-      "areasOfExpertise": [
-        "Comprehensive women's health",
-        "Well-woman care",
-        "Prenatal care"
+      "normalizedExpertise": [
+        "GENERAL_OBSTETRICS_GYNECOLOGY"
       ]
     },
     {
@@ -3623,9 +3381,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jayme-castillo",
       "id": 115,
-      "areasOfExpertise": [
-        "Comprehensive women's health",
-        "Obstetrics & Gynecology"
+      "normalizedExpertise": [
+        "GENERAL_OBSTETRICS_GYNECOLOGY"
       ]
     },
     {
@@ -3647,11 +3404,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/john-moroney",
       "id": 111,
-      "areasOfExpertise": [
-        "Ovarian",
-        "Cervical",
-        "Endometrial",
-        "Comprehensive longitudinal care"
+      "normalizedExpertise": [
+        "OVARIAN_UTERINE_CERVICAL_CANCER",
+        "CERVICAL_CANCER_ABNORMAL_PAP",
+        "GENERAL_ONCOLOGY"
       ]
     },
     {
@@ -3673,8 +3429,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/julia-simon",
       "id": 107,
-      "areasOfExpertise": [
-        "General obstetrics and gynecology"
+      "normalizedExpertise": [
+        "GENERAL_OBSTETRICS_GYNECOLOGY"
       ]
     },
     {
@@ -3696,11 +3452,11 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/kimberly-kenton",
       "id": 112,
-      "areasOfExpertise": [
-        "Pelvic organ prolapse",
-        "Urinary incontinence",
-        "Fecal incontinence",
-        "Robotic & minimally invasive surgery"
+      "normalizedExpertise": [
+        "PROLAPSE",
+        "URINARY_INCONTINENCE",
+        "FEMALE_INCONTINENCE",
+        "GENERAL_UROLOGY"
       ]
     },
     {
@@ -3722,12 +3478,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/maryam-siddiqui",
       "id": 114,
-      "areasOfExpertise": [
-        "Preventive & routine care",
-        "Vaginal surgery",
-        "Sterilization",
-        "Heavy menses",
-        "Cervical dysplasia"
+      "normalizedExpertise": [
+        "GENERAL_OBSTETRICS_GYNECOLOGY",
+        "CONTRACEPTION_FAMILY_PLANNING",
+        "CERVICAL_CANCER_ABNORMAL_PAP"
       ]
     },
     {
@@ -3749,9 +3503,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/melinda-lukens",
       "id": 105,
-      "areasOfExpertise": [
-        "General obstetrics",
-        "Gynecologic care"
+      "normalizedExpertise": [
+        "GENERAL_OBSTETRICS_GYNECOLOGY"
       ]
     },
     {
@@ -3778,11 +3531,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/monica-christmas",
       "id": 106,
-      "areasOfExpertise": [
-        "Uterine fibroids",
-        "Abnormal uterine bleeding",
-        "Irregular menses",
-        "Perimenopause/menopause"
+      "normalizedExpertise": [
+        "UTERINE_FIBROIDS",
+        "GENERAL_OBSTETRICS_GYNECOLOGY",
+        "PERIMENOPAUSE_MENOPAUSE"
       ]
     },
     {
@@ -3804,12 +3556,9 @@
       ],
       "id": 110,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nita-karnik-lee",
-      "areasOfExpertise": [
-        "Ovarian",
-        "Uterine",
-        "Cervical",
-        "Vulvar",
-        "Vaginal cancers"
+      "normalizedExpertise": [
+        "OVARIAN_UTERINE_CERVICAL_CANCER",
+        "CERVICAL_CANCER_ABNORMAL_PAP"
       ]
     },
     {
@@ -3831,11 +3580,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sarah-collins",
       "id": 117,
-      "areasOfExpertise": [
-        "Pelvic floor disorders",
-        "Fistulae",
-        "Complex lower urinary tract injuries",
-        "Congenital anomalies"
+      "normalizedExpertise": [
+        "PROLAPSE",
+        "FEMALE_INCONTINENCE",
+        "GENERAL_OBSTETRICS_GYNECOLOGY"
       ]
     },
     {
@@ -3858,11 +3606,11 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/shivika-trivedi",
       "id": 103,
-      "areasOfExpertise": [
-        "Abnormal uterine bleeding",
-        "Abnormal Pap smear",
-        "High-risk pregnancy",
-        "Contraception & family planning"
+      "normalizedExpertise": [
+        "GENERAL_OBSTETRICS_GYNECOLOGY",
+        "CERVICAL_CANCER_ABNORMAL_PAP",
+        "HIGH_RISK_PREGNANCY",
+        "CONTRACEPTION_FAMILY_PLANNING"
       ]
     },
     {
@@ -3884,9 +3632,8 @@
       ],
       "id": 78,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ami-v-desai",
-      "areasOfExpertise": [
-        "Solid tumors",
-        "Pediatric oncology"
+      "normalizedExpertise": [
+        "GENERAL_ONCOLOGY"
       ]
     },
     {
@@ -3908,10 +3655,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/cristina-odonoghue",
       "id": 76,
-      "areasOfExpertise": [
-        "Melanoma",
-        "Breast cancer",
-        "Sarcoma"
+      "normalizedExpertise": [
+        "MELANOMA",
+        "BREAST_CANCER",
+        "SARCOMAS"
       ]
     },
     {
@@ -3933,10 +3680,10 @@
       ],
       "id": 71,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/daniel-j-haraf",
-      "areasOfExpertise": [
-        "Lung",
-        "Esophageal",
-        "Head & Neck cancer"
+      "normalizedExpertise": [
+        "LUNG_CANCER",
+        "COLON_CANCER",
+        "HEAD_NECK_CANCER"
       ]
     },
     {
@@ -3958,11 +3705,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ernst-lengyel",
       "id": 74,
-      "areasOfExpertise": [
-        "Ovarian",
-        "Cervical",
-        "Endometrial cancers",
-        "Advanced surgical techniques"
+      "normalizedExpertise": [
+        "OVARIAN_UTERINE_CERVICAL_CANCER",
+        "CERVICAL_CANCER_ABNORMAL_PAP",
+        "GENERAL_ONCOLOGY"
       ]
     },
     {
@@ -3984,10 +3730,10 @@
       ],
       "id": 58,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/everett-e-vokes",
-      "areasOfExpertise": [
-        "Head & Neck",
-        "Lung cancer",
-        "Multimodality therapy"
+      "normalizedExpertise": [
+        "HEAD_NECK_CANCER",
+        "LUNG_CANCER",
+        "GENERAL_ONCOLOGY"
       ]
     },
     {
@@ -4009,10 +3755,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/gini-fleming",
       "id": 60,
-      "areasOfExpertise": [
-        "Breast",
-        "Gynecologic cancers",
-        "Novel therapeutics"
+      "normalizedExpertise": [
+        "BREAST_CANCER",
+        "OVARIAN_UTERINE_CERVICAL_CANCER",
+        "GENERAL_ONCOLOGY"
       ]
     },
     {
@@ -4039,10 +3785,7 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ivy-abraham",
       "id": 65,
-      "areasOfExpertise": [
-        "Gynecologic Malignancy",
-        "Breast Cancer"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "James",
@@ -4063,9 +3806,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/james-labelle",
       "id": 80,
-      "areasOfExpertise": [
-        "AYA oncology",
-        "Pediatric hematologic malignancies"
+      "normalizedExpertise": [
+        "GENERAL_ONCOLOGY",
+        "HEMATOLOGY"
       ]
     },
     {
@@ -4087,11 +3830,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/john-moroney",
       "id": 72,
-      "areasOfExpertise": [
-        "Ovarian",
-        "Cervical",
-        "Endometrial",
-        "Comprehensive longitudinal care"
+      "normalizedExpertise": [
+        "OVARIAN_UTERINE_CERVICAL_CANCER",
+        "CERVICAL_CANCER_ABNORMAL_PAP",
+        "GENERAL_ONCOLOGY"
       ]
     },
     {
@@ -4113,9 +3855,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/joseph-franses",
       "id": 63,
-      "areasOfExpertise": [
-        "GI oncology",
-        "Pancreatic cancer"
+      "normalizedExpertise": [
+        "COLON_CANCER",
+        "PANCREATIC_CANCER"
       ]
     },
     {
@@ -4137,15 +3879,14 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/joshua-lorenz",
       "id": 70,
-      "areasOfExpertise": [
-        "Brain",
-        "Spine",
-        "Head & Neck",
-        "Breast",
-        "Lung",
-        "GI",
-        "GU",
-        "Skin"
+      "normalizedExpertise": [
+        "BRAIN_TUMORS",
+        "SPINE",
+        "HEAD_NECK_CANCER",
+        "BREAST_CANCER",
+        "LUNG_CANCER",
+        "PROSTATE_CANCER",
+        "MELANOMA"
       ]
     },
     {
@@ -4167,9 +3908,9 @@
       ],
       "id": 66,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/manik-amin",
-      "areasOfExpertise": [
-        "General oncology",
-        "Hematology"
+      "normalizedExpertise": [
+        "GENERAL_ONCOLOGY",
+        "HEMATOLOGY"
       ]
     },
     {
@@ -4191,11 +3932,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/comer/find-a-physician/physician/mark-a-applebaum",
       "id": 79,
-      "areasOfExpertise": [
-        "Sarcomas",
-        "Neuroblastoma",
-        "Solid Tumors",
-        "Adolescent & Young Adult Cancers"
+      "normalizedExpertise": [
+        "SARCOMAS"
       ]
     },
     {
@@ -4217,11 +3955,11 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/muzamil-arshad",
       "id": 69,
-      "areasOfExpertise": [
-        "General radiation oncology",
-        "Head & Neck",
-        "GU",
-        "Breast"
+      "normalizedExpertise": [
+        "GENERAL_ONCOLOGY",
+        "HEAD_NECK_CANCER",
+        "PROSTATE_CANCER",
+        "BREAST_CANCER"
       ]
     },
     {
@@ -4243,9 +3981,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nan-chen",
       "id": 64,
-      "areasOfExpertise": [
-        "General oncology",
-        "Hematology"
+      "normalizedExpertise": [
+        "GENERAL_ONCOLOGY",
+        "HEMATOLOGY"
       ]
     },
     {
@@ -4267,12 +4005,9 @@
       ],
       "id": 73,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nita-karnik-lee",
-      "areasOfExpertise": [
-        "Ovarian",
-        "Uterine",
-        "Cervical",
-        "Vulvar",
-        "Vaginal cancers"
+      "normalizedExpertise": [
+        "OVARIAN_UTERINE_CERVICAL_CANCER",
+        "CERVICAL_CANCER_ABNORMAL_PAP"
       ]
     },
     {
@@ -4294,9 +4029,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nora-jaskowiak",
       "id": 77,
-      "areasOfExpertise": [
-        "Breast surgery",
-        "Multidisciplinary care"
+      "normalizedExpertise": [
+        "BREAST_CANCER",
+        "GENERAL_ONCOLOGY"
       ]
     },
     {
@@ -4318,12 +4053,9 @@
       ],
       "id": 59,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/peter-h-odonnell",
-      "areasOfExpertise": [
-        "Genitourinary cancers",
-        "Bladder",
-        "Prostate",
-        "Kidney",
-        "Testicular"
+      "normalizedExpertise": [
+        "PROSTATE_CANCER",
+        "TESTICULAR_CANCER"
       ]
     },
     {
@@ -4345,10 +4077,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/peter-riedell",
       "id": 62,
-      "areasOfExpertise": [
-        "Lymphoma",
-        "CLL",
-        "CAR T-cell therapy"
+      "normalizedExpertise": [
+        "LYMPHOMA",
+        "HEMATOLOGY"
       ]
     },
     {
@@ -4370,10 +4101,8 @@
       ],
       "id": 67,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ralph-r-weichselbaum",
-      "areasOfExpertise": [
-        "Oligometastasis",
-        "Radiotherapy",
-        "Radio-immunotherapy"
+      "normalizedExpertise": [
+        "GENERAL_ONCOLOGY"
       ]
     },
     {
@@ -4395,9 +4124,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/russell-szmulewitz",
       "id": 61,
-      "areasOfExpertise": [
-        "Advanced prostate cancer",
-        "GU malignancies"
+      "normalizedExpertise": [
+        "PROSTATE_CANCER"
       ]
     },
     {
@@ -4424,16 +4152,8 @@
       ],
       "id": 75,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sarah-ackroyd",
-      "areasOfExpertise": [
-        "Gynecologic Cancers",
-        "Robotic Gynecologic Surgery",
-        "Cervical Cancer",
-        "Ovarian Cancer",
-        "Uterine Cancer",
-        "Vaginal Cancer",
-        "Vulvar Cancer",
-        "Endometrial Cancer",
-        "Gestational Tophoblastic Neoplasia"
+      "normalizedExpertise": [
+        "OVARIAN_UTERINE_CERVICAL_CANCER"
       ]
     },
     {
@@ -4455,12 +4175,11 @@
       ],
       "id": 68,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/steven-j-chmura",
-      "areasOfExpertise": [
-        "SRS",
-        "IMRT",
-        "Brain",
-        "Breast",
-        "GI cancers"
+      "normalizedExpertise": [
+        "GENERAL_ONCOLOGY",
+        "BRAIN_TUMORS",
+        "BREAST_CANCER",
+        "COLON_CANCER"
       ]
     },
     {
@@ -4489,15 +4208,11 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/aravind-athiviraham",
       "id": 81,
-      "areasOfExpertise": [
-        "Knee Injuries",
-        "Knee Replacement",
-        "Meniscus Repair and Transplantation",
-        "Shoulder Injuries",
-        "Arthroscopic Surgery",
-        "Elbow Surgery",
-        "Robotic-assisted Knee Replacement",
-        "Patellar Instability"
+      "normalizedExpertise": [
+        "KNEE",
+        "SHOULDER_ELBOW_SPORTS_MEDICINE",
+        "SPORTS_MEDICINE",
+        "ELBOW"
       ]
     },
     {
@@ -4524,16 +4239,15 @@
       ],
       "id": 98,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/christopher-sullivan",
-      "areasOfExpertise": [
-        "Hip Surgery",
-        "Knee Surgery",
-        "Fracture Care",
-        "Spinal Cord Disorders",
-        "Scoliosis",
-        "Cerebral Palsy",
-        "Acute & Chronic Injuries",
-        "Limb Deformities",
-        "Joint Replacement"
+      "normalizedExpertise": [
+        "HIP",
+        "KNEE",
+        "FRACTURE_CARE",
+        "SPINE",
+        "SCOLIOSIS",
+        "GENERAL_NEUROLOGY",
+        "FRACTURE",
+        "OSTEOARTHRITIS"
       ]
     },
     {
@@ -4560,21 +4274,17 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/clarabelle-devries",
       "id": 92,
-      "areasOfExpertise": [
-        "Shoulder Surgery",
-        "Pediatric Neck Surgery",
-        "Pediatric Elbow Surgery",
-        "Pediatric Wrist Surgery",
-        "Hip Surgery",
-        "Knee Surgery",
-        "Limb Deformities",
-        "Scoliosis",
-        "Back Surgery",
-        "Deformity Correction Surgery",
-        "Acquired Extremity Deformities",
-        "Overuse Musculoskeletal Injuries",
-        "Acute & Chronic Injuries",
-        "Joint Replacement"
+      "normalizedExpertise": [
+        "SHOULDER_ELBOW_SPORTS_MEDICINE",
+        "SPINE",
+        "ELBOW",
+        "HAND_WRIST",
+        "HIP",
+        "KNEE",
+        "OSTEOARTHRITIS",
+        "SCOLIOSIS",
+        "SPORTS_MEDICINE",
+        "FRACTURE"
       ]
     },
     {
@@ -4596,9 +4306,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/gregory-schimizzi",
       "id": 90,
-      "areasOfExpertise": [
-        "Trauma Orthopaedic Surgery",
-        "Fracture Care"
+      "normalizedExpertise": [
+        "FRACTURE",
+        "FRACTURE_CARE"
       ]
     },
     {
@@ -4625,10 +4335,10 @@
       ],
       "id": 101,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/holly-j-benjamin",
-      "areasOfExpertise": [
-        "Concussion & Brain Injuries",
-        "Sports Injuries",
-        "Hip Problems"
+      "normalizedExpertise": [
+        "CONCUSSION_BRAIN_INJURIES",
+        "SPORTS_MEDICINE",
+        "HIP"
       ]
     },
     {
@@ -4650,9 +4360,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/hue-luu",
       "id": 94,
-      "areasOfExpertise": [
-        "Total Hip & Knee Replacement (robotic-assisted)",
-        "Bone & Soft Tissue Tumors"
+      "normalizedExpertise": [
+        "HIP",
+        "KNEE",
+        "SARCOMAS"
       ]
     },
     {
@@ -4674,10 +4385,10 @@
       ],
       "id": 96,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/george-wolf",
-      "areasOfExpertise": [
-        "Hand/Wrist/Elbow Surgery",
-        "Peripheral Nerve",
-        "Upper Extremity Trauma"
+      "normalizedExpertise": [
+        "HAND_WRIST",
+        "ELBOW",
+        "FRACTURE"
       ]
     },
     {
@@ -4704,12 +4415,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jeffrey-stepan",
       "id": 85,
-      "areasOfExpertise": [
-        "Wrist Surgery",
-        "Elbow Surgery",
-        "Peripheral Nerve Surgery",
-        "Upper Extremity Surgery",
-        "Hand & Wrist Arthritis"
+      "normalizedExpertise": [
+        "HAND_WRIST",
+        "ELBOW",
+        "OSTEOARTHRITIS"
       ]
     },
     {
@@ -4746,12 +4455,9 @@
       ],
       "id": 84,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/lewis-l-shi",
-      "areasOfExpertise": [
-        "Shoulder Surgery",
-        "Arthroscopic Shoulder Surgery",
-        "Shoulder Replacement",
-        "Shoulder Instability",
-        "Osteoarthritis"
+      "normalizedExpertise": [
+        "SHOULDER_ELBOW_SPORTS_MEDICINE",
+        "OSTEOARTHRITIS"
       ]
     },
     {
@@ -4778,12 +4484,12 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/lorin-brown",
       "id": 91,
-      "areasOfExpertise": [
-        "Fracture Care",
-        "Leg Length Discrepancies",
-        "Scoliosis",
-        "Ligament Reconstruction",
-        "Hand Surgery – Orthopaedics"
+      "normalizedExpertise": [
+        "FRACTURE_CARE",
+        "OSTEOARTHRITIS",
+        "SCOLIOSIS",
+        "SPORTS_MEDICINE",
+        "HAND"
       ]
     },
     {
@@ -4805,10 +4511,8 @@
       ],
       "id": 100,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/mary-kate-erdman",
-      "areasOfExpertise": [
-        "Complex Fractures (Upper & Lower Extremity)",
-        "Periarticular Fractures",
-        "Polytrauma"
+      "normalizedExpertise": [
+        "FRACTURE"
       ]
     },
     {
@@ -4834,10 +4538,10 @@
         }
       ],
       "id": 97,
-      "areasOfExpertise": [
-        "Hand/Wrist/Elbow",
-        "Congenital Hand",
-        "Pediatric Upper Extremity"
+      "normalizedExpertise": [
+        "HAND_WRIST",
+        "ELBOW",
+        "HAND"
       ]
     },
     {
@@ -4864,12 +4568,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/michael-h-davidson",
       "id": 87,
-      "areasOfExpertise": [
-        "Minimally Invasive Spine Surgery",
-        "Degenerative Spine Disorders",
-        "Spine Tumors",
-        "Revision Spine Surgery",
-        "Spinal Deformities"
+      "normalizedExpertise": [
+        "SPINE",
+        "SCOLIOSIS"
       ]
     },
     {
@@ -4906,12 +4607,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nicholas-maassen",
       "id": 88,
-      "areasOfExpertise": [
-        "Shoulder Surgery",
-        "Elbow Surgery",
-        "Arthroscopic Shoulder Surgery",
-        "Shoulder Instability",
-        "Shoulder Tendonitis"
+      "normalizedExpertise": [
+        "SHOULDER_ELBOW_SPORTS_MEDICINE",
+        "ELBOW"
       ]
     },
     {
@@ -4938,11 +4636,14 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/rachel-garfinkel",
       "id": 99,
-      "areasOfExpertise": [
-        "Pediatric Hip/Knee/Shoulder/Elbow",
-        "Scoliosis",
-        "Trauma",
-        "Joint Replacement"
+      "normalizedExpertise": [
+        "HIP",
+        "KNEE",
+        "SHOULDER_ELBOW_SPORTS_MEDICINE",
+        "ELBOW",
+        "SCOLIOSIS",
+        "FRACTURE",
+        "OSTEOARTHRITIS"
       ]
     },
     {
@@ -4964,11 +4665,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/rebecca-kuo",
       "id": 95,
-      "areasOfExpertise": [
-        "Complex Spine",
-        "Degenerative Spine",
-        "Revision Spine",
-        "Minimally Invasive Spine"
+      "normalizedExpertise": [
+        "SPINE"
       ]
     },
     {
@@ -5000,14 +4698,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sara-wallace",
       "id": 86,
-      "areasOfExpertise": [
-        "Hip Surgery",
-        "Knee Surgery",
-        "Hip Replacement",
-        "Knee Replacement",
-        "Total Joint Replacement",
-        "Revision Total Joint Replacement",
-        "Robotic Knee Replacement"
+      "normalizedExpertise": [
+        "HIP",
+        "KNEE",
+        "OSTEOARTHRITIS"
       ]
     },
     {
@@ -5034,9 +4728,13 @@
       ],
       "id": 93,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sherwin-sw-ho",
-      "areasOfExpertise": [
-        "Arthroscopic Shoulder/Knee/Hip/Elbow/Ankle",
-        "Sports Medicine"
+      "normalizedExpertise": [
+        "SHOULDER_ELBOW_SPORTS_MEDICINE",
+        "HIP",
+        "KNEE",
+        "ELBOW",
+        "FOOT_ANKLE",
+        "SPORTS_MEDICINE"
       ]
     },
     {
@@ -5064,11 +4762,10 @@
       ],
       "id": 102,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sofia-bougioukli",
-      "areasOfExpertise": [
-        "Hand & Wrist Surgery",
-        "Congenital Hand Reconstruction",
-        "Peripheral Nerve Injuries",
-        "Osteoarthritis"
+      "normalizedExpertise": [
+        "HAND_WRIST",
+        "HAND",
+        "OSTEOARTHRITIS"
       ]
     },
     {
@@ -5096,11 +4793,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sofia-bougioukli",
       "id": 83,
-      "areasOfExpertise": [
-        "Hand and Wrist Surgery",
-        "Congenital Hand Reconstruction",
-        "Pediatric Hand and Wrist Surgery",
-        "Peripheral Nerve Injuries"
+      "normalizedExpertise": [
+        "HAND_WRIST",
+        "HAND"
       ]
     },
     {
@@ -5132,12 +4827,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/tessa-balach",
       "id": 82,
-      "areasOfExpertise": [
-        "Bone & Soft Tissue Cancers",
-        "Pediatric Bone & Soft Tissue Sarcomas",
-        "Hip Replacement",
-        "Knee Reconstruction",
-        "Total Knee Arthroplasty"
+      "normalizedExpertise": [
+        "SARCOMAS",
+        "HIP",
+        "KNEE"
       ]
     },
     {
@@ -5175,14 +4868,10 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/wonyong-lee",
       "id": 89,
-      "areasOfExpertise": [
-        "Foot Surgery",
-        "Ankle Surgery",
-        "Foot/Ankle Fractures",
-        "Ankle Arthroscopy",
-        "Total Ankle Replacement",
-        "Bunion Correction",
-        "Minimally Invasive Surgery"
+      "normalizedExpertise": [
+        "FOOT_ANKLE",
+        "FRACTURE",
+        "SPORTS_MEDICINE"
       ]
     },
     {
@@ -5209,10 +4898,10 @@
       ],
       "id": 183,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/abhinav-sidana",
-      "areasOfExpertise": [
-        "Prostate cancer",
-        "Kidney cancer",
-        "Robotic & minimally invasive surgery"
+      "normalizedExpertise": [
+        "PROSTATE_CANCER",
+        "KIDNEY",
+        "GENERAL_UROLOGY"
       ]
     },
     {
@@ -5233,11 +4922,9 @@
         }
       ],
       "id": 188,
-      "areasOfExpertise": [
-        "Urethral stricture",
-        "Urethroplasty",
-        "Ureteral reconstruction",
-        "Complications after prostate cancer treatment"
+      "normalizedExpertise": [
+        "URETHRAL_STRICTURE",
+        "PROSTATE_CANCER"
       ]
     },
     {
@@ -5259,10 +4946,11 @@
       ],
       "id": 184,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/arieh-l-shalhav",
-      "areasOfExpertise": [
-        "Robotic surgery",
-        "Kidney/Prostate/Bladder surgery",
-        "Complex minimally invasive urology"
+      "normalizedExpertise": [
+        "GENERAL_UROLOGY",
+        "KIDNEY",
+        "PROSTATE",
+        "BLADDER"
       ]
     },
     {
@@ -5283,10 +4971,10 @@
         }
       ],
       "id": 186,
-      "areasOfExpertise": [
-        "Urinary incontinence",
-        "Pelvic organ prolapse",
-        "Reconstructive urology"
+      "normalizedExpertise": [
+        "URINARY_INCONTINENCE",
+        "PROLAPSE",
+        "GENERAL_UROLOGY"
       ]
     },
     {
@@ -5318,12 +5006,10 @@
       ],
       "id": 192,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/denise-asafu-adjei",
-      "areasOfExpertise": [
-        "Male Infertility",
-        "Vasectomy",
-        "Varicocele",
-        "Erectile dysfunction",
-        "etc."
+      "normalizedExpertise": [
+        "MALE_INFERTILITY",
+        "ERECTILE_DYSFUNCTION",
+        "GENERAL_UROLOGY"
       ]
     },
     {
@@ -5345,10 +5031,9 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/gregory-zagaja",
       "id": 191,
-      "areasOfExpertise": [
-        "Minimally Invasive & Robotic Urologic Surgery",
-        "Bladder Cancer",
-        "Prostate Cancer"
+      "normalizedExpertise": [
+        "BLADDER",
+        "PROSTATE_CANCER"
       ]
     },
     {
@@ -5374,11 +5059,11 @@
         }
       ],
       "id": 189,
-      "areasOfExpertise": [
-        "BPH",
-        "Stones",
-        "Hematuria",
-        "Prostate cancer screening"
+      "normalizedExpertise": [
+        "PROSTATE",
+        "STONES",
+        "GENERAL_UROLOGY",
+        "PROSTATE_CANCER"
       ]
     },
     {
@@ -5399,12 +5084,9 @@
         }
       ],
       "id": 185,
-      "areasOfExpertise": [
-        "Male infertility",
-        "Vasectomy reversal",
-        "Varicocele",
-        "Erectile dysfunction",
-        "Hypogonadism"
+      "normalizedExpertise": [
+        "MALE_INFERTILITY",
+        "ERECTILE_DYSFUNCTION"
       ]
     },
     {
@@ -5425,11 +5107,9 @@
         }
       ],
       "id": 187,
-      "areasOfExpertise": [
-        "Hypospadias",
-        "Vesicoureteral reflux",
-        "Undescended testicle",
-        "Pediatric stone disease"
+      "normalizedExpertise": [
+        "PEDIATRIC_UROLOGY",
+        "STONES"
       ]
     },
     {
@@ -5452,11 +5132,9 @@
       ],
       "id": 182,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/parth-modi",
-      "areasOfExpertise": [
-        "Testis Cancer",
-        "Prostate Cancer",
-        "Bladder Cancer",
-        "Kidney Cancer"
+      "normalizedExpertise": [
+        "PROSTATE_CANCER",
+        "BLADDER"
       ]
     },
     {
@@ -5479,9 +5157,8 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/piyush-agarwal",
       "id": 190,
-      "areasOfExpertise": [
-        "Bladder Cancer",
-        "Penile Cancer"
+      "normalizedExpertise": [
+        "BLADDER"
       ]
     },
     {
@@ -5503,11 +5180,11 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sarah-faris",
       "id": 193,
-      "areasOfExpertise": [
-        "Erectile Dysfunction",
-        "Female/Male Incontinence",
-        "Ureteral Strictures",
-        "Fistula Repair"
+      "normalizedExpertise": [
+        "ERECTILE_DYSFUNCTION",
+        "URINARY_INCONTINENCE",
+        "URETHRAL_STRICTURE",
+        "GENERAL_UROLOGY"
       ]
     },
     {
@@ -5534,12 +5211,11 @@
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/scott-eggener",
       "id": 181,
-      "areasOfExpertise": [
-        "Prostate cancer",
-        "Kidney cancer",
-        "Testicular cancer",
-        "Focal therapy",
-        "Robotic & minimally invasive surgery"
+      "normalizedExpertise": [
+        "PROSTATE_CANCER",
+        "KIDNEY",
+        "TESTICULAR_CANCER",
+        "GENERAL_UROLOGY"
       ]
     }
   ]

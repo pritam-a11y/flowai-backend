@@ -712,6 +712,45 @@ router.post("/function-call", async (req, res, next) => {
         break;
       }
 
+      case "find_physicians_by_symptoms": {
+        logger.info("Processing find_physicians_by_symptoms function call");
+
+        // Extract parameters from args
+        const { address, symptom_text } = args;
+
+        // Validate required fields
+        if (!address || !symptom_text) {
+          logger.warn("find_physicians_by_symptoms failed: missing required fields", {
+            address,
+            symptom_text,
+          });
+          return res.status(400).json({
+            success: false,
+            error: "Missing required fields: address and symptom_text are required",
+          });
+        }
+
+        // Import symptom physician matcher service
+        const symptomPhysicianMatcher = require("../services/symptomPhysicianMatcher");
+
+        // Find physicians by symptoms
+        const searchResult = await symptomPhysicianMatcher.findPhysiciansBySymptoms(
+          address,
+          symptom_text
+        );
+
+        logger.info("find_physicians_by_symptoms completed", {
+          symptomTextLength: symptom_text.length,
+          hasAddress: !!address,
+          success: searchResult.success,
+          physiciansFound: searchResult.physicians?.length || 0,
+          matchedExpertise: searchResult.matchedExpertise || null,
+        });
+
+        result = searchResult;
+        break;
+      }
+
       default:
         logger.warn("Unsupported function call received", {
           functionName: name,

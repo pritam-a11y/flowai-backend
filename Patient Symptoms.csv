@@ -1,0 +1,165 @@
+Hospital Department,Patient Symptoms,Required Physician Area of Expertise
+Gastroenterology & GI Surgery,"Black, tarry stools",General Gastroenterology; Endoscopy; Colonoscopy
+Gastroenterology & GI Surgery,Bloating or feeling full quickly,General Gastroenterology
+Gastroenterology & GI Surgery,Bright red blood from rectum,General Gastroenterology; Endoscopy; Colonoscopy
+Gastroenterology & GI Surgery,Constipation that keeps coming back,General Gastroenterology
+Gastroenterology & GI Surgery,"Crohn’s or ulcerative colitis symptoms (blood/mucus, urgency)","Crohn's Disease, Ulcerative Colitis"
+Gastroenterology & GI Surgery,Feel food getting stuck & spasms / pain in my Esophagus when I swallow,"Esophageal Motility, Swallowing Disorders, Esophagus Conditions"
+Gastroenterology & GI Surgery,Fatty liver disease (told NAFLD/MASH by my PCP),"Liver Diseases, Fatty Liver Disease, NAFLD"
+Gastroenterology & GI Surgery,Gallbladder attacks (upper right belly pain after meals),General Gastroenterology; Endoscopy; Colonoscopy
+Gastroenterology & GI Surgery,Groin or belly button bulge (possible hernia),General Gastroenterology
+Gastroenterology & GI Surgery,Heartburn or acid reflux,"GERD, Acid Reflux"
+Gastroenterology & GI Surgery,History of pancreatitis or repeated attacks,"Pancreas, Pancreatobiliary disease"
+Gastroenterology & GI Surgery,Irritable bowel symptoms (cramps with diarrhea/constipation),General Gastroenterology
+Gastroenterology & GI Surgery,Known liver scarring (cirrhosis) with swelling/confusion,Liver Diseases
+Gastroenterology & GI Surgery,Left lower belly pain,General Gastroenterology
+Gastroenterology & GI Surgery,Ongoing diarrhea,General Gastroenterology
+Gastroenterology & GI Surgery,Ongoing nausea or vomiting,General Gastroenterology
+Gastroenterology & GI Surgery,Pain with bowel movements or hemorrhoids,"Colon & Rectal Surgery, General Gastroenterology"
+Gastroenterology & GI Surgery,"Possible celiac disease (bloating, diarrhea, weight loss)",Celiac Disease
+Gastroenterology & GI Surgery,Primary sclerosing cholangitis follow-up,Liver Diseases
+Gastroenterology & GI Surgery,Right lower belly pain,General Gastroenterology
+Gastroenterology & GI Surgery,Right upper belly pain (under ribs),General Gastroenterology
+Gastroenterology & GI Surgery,"Slow stomach emptying (fullness, nausea hours after eating)",General Gastroenterology
+Gastroenterology & GI Surgery,Throwing up blood (not an emergency visit),General Gastroenterology
+Gastroenterology & GI Surgery,Trouble swallowing food,"Esophageal Motility, Swallowing Disorders, Esophagus Conditions"
+Gastroenterology & GI Surgery,Unplanned weight loss with belly symptoms,General Gastroenterology
+Gastroenterology & GI Surgery,Upper belly burning or gnawing pain (indigestion),General Gastroenterology
+Gastroenterology & GI Surgery,Yellow skin/eyes or abnormal liver tests,"Liver Diseases, Hepatobiliary Diseases"
+Heart & Vascular,Abnormal heart tracing (ECG) told by another clinic,General Cardiology
+Heart & Vascular,Adult with a heart condition since birth,Adult Congenital Heart Disease
+Heart & Vascular,"Bulging leg veins or heavy, achy legs","Peripheral Vascular Disease, Peripheral Arterial Disease"
+Heart & Vascular,"Chest pain or pressure, especially with activity",General Cardiology; Coronary Artery Disease
+Heart & Vascular,"Chest pain spreading to arm, shoulder, back, or jaw",General Cardiology; Interventional Cardiology
+Heart & Vascular,Cold or numb feet with weak pulses,"Peripheral Vascular Disease, Peripheral Arterial Disease"
+Heart & Vascular,Concern for heart infection (fever with murmur or IV line),General Cardiology; Infectious Disease (co-manage)
+Heart & Vascular,Dizziness or lightheadedness with activity,General Cardiology; Electrophysiology
+Heart & Vascular,Fainting or almost passing out,General Cardiology; Syncope (Fainting)
+Heart & Vascular,"Fast heartbeat on standing, dizziness ",Electrophysiology; General Cardiology
+Heart & Vascular,Follow-up after lung blood clot (pulmonary embolism),Pulmonary Embolism
+Heart & Vascular,Follow-up for blocked heart arteries (coronary disease),General Cardiology; Coronary Artery Disease
+Heart & Vascular,Foot pain at rest or sores that won’t heal,"Peripheral Vascular Disease, Peripheral Arterial Disease"
+Heart & Vascular,Heart failure (weak or stiff heart) follow-up,Heart Failure
+Heart & Vascular,Heart muscle disease (cardiomyopathy) in family or self,Heart Failure
+Heart & Vascular,"Heart racing, fluttering, or skipping beats",Cardiac Electrophysiology
+Heart & Vascular,High blood pressure (hypertension) hard to control,General Cardiology; Hypertension
+Heart & Vascular,High cholesterol with trouble taking statins,Hyperlipidemia
+Heart & Vascular,Known or suspected atrial fibrillation,Atrial Fibrillation
+Heart & Vascular,"Known valve problem (aortic, mitral, etc.)",Valve Disease
+Heart & Vascular,Leg pain with walking that gets better with rest,"Peripheral Vascular Disease, Peripheral Arterial Disease"
+Heart & Vascular,New heart murmur or told you have a valve problem,"Valve Disease, General Cardiology"
+Heart & Vascular,New leg swelling and pain (possible blood clot),"Peripheral Vascular Disease, Peripheral Arterial Disease"
+Heart & Vascular,Sharp chest pain better when leaning forward,General Cardiology (possible pericarditis)
+Heart & Vascular,Short of breath when lying flat or waking up gasping,Heart Failure & Cardiomyopathy
+Heart & Vascular,Shortness of breath with activity or at rest,Heart Failure & Cardiomyopathy; General Cardiology
+Heart & Vascular,Slow or fast heartbeat noted on home device/ECG,Cardiac Electrophysiology
+Heart & Vascular,Swollen legs or ankles,"Heart Failure, General Cardiology"
+Heart & Vascular,Told you have an aortic aneurysm,"Aortic Aneuyrsms, Aortic Disease"
+Heart & Vascular,Told you have carotid narrowing or had a mini-stroke,Vascular Surgery; Stroke/Neurovascular (co-manage)
+Heart & Vascular,Get tired quickly; Feel extreme fatigue / unusually weak,General Cardiology
+Heart & Vascular,Family history of Heart Disease; Need a preventive check up,General Cardiology
+Heart & Vascular,Feeling of heartburn or indigestion that doesn't seem normal,General Cardiology
+Heart & Vascular,Experience cold sweats along with other symptoms,General Cardiology
+Neuro,Back pain with pain/numbness down leg (sciatica),General Neurology
+Neuro,Balance troubles or frequent falls,General Neurology; Gait & Balance  Disorders
+Neuro,Brain tumor follow-up,Brain Tumors
+Neuro,Burning feet or nerve pain,"Neuropathies, General Neurology, Neuropathy"
+Neuro,Concussion or ongoing symptoms after a head injury,Concussion & Brain Injuries
+Neuro,Frequent migraines,"Headache disorders, Chronic migraine"
+Neuro,Hand numbness from nerve trapping (carpal/cubital tunnel),General Neurology
+Neuro,Memory loss or worsening forgetfulness,Dementia
+Neuro,Multiple sclerosis – new symptoms or follow-up,Multiple Sclerosis
+Neuro,Neck pain with arm numbness or weakness,General Neurology
+Neuro,Numbness or tingling in hands or feet,"General Neurology, Neuropathy"
+Neuro,Pituitary tumor or high hormone levels on labs,Pituitary Tumors
+Neuro,Room-spinning dizziness (vertigo),"Dizziness, Otoneurology"
+Neuro,Seizure or new spells with shaking or blackouts,"Epilepsy, Seizures"
+Neuro,Severe face pain (possible trigeminal neuralgia),Trigeminal Neuralgia
+Neuro,Shaking (tremor) or concern for Parkinson’s,Parkinson's Disease
+Neuro,Stroke-like symptoms that got better (mini-stroke) or follow-up after stroke,Stroke
+Neuro,"Trouble walking, memory changes, and urinary leaks together",General Neurology
+Neuro,Worst new headache or different from usual headaches,"Headache disorders, Chronic migraine"
+OB/Gyn,Abnormal Pap smear (told HSIL/ASC-H) or needs colposcopy,"Cervical Cancer, Abnormal Pap smear"
+OB/Gyn,Accidental urine leaks (stress or urge),Urinary Incontinence
+OB/Gyn,"Birth control counseling (IUD, implant, pills)",Contraception & family planning
+OB/Gyn,"Concern for ovarian, uterine, or cervical cancer",Ovarian / Uterine / Cervical Cancer
+OB/Gyn,Fibroids causing heavy bleeding or pressure,Uterine Fibroids
+OB/Gyn,Frequent vaginal infections or discharge concerns,General Obstetrics and Gynecology
+OB/Gyn,Heavy or irregular periods,General Obstetrics and Gynecology
+OB/Gyn,"High-risk pregnancy (twins, preeclampsia history, diabetes, etc.)","High Risk Pregnancy, Maternal–Fetal Medicine (MFM)"
+OB/Gyn,"Hot flashes, night sweats, or menopause care",Perimenopause / Menopause
+OB/Gyn,Light bleeding or cramping in early pregnancy (non-emergency),Obstetrics and Gynecology
+OB/Gyn,Multiple miscarriages,"High Risk Pregnancy, Maternal–Fetal Medicine (MFM)"
+OB/Gyn,Pelvic bulge or pressure (possible prolapse),Prolapse
+OB/Gyn,Pelvic pain (during periods or not),General Obstetrics and Gynecology
+OB/Gyn,Planning a pregnancy (preconception),General Obstetrics and Gynecology
+OB/Gyn,Positive home pregnancy test – first prenatal visit,General Obstetrics and Gynecology
+OB/Gyn,Possible sexually transmitted infection (STI),General Obstetrics and Gynecology
+OB/Gyn,"Suspected endometriosis (bad period pain, pain with sex)",General Obstetrics and Gynecology
+OB/Gyn,Trouble getting pregnant,General Obstetrics and Gynecology
+Oncology,Abnormal Pap smear needing specialist,"Gynecologic Malignancy, Cervical Cancer"
+Oncology,Blood in stool or positive home colon test,Colon Cancer
+Oncology,Blood in urine without pain,General Oncology
+Oncology,Brain mass or tumor found on scan,"Brain Cancer, Neuroblastoma"
+Oncology,Cancer found but primary site unknown,General Oncology
+Oncology,Changing or unusual skin spot/mole,Melanoma
+Oncology,High PSA blood test or abnormal prostate exam,Prostate Cancer
+Oncology,High white cells or platelets told by another clinic,"Hematology, General Oncology"
+Oncology,Long-lasting cough or coughing up blood (smoking history),General Oncology
+Oncology,Low blood count (anemia) told by another clinic,Hematology
+Oncology,Neck lump or hoarseness that won’t go away,Head & Neck
+Oncology,New bowel changes plus weight loss,Colon Cancer
+Oncology,New breast lump or abnormal mammogram,Breast Cancer
+Oncology,New lump in a testicle,"Testicular Cancer, Prostate Cancer"
+Oncology,"Night sweats, fevers, and tiredness",General Oncology
+Oncology,Second opinion for a cancer diagnosis,General Oncology
+Oncology,Swollen lymph node that isn’t going away,Lymphoma
+Oncology,Thyroid nodule with concerning test/biopsy,General Oncology
+Oncology,Told you have sarcoma (soft tissue or bone),Sarcomas
+Oncology,Unplanned weight loss (clothes getting loose),General Oncology
+Oncology,Vaginal bleeding after menopause,Vaginal Cancer
+Oncology,Yellow eyes/skin or mass on pancreas/liver scan,Pancreating Cancer
+Orthopedics,Arthritis pain or swollen joints,Osteoarthritis
+Orthopedics,Back or neck pain shooting down arm or leg (pinched nerve),Spine
+Orthopedics,Broken bone (not an emergency room visit),Fracture
+Orthopedics,Bunions or crooked toes,Foot & Ankle
+Orthopedics,"Child with gait concerns, scoliosis, or limb differences",Scoliosis
+Orthopedics,Elbow pain or tennis/golfer’s elbow,Elbow
+Orthopedics,Finger catches or locks (trigger finger),Hand
+Orthopedics,Foot or ankle pain,Foot & Ankle
+Orthopedics,Hand or wrist pain/numbness,Hand & Wrist
+Orthopedics,Heel pain when first standing (plantar fasciitis),Foot & Ankle
+Orthopedics,Hip or shoulder labrum tear (told/suspected),"Shoulder, Hip, Sports Medicine"
+Orthopedics,Hip pain or stiffness,Hip
+Orthopedics,Knee ligament injury (ACL or others),Sports Medicine 
+Orthopedics,Knee meniscus tear (told/suspected),Sports Medicine 
+Orthopedics,"Knee pain with walking, stairs, or sports",Knee
+Orthopedics,Lower back pain without red flags,Spine
+Orthopedics,Neck pain without red flags,Spine
+Orthopedics,Numbness/tingling in hands at night (possible carpal tunnel),Hand
+Orthopedics,Old fracture not healing or healed crooked,Fracture Care
+Orthopedics,Possible hairline/stress fracture,Fracture Care
+Orthopedics,Rotator cuff tear or shoulder impingement (told/suspected),Shoulder & Elbow; Sports Medicine
+Orthopedics,Shoulder pain or trouble lifting arm,Shoulder & Elbow; Sports Medicine
+Orthopedics,"Sprained ankle, knee, or wrist","Knee, Wrist, Ankle"
+Orthopedics,"Tendon pain (Achilles, kneecap, etc.)",Sports Medicine 
+Orthopedics,Thickened cords in palm pulling fingers in,Hand
+Orthopedics,Told you have a slipped or herniated disc,Spine
+Urology,Accidental urine leaks with cough/exercise (women),Female Incontinence
+Urology,Bladder pain syndrome (painful bladder),Bladder
+Urology,Bladder problems from nerve disease,Bladder
+Urology,Blood in urine without pain,Urologic Oncology; General Urology
+Urology,Burning or pain when peeing (possible UTI),General Urology
+Urology,Child with urinary/kidney concerns,Pediatric Urology
+Urology,Curved or painful erections (Peyronie’s),Erectile Dysfunction
+Urology,Fluid or enlarged veins around testicle (hydrocele/varicocele),General Urology
+Urology,Going to the bathroom very often or urgently,Incontinence
+Urology,High PSA test or abnormal prostate exam,Prostate Cancer
+Urology,Male infertility (low sperm count told by prior test),Male Infertility
+Urology,"Men: weak stream, getting up at night, or straining to pee",General Urology
+Urology,Narrow urethra (weak stream after injury/surgery),Urethral Stricture
+Urology,Repeat urinary infections,General Urology
+Urology,Severe side or back pain with nausea (possible kidney stone),Stones
+Urology,Testicle pain or swelling (not sudden severe),General Urology
+Urology,Trouble getting or keeping an erection,Erectile Dysfunction
+Urology,Trouble starting urine or emptying bladder,Urethral Stricture

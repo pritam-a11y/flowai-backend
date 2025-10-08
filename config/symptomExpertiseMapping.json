@@ -1,0 +1,260 @@
+{
+  "mappings": [
+    {
+      "symptom": "Black, tarry stools",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Bloating or feeling full quickly",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Bright red blood from rectum",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Constipation that keeps coming back",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Crohn's or ulcerative colitis symptoms (blood/mucus, urgency)",
+      "expertiseEnum": "CROHNS_DISEASE"
+    },
+    {
+      "symptom": "Diarrhea that won't go away",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Difficulty swallowing",
+      "expertiseEnum": "ESOPHAGEAL_MOTILITY_SWALLOWING_DISORDERS"
+    },
+    {
+      "symptom": "Heartburn or acid reflux that doesn't improve with antacids",
+      "expertiseEnum": "GERD_ACID_REFLUX"
+    },
+    {
+      "symptom": "Jaundice (yellow skin or eyes)",
+      "expertiseEnum": "LIVER_DISEASES"
+    },
+    {
+      "symptom": "Nausea or vomiting without a clear cause",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Ongoing stomach pain or discomfort",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Unexplained weight loss",
+      "expertiseEnum": "GENERAL_GASTROENTEROLOGY"
+    },
+    {
+      "symptom": "Chest pain or pressure",
+      "expertiseEnum": "GENERAL_CARDIOLOGY"
+    },
+    {
+      "symptom": "Dizziness, lightheadedness, or fainting",
+      "expertiseEnum": "SYNCOPE_FAINTING"
+    },
+    {
+      "symptom": "Fast, irregular, or pounding heartbeat",
+      "expertiseEnum": "ARRHYTHMIAS"
+    },
+    {
+      "symptom": "Heart failure or shortness of breath when lying flat",
+      "expertiseEnum": "HEART_FAILURE"
+    },
+    {
+      "symptom": "High blood pressure that's hard to control",
+      "expertiseEnum": "HYPERTENSION"
+    },
+    {
+      "symptom": "High cholesterol",
+      "expertiseEnum": "HYPERLIPIDEMIA"
+    },
+    {
+      "symptom": "Leg pain or cramping when walking",
+      "expertiseEnum": "PERIPHERAL_ARTERIAL_DISEASE"
+    },
+    {
+      "symptom": "Shortness of breath with activity or at rest",
+      "expertiseEnum": "GENERAL_CARDIOLOGY"
+    },
+    {
+      "symptom": "Sudden chest pain",
+      "expertiseEnum": "CORONARY_ARTERY_DISEASE"
+    },
+    {
+      "symptom": "Swelling in legs, ankles, or feet",
+      "expertiseEnum": "HEART_FAILURE"
+    },
+    {
+      "symptom": "Confusion, memory problems, or trouble thinking clearly",
+      "expertiseEnum": "DEMENTIA"
+    },
+    {
+      "symptom": "Difficulty speaking or understanding speech",
+      "expertiseEnum": "STROKE"
+    },
+    {
+      "symptom": "Dizziness or balance problems",
+      "expertiseEnum": "DIZZINESS_OTONEUROLOGY"
+    },
+    {
+      "symptom": "Headaches that are new, severe, or different than usual",
+      "expertiseEnum": "HEADACHE_DISORDERS_CHRONIC_MIGRAINE"
+    },
+    {
+      "symptom": "Numbness, tingling, or weakness in arms, legs, hands, or feet",
+      "expertiseEnum": "NEUROPATHY"
+    },
+    {
+      "symptom": "Seizures or episodes of shaking/staring",
+      "expertiseEnum": "EPILEPSY_SEIZURES"
+    },
+    {
+      "symptom": "Sudden weakness on one side of the body",
+      "expertiseEnum": "STROKE"
+    },
+    {
+      "symptom": "Tremor, stiffness, or trouble with movement",
+      "expertiseEnum": "PARKINSONS_DISEASE"
+    },
+    {
+      "symptom": "Vision changes or loss",
+      "expertiseEnum": "GENERAL_NEUROLOGY"
+    },
+    {
+      "symptom": "Abnormal vaginal bleeding",
+      "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
+    },
+    {
+      "symptom": "Birth control or family planning needs",
+      "expertiseEnum": "CONTRACEPTION_FAMILY_PLANNING"
+    },
+    {
+      "symptom": "Heavy or irregular periods",
+      "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
+    },
+    {
+      "symptom": "Menopause symptoms (hot flashes, mood changes)",
+      "expertiseEnum": "PERIMENOPAUSE_MENOPAUSE"
+    },
+    {
+      "symptom": "Pelvic pain or pressure",
+      "expertiseEnum": "GENERAL_OBSTETRICS_GYNECOLOGY"
+    },
+    {
+      "symptom": "Pregnancy-related concerns or high-risk pregnancy",
+      "expertiseEnum": "HIGH_RISK_PREGNANCY"
+    },
+    {
+      "symptom": "Problems with bladder control",
+      "expertiseEnum": "FEMALE_INCONTINENCE"
+    },
+    {
+      "symptom": "Feeling of something bulging from the vagina",
+      "expertiseEnum": "PROLAPSE"
+    },
+    {
+      "symptom": "Bone or joint pain that doesn't go away",
+      "expertiseEnum": "OSTEOARTHRITIS"
+    },
+    {
+      "symptom": "Broken bone or fracture",
+      "expertiseEnum": "FRACTURE"
+    },
+    {
+      "symptom": "Back or neck pain",
+      "expertiseEnum": "SPINE"
+    },
+    {
+      "symptom": "Hip pain or stiffness",
+      "expertiseEnum": "HIP"
+    },
+    {
+      "symptom": "Knee pain or instability",
+      "expertiseEnum": "KNEE"
+    },
+    {
+      "symptom": "Shoulder pain or limited movement",
+      "expertiseEnum": "SHOULDER_ELBOW_SPORTS_MEDICINE"
+    },
+    {
+      "symptom": "Sports injury",
+      "expertiseEnum": "SPORTS_MEDICINE"
+    },
+    {
+      "symptom": "Hand, wrist, or elbow pain",
+      "expertiseEnum": "HAND_WRIST"
+    },
+    {
+      "symptom": "Foot or ankle pain",
+      "expertiseEnum": "FOOT_ANKLE"
+    },
+    {
+      "symptom": "Abnormal mole or skin lesion",
+      "expertiseEnum": "MELANOMA"
+    },
+    {
+      "symptom": "Blood in urine or stool",
+      "expertiseEnum": "GENERAL_ONCOLOGY"
+    },
+    {
+      "symptom": "Breast lump or changes",
+      "expertiseEnum": "BREAST_CANCER"
+    },
+    {
+      "symptom": "Coughing up blood",
+      "expertiseEnum": "LUNG_CANCER"
+    },
+    {
+      "symptom": "Fatigue or weakness that won't go away",
+      "expertiseEnum": "GENERAL_ONCOLOGY"
+    },
+    {
+      "symptom": "Lump or mass anywhere in the body",
+      "expertiseEnum": "GENERAL_ONCOLOGY"
+    },
+    {
+      "symptom": "Persistent cough or hoarseness",
+      "expertiseEnum": "LUNG_CANCER"
+    },
+    {
+      "symptom": "Unexplained weight loss",
+      "expertiseEnum": "GENERAL_ONCOLOGY"
+    },
+    {
+      "symptom": "Blood in urine",
+      "expertiseEnum": "BLADDER"
+    },
+    {
+      "symptom": "Difficulty urinating or weak stream",
+      "expertiseEnum": "PROSTATE"
+    },
+    {
+      "symptom": "Erectile dysfunction",
+      "expertiseEnum": "ERECTILE_DYSFUNCTION"
+    },
+    {
+      "symptom": "Frequent urination or urgency",
+      "expertiseEnum": "GENERAL_UROLOGY"
+    },
+    {
+      "symptom": "Kidney stones or severe flank pain",
+      "expertiseEnum": "STONES"
+    },
+    {
+      "symptom": "Loss of bladder control",
+      "expertiseEnum": "URINARY_INCONTINENCE"
+    },
+    {
+      "symptom": "Male fertility concerns",
+      "expertiseEnum": "MALE_INFERTILITY"
+    },
+    {
+      "symptom": "Testicular pain or lump",
+      "expertiseEnum": "GENERAL_UROLOGY"
+    }
+  ]
+}
