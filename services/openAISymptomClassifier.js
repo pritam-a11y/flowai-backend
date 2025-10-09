@@ -17,13 +17,14 @@ class OpenAISymptomClassifier {
    */
     buildSystemPrompt() {
         const allEnums = getAllExpertiseEnums();
-        
-        // Build examples from symptom mapping
-        const examples = symptomMapping.mappings.map(m => 
-        `Patient Symptom: "${m.symptom}"\nMatched Expertise: ${m.expertiseEnum}`
-        ).join('\n\n');
-        
-        return `You are a medical symptom classifier for a physician scheduling system. Your task is to analyze patient-described symptoms and match them to the most relevant area of medical expertise ONLY when you have high confidence.
+
+        // Build examples from symptom mapping (now showing arrays)
+        const examples = symptomMapping.mappings.map(m => {
+            const enumsStr = m.expertiseEnums.join(', ');
+            return `Patient Symptom: "${m.symptom}"\nMatched Expertise: [${enumsStr}]`;
+        }).join('\n\n');
+
+        return `You are a medical symptom classifier for a physician scheduling system. Your task is to analyze patient-described symptoms and match them to the most relevant areas of medical expertise ONLY when you have high confidence.
 
     AVAILABLE EXPERTISE AREAS (use these exact enum names):
     ${allEnums.join('\n')}
@@ -33,15 +34,21 @@ class OpenAISymptomClassifier {
 
     CLASSIFICATION INSTRUCTIONS:
     1. Read the patient's symptom description carefully
-    2. Based on the examples above and your medical knowledge, identify the MOST RELEVANT expertise area
-    3. Match symptoms to the expertise area that would most likely treat this condition
-    4. When symptoms could match multiple specialties, choose the PRIMARY specialty that would handle this case
-    5. Use MANUAL_REVIEW_REQUIRED only for completely unintelligible input
+    2. Based on the examples above and your medical knowledge, identify up to 3 MOST RELEVANT expertise areas
+    3. Match symptoms to the expertise areas that would most likely treat this condition
+    4. Return 1-3 expertise enums, depending on how many are truly relevant
+    5. Do NOT hallucinate or guess - only return enums that clearly match the symptoms
+    6. Use MANUAL_REVIEW_REQUIRED only for completely unintelligible input
 
     RESPONSE FORMAT:
-    Return ONLY the expertise enum (e.g., "GENERAL_CARDIOLOGY") or "MANUAL_REVIEW_REQUIRED"
+    Return a JSON array of 1-3 expertise enums, or ["MANUAL_REVIEW_REQUIRED"]
+    Examples:
+    - ["GENERAL_CARDIOLOGY"]
+    - ["HEART_FAILURE", "CARDIOMYOPATHY"]
+    - ["GENERAL_GASTROENTEROLOGY", "ENDOSCOPY", "COLONOSCOPY"]
+    - ["MANUAL_REVIEW_REQUIRED"]
 
-    Do not include any explanation, punctuation, or additional text.`;
+    Return ONLY the JSON array, no explanation or additional text.`;
     }
 
   /**
@@ -93,10 +100,31 @@ class OpenAISymptomClassifier {
         }
       );
 
-      const classifiedExpertise = response.data.choices[0].message.content.trim();
+      const classifiedResponse = response.data.choices[0].message.content.trim();
+
+      // Parse JSON array response
+      let expertiseEnums;
+      try {
+        expertiseEnums = JSON.parse(classifiedResponse);
+
+        // Ensure it's an array
+        if (!Array.isArray(expertiseEnums)) {
+          throw new Error('Response is not an array');
+        }
+      } catch (parseError) {
+        logger.error('Failed to parse OpenAI response as JSON array', {
+          response: classifiedResponse,
+          error: parseError.message
+        });
+
+        return {
+          success: false,
+          error: 'Invalid response format from symptom classifier. Please try again.'
+        };
+      }
 
       // Handle MANUAL_REVIEW_REQUIRED response
-      if (classifiedExpertise === 'MANUAL_REVIEW_REQUIRED') {
+      if (expertiseEnums.length === 1 && expertiseEnums[0] === 'MANUAL_REVIEW_REQUIRED') {
         logger.info('Symptoms require manual review', {
           symptomText: symptomText.substring(0, 100)
         });
@@ -108,25 +136,32 @@ class OpenAISymptomClassifier {
         };
       }
 
-      // Validate that the returned enum is valid
+      // Validate that all returned enums are valid
       const allEnums = getAllExpertiseEnums();
-      if (!allEnums.includes(classifiedExpertise)) {
-        logger.warn('OpenAI returned invalid expertise enum', {
-          returned: classifiedExpertise,
-          validEnums: allEnums
+      const invalidEnums = expertiseEnums.filter(e => !allEnums.includes(e));
+
+      if (invalidEnums.length > 0) {
+        logger.warn('OpenAI returned invalid expertise enums', {
+          returned: expertiseEnums,
+          invalid: invalidEnums,
+          validEnums: allEnums.length
         });
 
-        throw new Error(`OpenAI returned invalid expertise area: ${classifiedExpertise}`);
+        throw new Error(`OpenAI returned invalid expertise areas: ${invalidEnums.join(', ')}`);
       }
 
+      // Limit to 3 enums
+      const limitedEnums = expertiseEnums.slice(0, 3);
+
       logger.info('Successfully classified symptoms', {
-        expertise: classifiedExpertise,
+        expertiseEnums: limitedEnums,
+        count: limitedEnums.length,
         tokensUsed: response.data.usage?.total_tokens || 0
       });
 
       return {
         success: true,
-        expertiseEnum: classifiedExpertise,
+        expertiseEnums: limitedEnums,
         tokensUsed: response.data.usage?.total_tokens || 0
       };
 

@@ -2,6 +2,7 @@ require('dotenv').config();
 const openAISymptomClassifier = require('./openAISymptomClassifier');
 const physiciansData = require('../config/physiciansData.json');
 const { getExpertiseDisplayName } = require('../config/expertiseEnums');
+const { getAllCanonicalAddresses } = require('../config/locations');
 const axios = require('axios');
 const logger = require('../utils/logger');
 
@@ -29,24 +30,20 @@ class SymptomPhysicianMatcher {
   }
 
   /**
-   * Sort physician locations by distance from user address
-   * @param {Array} locations - Array of location objects
+   * Calculate distances from user address to all primary locations
    * @param {string} userAddress - User's address
-   * @returns {Promise<Array>} Sorted locations with distance information
+   * @returns {Promise<Map>} Map of address -> {distance, duration, distanceValue}
    */
-  async sortLocationsByDistance(locations, userAddress) {
-    if (!locations || locations.length === 0) {
-      return [];
-    }
+  async calculateLocationDistances(userAddress) {
+    const locationDistances = new Map();
+    const canonicalAddresses = getAllCanonicalAddresses();
 
     try {
-      const destinations = locations.map(loc => loc.address);
-
       const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
         params: {
           key: this.googleMapsApiKey,
           origins: userAddress,
-          destinations: destinations.join('|'),
+          destinations: canonicalAddresses.join('|'),
           units: 'imperial',
           mode: 'driving'
         },
@@ -58,23 +55,18 @@ class SymptomPhysicianMatcher {
       }
 
       const elements = response.data.rows[0]?.elements || [];
-      const locationsWithDistance = [];
 
-      locations.forEach((location, index) => {
+      canonicalAddresses.forEach((address, index) => {
         const element = elements[index];
-        
+
         if (element && element.status === 'OK') {
-          locationsWithDistance.push({
-            name: location.name,
-            address: this.truncateAddress(location.address),
+          locationDistances.set(address, {
             distance: element.distance.text,
             duration: element.duration.text,
             distanceValue: element.distance.value
           });
         } else {
-          locationsWithDistance.push({
-            name: location.name,
-            address: this.truncateAddress(location.address),
+          locationDistances.set(address, {
             distance: null,
             duration: null,
             distanceValue: Number.MAX_SAFE_INTEGER
@@ -82,31 +74,56 @@ class SymptomPhysicianMatcher {
         }
       });
 
-      // Sort by distance
-      locationsWithDistance.sort((a, b) => a.distanceValue - b.distanceValue);
-
-      // Return without distanceValue
-      return locationsWithDistance.map(loc => ({
-        name: loc.name,
-        address: loc.address,
-        distance: loc.distance,
-        duration: loc.duration
-      }));
-
     } catch (error) {
-      logger.error('Error calculating distances', {
+      logger.error('Error calculating location distances', {
         error: error.message,
         userAddress
       });
-      
-      // Return unsorted locations without distance on error
-      return locations.map(loc => ({
-        name: loc.name,
-        address: this.truncateAddress(loc.address),
-        distance: null,
-        duration: null
-      }));
+
+      // Return empty map on error - will be handled downstream
     }
+
+    return locationDistances;
+  }
+
+  /**
+   * Sort physician locations by distance using pre-calculated location distances
+   * @param {Array} locations - Array of location objects
+   * @param {Map} locationDistances - Pre-calculated distances map
+   * @returns {Array} Sorted locations with distance information (includes distanceValue for ranking)
+   */
+  sortLocationsByDistance(locations, locationDistances) {
+    if (!locations || locations.length === 0) {
+      return [];
+    }
+
+    const locationsWithDistance = locations.map(location => {
+      const distanceInfo = locationDistances.get(location.address);
+
+      if (distanceInfo) {
+        return {
+          name: location.name,
+          address: this.truncateAddress(location.address),
+          distance: distanceInfo.distance,
+          duration: distanceInfo.duration,
+          distanceValue: distanceInfo.distanceValue
+        };
+      } else {
+        return {
+          name: location.name,
+          address: this.truncateAddress(location.address),
+          distance: null,
+          duration: null,
+          distanceValue: Number.MAX_SAFE_INTEGER
+        };
+      }
+    });
+
+    // Sort by distance
+    locationsWithDistance.sort((a, b) => a.distanceValue - b.distanceValue);
+
+    // Return WITH distanceValue for physician ranking (will be removed later for API response)
+    return locationsWithDistance;
   }
 
   /**
@@ -139,97 +156,84 @@ class SymptomPhysicianMatcher {
         address
       });
 
-      // Step 1: Classify symptoms using OpenAI
+      // Step 1: Classify symptoms using OpenAI (returns array of up to 3 expertise enums)
       const classificationResult = await openAISymptomClassifier.classifySymptoms(symptomText);
 
       if (!classificationResult.success) {
         logger.error('Symptom classification failed', {
           error: classificationResult.error
         });
-        
+
         return {
           success: false,
           error: 'We are having trouble finding a physician based on the requested symptoms. Please try again or contact our office directly.'
         };
       }
 
-      const expertiseEnum = classificationResult.expertiseEnum;
-      const expertiseDisplayName = getExpertiseDisplayName(expertiseEnum);
+      const expertiseEnums = classificationResult.expertiseEnums; // Array of 1-3 enums
+      const expertiseDisplayNames = expertiseEnums.map(e => getExpertiseDisplayName(e));
 
       logger.info('Symptoms classified', {
-        expertiseEnum,
-        expertiseDisplayName
+        expertiseEnums,
+        expertiseDisplayNames,
+        count: expertiseEnums.length
       });
 
-      // Step 2: Find physicians with matching normalized expertise
+      // Step 2: Find physicians with matching normalized expertise (ANY of the expertise areas)
       const matchingPhysicians = this.physicians.filter(physician => {
-        // Check if physician has this expertise in their normalizedExpertise array
-        return physician.normalizedExpertise && 
-               physician.normalizedExpertise.includes(expertiseEnum);
+        // Check if physician has ANY of the expertise areas in their normalizedExpertise array
+        return physician.normalizedExpertise &&
+               physician.normalizedExpertise.some(e => expertiseEnums.includes(e));
       });
 
       if (matchingPhysicians.length === 0) {
-        logger.info('No physicians found for expertise', {
-          expertiseEnum,
-          expertiseDisplayName
+        logger.info('No physicians found for any expertise area', {
+          expertiseEnums,
+          expertiseDisplayNames
         });
-        
+
         return {
           success: false,
-          matchedExpertise: expertiseDisplayName,
+          matchedExpertise: expertiseDisplayNames.join(', '),
           error: 'We are having trouble finding a physician based on the requested symptoms. Please try again or contact our office directly.'
         };
       }
 
       logger.info('Found matching physicians', {
         count: matchingPhysicians.length,
-        expertiseEnum
+        expertiseEnums
       });
 
-      // Step 3: Sort physicians by closest location distance
-      const physiciansWithDistance = [];
+      // Step 3: Calculate distances to all locations once
+      const locationDistances = await this.calculateLocationDistances(address);
 
-      for (const physician of matchingPhysicians) {
-        try {
-          // Sort locations by distance
-          const sortedLocations = await this.sortLocationsByDistance(
-            physician.locations,
-            address
-          );
+      logger.info('Calculated distances to all locations', {
+        locationCount: locationDistances.size
+      });
 
-          // Use closest location's distance for physician ranking
-          const closestDistance = sortedLocations[0]?.distanceValue || Number.MAX_SAFE_INTEGER;
+      // Step 4: Sort physicians by closest location distance
+      const physiciansWithDistance = matchingPhysicians.map(physician => {
+        // Sort this physician's locations by distance
+        const sortedLocations = this.sortLocationsByDistance(
+          physician.locations,
+          locationDistances
+        );
 
-          physiciansWithDistance.push({
-            physician,
-            sortedLocations,
-            closestDistance
-          });
+        // Get closest location's distance for physician ranking
+        const closestLocation = sortedLocations[0];
+        const closestDistance = closestLocation?.distanceValue || Number.MAX_SAFE_INTEGER;
 
-        } catch (error) {
-          logger.warn('Error sorting locations for physician', {
-            error: error.message,
-            physicianId: physician.id
-          });
-          
-          // Add physician without distance sorting
-          physiciansWithDistance.push({
-            physician,
-            sortedLocations: physician.locations.map(loc => ({
-              name: loc.name,
-              address: this.truncateAddress(loc.address),
-              distance: null,
-              duration: null
-            })),
-            closestDistance: Number.MAX_SAFE_INTEGER
-          });
-        }
-      }
+        return {
+          physician,
+          sortedLocations,
+          closestDistance
+        };
+      });
 
       // Sort physicians by closest location distance
       physiciansWithDistance.sort((a, b) => a.closestDistance - b.closestDistance);
 
-      // Step 4: Take top 3 physicians and format response
+      // Step 5: Take top 3 physicians and format response
       // Convert normalized expertise enums to display names for better readability
       const top3Physicians = physiciansWithDistance.slice(0, 3).map(item => {
         const displayExpertise = (item.physician.normalizedExpertise || []).map(enumKey => 
@@ -241,19 +245,25 @@ class SymptomPhysicianMatcher {
           specialty: item.physician.specialty,
           areasOfExpertise: displayExpertise,
           languages: item.physician.languages || [],
-          locations: item.sortedLocations
+          locations: item.sortedLocations.map(loc => ({
+            name: loc.name,
+            address: loc.address,
+            distance: loc.distance,
+            duration: loc.duration
+          }))
         };
       });
 
       logger.info('Successfully matched physicians to symptoms', {
-        expertiseEnum,
-        expertiseDisplayName,
+        expertiseEnums,
+        expertiseDisplayNames,
         physiciansReturned: top3Physicians.length
       });
 
       return {
         success: true,
-        matchedExpertise: expertiseDisplayName,
+        matchedExpertise: expertiseDisplayNames.join(', '),
+        matchedExpertiseAreas: expertiseDisplayNames, // Array for programmatic access
         userAddress: address,
         physicians: top3Physicians
       };
@@ -278,7 +288,7 @@ class SymptomPhysicianMatcher {
    * @returns {Promise<Object>} Test result
    */
   async test(
-    symptomText = 'Unexplained weight loss',
+    symptomText = 'swollen ankle',
     address = '123 Main St, Chicago, IL 60601'
   ) {
     logger.info('Testing symptom physician matcher', { symptomText, address });

@@ -1,7 +1,7 @@
 {
   "metadata": {
     "totalPhysicians": 193,
-    "lastUpdated": "2025-10-08T13:43:59.286Z",
+    "lastUpdated": "2025-10-09T13:52:33.545Z",
     "specialties": [
       "CARDIOLOGY",
       "GASTROENTEROLOGY",
@@ -13,7 +13,8 @@
       "UROLOGY"
     ],
     "source": "UChicago_Physicians_v3.csv",
-    "expertiseSystemVersion": "2.0"
+    "expertiseSystemVersion": "3.5-manual",
+    "locationNormalizationVersion": "1.0"
   },
   "physicians": [
     {
@@ -29,15 +30,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/adam-vohra",
       "id": 8,
       "normalizedExpertise": [
         "CORONARY_ARTERY_DISEASE",
-        "CARDIAC_CATHETERIZATION"
+        "INTERVENTIONAL_CARDIOLOGY"
       ]
     },
     {
@@ -52,20 +52,12 @@
         "Romanian",
         "Spanish"
       ],
-      "locations": [
-        {
-          "name": "Ingalls - Flossmoor",
-          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
-          "address": "19550 Governors Highway, Flossmoor, IL, 60422"
-        }
-      ],
+      "locations": [],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/alexandru-marginean",
       "id": 22,
       "normalizedExpertise": [
-        "PREVENTIVE_CARDIOLOGY",
-        "CORONARY_ARTERY_DISEASE",
-        "HEART_FAILURE",
-        "ARRHYTHMIAS"
+        "ARRHYTHMIAS",
+        "HEART_FAILURE"
       ]
     },
     {
@@ -82,14 +74,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/amber-e-johnson",
       "id": 14,
       "normalizedExpertise": [
-        "PREVENTIVE_CARDIOLOGY",
         "GENERAL_CARDIOLOGY"
       ]
     },
@@ -106,15 +96,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/amber-e-johnson",
       "id": 26,
       "normalizedExpertise": [
-        "GENERAL_CARDIOLOGY",
-        "PREVENTIVE_CARDIOLOGY"
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -130,20 +118,17 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Ingalls - Harvey",
-          "centerName": "UChicago Medicine Outpatient Center at Ingalls – Harvey",
-          "address": "71 West 156th Street, Harvey, IL, 60426"
+          "address": "71 West 156th Street, Harvey, IL 60426"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/andrew-beaser",
       "id": 3,
       "normalizedExpertise": [
         "ARRHYTHMIAS",
-        "VENTRICULAR_TACHYCARDIA",
         "CARDIOMYOPATHY"
       ]
     },
@@ -158,20 +143,14 @@
         "English",
         "Spanish"
       ],
-      "locations": [
-        {
-          "name": "Ingalls - Flossmoor",
-          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
-          "address": "19550 Governors Highway, Flossmoor, IL, 60422"
-        }
-      ],
+      "locations": [],
       "id": 23,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/angel-de-la-cruz-tejada",
       "normalizedExpertise": [
-        "CORONARY_ARTERY_DISEASE",
-        "HYPERTENSION",
         "ARRHYTHMIAS",
-        "HEART_FAILURE"
+        "CORONARY_ARTERY_DISEASE",
+        "HEART_FAILURE",
+        "HYPERTENSION"
       ]
     },
     {
@@ -188,16 +167,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ann-nguyen",
       "id": 27,
       "normalizedExpertise": [
-        "VENTRICULAR_ASSIST_DEVICES",
-        "CARDIOMYOPATHY",
-        "HEART_TRANSPLANT"
+        "CARDIOMYOPATHY"
       ]
     },
     {
@@ -214,17 +190,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 39,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/anthony-kanelidis",
       "normalizedExpertise": [
-        "HEART_FAILURE",
-        "HEART_TRANSPLANT",
         "CARDIOMYOPATHY",
-        "VENTRICULAR_ASSIST_DEVICES"
+        "HEART_FAILURE"
       ]
     },
     {
@@ -240,19 +213,15 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/atman-p-shah",
       "id": 6,
       "normalizedExpertise": [
+        "CORONARY_ARTERY_DISEASE",
         "INTERVENTIONAL_CARDIOLOGY",
+        "PERIPHERAL_ARTERIAL_DISEASE",
         "VALVE_DISEASE"
       ]
     },
@@ -270,31 +239,21 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
-        },
-        {
-          "name": "Springfield",
-          "centerName": "Uchicago Medicine at Prairie Heart Institute",
-          "address": "619 East Mason Street, Springfield, IL, 62769"
+          "address": "10855 Virginia Street, Crown Point, IN 46307"
         },
         {
           "name": "Ingalls - Harvey",
-          "centerName": "UChicago Medicine Outpatient Center at Ingalls – Harvey",
-          "address": "71 West 156th Street, Harvey, IL, 60426"
+          "address": "71 West 156th Street, Harvey, IL 60426"
         }
       ],
       "id": 37,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/bow-young-chung",
       "normalizedExpertise": [
-        "VENTRICULAR_ASSIST_DEVICES",
-        "CARDIOMYOPATHY",
-        "HEART_TRANSPLANT"
+        "CARDIOMYOPATHY"
       ]
     },
     {
@@ -311,17 +270,15 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/cevher-ozcan",
       "id": 29,
       "normalizedExpertise": [
-        "SYNCOPE",
-        "ATRIAL_FIBRILLATION",
         "ARRHYTHMIAS",
-        "VENTRICULAR_TACHYCARDIA"
+        "ATRIAL_FIBRILLATION",
+        "SYNCOPE_FAINTING"
       ]
     },
     {
@@ -337,19 +294,17 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Rd, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 43,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/chelsea-dorsey",
       "normalizedExpertise": [
-        "PERIPHERAL_VASCULAR_DISEASE"
+        "VASCULAR_SURGERY"
       ]
     },
     {
@@ -365,14 +320,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 55,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/christopher-t-salerno",
       "normalizedExpertise": [
-        "HEART_TRANSPLANT",
         "HEART_FAILURE"
       ]
     },
@@ -389,13 +342,11 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Rd, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 52,
@@ -418,13 +369,11 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
+          "address": "10855 Virginia Street, Crown Point, IN 46307"
         }
       ],
       "id": 42,
@@ -447,14 +396,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 49,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/david-onsager",
       "normalizedExpertise": [
-        "HEART_TRANSPLANT",
         "CORONARY_ARTERY_DISEASE"
       ]
     },
@@ -471,26 +418,17 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Rd, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/francis-alenghat",
       "id": 20,
       "normalizedExpertise": [
-        "CORONARY_ARTERY_DISEASE",
-        "PREVENTIVE_CARDIOLOGY",
-        "GENERAL_CARDIOLOGY"
+        "CORONARY_ARTERY_DISEASE"
       ]
     },
     {
@@ -507,13 +445,11 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/gaurav-a-upadhyay",
@@ -535,8 +471,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/gene-kim",
@@ -558,20 +493,16 @@
       "locations": [
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         },
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/hena-patel",
       "id": 56,
       "normalizedExpertise": [
-        "ECHOCARDIOGRAPHY",
-        "PREVENTIVE_CARDIOLOGY",
         "GENERAL_CARDIOLOGY"
       ]
     },
@@ -588,8 +519,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/henry-huang",
@@ -612,16 +542,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 48,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/hiroto-kitahara",
       "normalizedExpertise": [
-        "HEART_FAILURE",
         "ARRHYTHMIAS",
-        "MINIMALLY_INVASIVE_HEART_SURGERY"
+        "HEART_FAILURE"
       ]
     },
     {
@@ -638,19 +566,16 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         }
       ],
       "id": 53,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/husam-h-balkhy",
       "normalizedExpertise": [
-        "MINIMALLY_INVASIVE_HEART_SURGERY",
         "ATRIAL_FIBRILLATION"
       ]
     },
@@ -667,8 +592,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Comer Children's Hospital",
-          "address": "5721 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 28,
@@ -690,13 +614,11 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
+          "address": "10855 Virginia Street, Crown Point, IN 46307"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jay-khambhati",
@@ -718,18 +640,16 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jeanne-decara",
       "id": 16,
       "normalizedExpertise": [
-        "GENERAL_CARDIOLOGY",
-        "HYPERTENSION",
-        "ECHOCARDIOGRAPHY",
-        "HEART_FAILURE",
         "CORONARY_ARTERY_DISEASE",
+        "GENERAL_CARDIOLOGY",
+        "HEART_FAILURE",
+        "HYPERTENSION",
         "VALVE_DISEASE"
       ]
     },
@@ -746,8 +666,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 30,
@@ -769,16 +688,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jonathan-grinstein",
       "id": 36,
       "normalizedExpertise": [
-        "HEART_FAILURE",
-        "VENTRICULAR_ASSIST_DEVICES",
-        "HEART_TRANSPLANT"
+        "HEART_FAILURE"
       ]
     },
     {
@@ -794,8 +710,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 33,
@@ -817,21 +732,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jonathan-d-paul",
       "id": 9,
       "normalizedExpertise": [
-        "PULMONARY_EMBOLISM",
-        "CORONARY_ARTERY_DISEASE",
-        "PERIPHERAL_VASCULAR_DISEASE"
+        "PULMONARY_EMBOLISM"
       ]
     },
     {
@@ -847,14 +754,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/karima-addetia",
       "id": 18,
       "normalizedExpertise": [
-        "ECHOCARDIOGRAPHY",
         "GENERAL_CARDIOLOGY"
       ]
     },
@@ -871,15 +776,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/kathleen-drinan",
       "id": 25,
       "normalizedExpertise": [
-        "GENERAL_CARDIOLOGY",
-        "PREVENTIVE_CARDIOLOGY"
+        "GENERAL_CARDIOLOGY"
       ]
     },
     {
@@ -895,14 +798,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/leo-gozdecki",
       "id": 15,
       "normalizedExpertise": [
-        "PREVENTIVE_CARDIOLOGY",
         "GENERAL_CARDIOLOGY"
       ]
     },
@@ -919,13 +820,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hinsdale",
-          "centerName": "Uchicago Medicine Hinsdale",
-          "address": "11 Salt Creek Lane Suite 300, Hinsdale, IL, 60521"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 45,
@@ -948,15 +843,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/manreet-kanwar",
       "id": 13,
       "normalizedExpertise": [
-        "HEART_FAILURE",
-        "HEART_TRANSPLANT"
+        "HEART_FAILURE"
       ]
     },
     {
@@ -972,8 +865,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/mark-belkin",
@@ -995,8 +887,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 32,
@@ -1018,24 +909,20 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         }
       ],
       "id": 35,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/matthew-sorrentino",
       "normalizedExpertise": [
         "CORONARY_ARTERY_DISEASE",
-        "ECHOCARDIOGRAPHY",
         "GENERAL_CARDIOLOGY",
         "HYPERLIPIDEMIA",
-        "HYPERTENSION",
-        "PREVENTIVE_CARDIOLOGY"
+        "HYPERTENSION"
       ]
     },
     {
@@ -1051,15 +938,12 @@
       "locations": [
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/michael-h-davidson",
       "id": 17,
-      "normalizedExpertise": [
-        "PREVENTIVE_CARDIOLOGY"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Michael",
@@ -1074,26 +958,20 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Comer Children's Hospital",
-          "address": "5721 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Rd, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 24,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/michael-earing",
       "normalizedExpertise": [
-        "ECHOCARDIOGRAPHY",
+        "ADULT_CONGENITAL_HEART_DISEASE",
         "AORTIC_ANEURYSMS",
-        "ADULT_CONGENITAL_HEART_DISEASE"
+        "CARDIOMYOPATHY",
+        "HYPERTENSION"
       ]
     },
     {
@@ -1111,21 +989,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Ingalls - Flossmoor",
-          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
-          "address": "19550 Governors Highway, Flossmoor, IL, 60422"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 54,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/miroslav-peev",
       "normalizedExpertise": [
-        "MINIMALLY_INVASIVE_HEART_SURGERY",
         "AORTIC_ANEURYSMS",
-        "VALVE_DISEASE",
         "ATRIAL_FIBRILLATION"
       ]
     },
@@ -1143,15 +1013,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Comer Children's Hospital - Hyde Park",
-          "address": "5721 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 46,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/narutoshi-hibino",
       "normalizedExpertise": [
-        "VENTRICULAR_ASSIST_DEVICES",
-        "HEART_TRANSPLANT",
         "AORTIC_ANEURYSMS",
         "VALVE_DISEASE"
       ]
@@ -1169,16 +1036,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nikhil-narang",
       "id": 11,
       "normalizedExpertise": [
-        "HEART_FAILURE",
-        "HEART_TRANSPLANT",
-        "VENTRICULAR_ASSIST_DEVICES"
+        "HEART_FAILURE"
       ]
     },
     {
@@ -1197,15 +1061,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nitasha-sarswat",
       "id": 40,
       "normalizedExpertise": [
-        "VENTRICULAR_ASSIST_DEVICES",
-        "HEART_TRANSPLANT",
         "HEART_FAILURE"
       ]
     },
@@ -1222,16 +1083,16 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/prateek-sharma",
       "id": 57,
       "normalizedExpertise": [
         "AORTIC_DISEASE",
-        "PULMONARY_EMBOLISM",
-        "CORONARY_ARTERY_DISEASE"
+        "CORONARY_ARTERY_DISEASE",
+        "HYPERTENSION",
+        "PULMONARY_EMBOLISM"
       ]
     },
     {
@@ -1247,15 +1108,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/rishi-arora",
       "id": 1,
       "normalizedExpertise": [
-        "ATRIAL_FIBRILLATION",
-        "ARRHYTHMIAS"
+        "ARRHYTHMIAS",
+        "ATRIAL_FIBRILLATION"
       ]
     },
     {
@@ -1271,18 +1131,11 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Rd, Orland Park, IL, 60462"
-        },
-        {
-          "name": "Ingalls - Flossmoor",
-          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
-          "address": "19550 Governors Highway, Flossmoor, IL, 60422"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 44,
@@ -1290,7 +1143,7 @@
       "normalizedExpertise": [
         "AORTIC_ANEURYSMS",
         "AORTIC_DISEASE",
-        "PERIPHERAL_VASCULAR_DISEASE"
+        "PERIPHERAL_ARTERIAL_DISEASE"
       ]
     },
     {
@@ -1307,8 +1160,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sandeep-nathan",
@@ -1330,20 +1182,16 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
+          "address": "10855 Virginia Street, Crown Point, IN 46307"
         }
       ],
       "id": 51,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sara-gaines",
-      "normalizedExpertise": [
-        "PERIPHERAL_VASCULAR_DISEASE"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Sara",
@@ -1358,15 +1206,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 12,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sara-kalantari",
-      "normalizedExpertise": [
-        "HEART_TRANSPLANT"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Srinath",
@@ -1381,8 +1226,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/srinath-yeshwant",
@@ -1404,13 +1248,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hinsdale",
-          "centerName": "Uchicago Medicine Hinsdale",
-          "address": "11 Salt Creek Lane Suite 300, Hinsdale, IL, 60521"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 34,
@@ -1433,15 +1271,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 50,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/takeyoshi-ota",
       "normalizedExpertise": [
-        "VENTRICULAR_ASSIST_DEVICES",
-        "HEART_TRANSPLANT",
         "HEART_FAILURE"
       ]
     },
@@ -1458,33 +1293,19 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
-        },
-        {
-          "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/tamar-polonsky",
       "id": 21,
       "normalizedExpertise": [
-        "GENERAL_CARDIOLOGY",
-        "PREVENTIVE_CARDIOLOGY",
-        "HYPERTENSION",
         "CORONARY_ARTERY_DISEASE",
-        "ECHOCARDIOGRAPHY"
+        "GENERAL_CARDIOLOGY",
+        "HYPERTENSION"
       ]
     },
     {
@@ -1500,13 +1321,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Ingalls - Flossmoor",
-          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
-          "address": "19550 Governors Highway, Flossmoor, IL, 60422"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 41,
@@ -1514,7 +1329,7 @@
       "normalizedExpertise": [
         "AORTIC_ANEURYSMS",
         "AORTIC_DISEASE",
-        "PERIPHERAL_VASCULAR_DISEASE"
+        "PERIPHERAL_ARTERIAL_DISEASE"
       ]
     },
     {
@@ -1531,17 +1346,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 47,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/valluvan-jeevanandam",
       "normalizedExpertise": [
-        "VENTRICULAR_ASSIST_DEVICES",
-        "HEART_TRANSPLANT",
-        "HEART_FAILURE",
-        "MINIMALLY_INVASIVE_HEART_SURGERY"
+        "HEART_FAILURE"
       ]
     },
     {
@@ -1557,20 +1368,17 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/zaid-aziz",
       "id": 2,
       "normalizedExpertise": [
-        "ATRIAL_FIBRILLATION",
-        "VENTRICULAR_TACHYCARDIA"
+        "ATRIAL_FIBRILLATION"
       ]
     },
     {
@@ -1586,14 +1394,11 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 174,
       "normalizedExpertise": [
-        "INFLAMMATORY_BOWEL_DISEASE",
-        "CROHNS_DISEASE",
         "ULCERATIVE_COLITIS"
       ]
     },
@@ -1610,15 +1415,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 168,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/anand-a-patel",
       "normalizedExpertise": [
-        "GERD_ACID_REFLUX",
-        "ESOPHAGEAL_MOTILITY_SWALLOWING_DISORDERS"
+        "ESOPHAGEAL_MOTILITY",
+        "GERD"
       ]
     },
     {
@@ -1634,13 +1438,11 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 158,
@@ -1662,16 +1464,15 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 175,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ankit-nayyar",
       "normalizedExpertise": [
-        "GENERAL_GASTROENTEROLOGY",
+        "COLONOSCOPY",
         "ENDOSCOPY",
-        "COLONOSCOPY"
+        "GENERAL_GASTROENTEROLOGY"
       ]
     },
     {
@@ -1688,32 +1489,23 @@
       "locations": [
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         },
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Beverly",
-          "centerName": "UChicago Medicine Medical Group - Beverly",
-          "address": "11250 South Western Ave, Chicago, IL, 60643"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 160,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/benjamin-h-levy-iii",
       "normalizedExpertise": [
         "COLON_CANCER",
-        "LIVER_DISEASES",
-        "GERD_ACID_REFLUX",
-        "INFLAMMATORY_BOWEL_DISEASE"
+        "GERD",
+        "LIVER_DISEASES"
       ]
     },
     {
@@ -1729,13 +1521,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hinsdale",
-          "centerName": "Uchicago Medicine Hinsdale",
-          "address": "11 Salt Creek Lane Suite 300, Hinsdale, IL, 60521"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 153,
@@ -1757,13 +1543,11 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         }
       ],
       "id": 159,
@@ -1782,13 +1566,7 @@
       "languages": [
         "English"
       ],
-      "locations": [
-        {
-          "name": "Ingalls - Flossmoor",
-          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
-          "address": "19550 Governors Highway, Flossmoor, IL, 60422"
-        }
-      ],
+      "locations": [],
       "id": 152,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/david-atlas",
       "normalizedExpertise": [
@@ -1808,21 +1586,17 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/david-rubin",
       "id": 149,
       "normalizedExpertise": [
-        "INFLAMMATORY_BOWEL_DISEASE",
-        "ULCERATIVE_COLITIS",
-        "CROHNS_DISEASE"
+        "ULCERATIVE_COLITIS"
       ]
     },
     {
@@ -1839,14 +1613,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 161,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/dennis-d-chen",
       "normalizedExpertise": [
-        "PANCREAS_PANCREATOBILIARY_DISEASE"
+        "PANCREAS",
+        "PANCREATIC_CANCER"
       ]
     },
     {
@@ -1862,20 +1636,16 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "South Loop",
-          "centerName": "UChicago Medicine South Loop",
-          "address": "1101 South Canal Street Suite 201, Chicago, IL, 60607"
+          "address": "1101 South Canal Street Suite 201, Chicago, IL 60607"
         }
       ],
       "id": 155,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/edwin-k-mcdonald-iv",
-      "normalizedExpertise": [
-        "OBESITY"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Grace",
@@ -1891,17 +1661,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 162,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/grace-kim",
       "normalizedExpertise": [
         "ENDOSCOPY",
-        "PANCREATIC_CANCER",
-        "COLON_CANCER",
-        "PANCREAS_PANCREATOBILIARY_DISEASE"
+        "PANCREATIC_CANCER"
       ]
     },
     {
@@ -1917,14 +1684,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 178,
       "normalizedExpertise": [
-        "GERD_ACID_REFLUX",
-        "ESOPHAGEAL_MOTILITY_SWALLOWING_DISORDERS"
+        "ESOPHAGEAL_MOTILITY",
+        "GERD"
       ]
     },
     {
@@ -1940,8 +1706,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 176,
@@ -1962,22 +1727,15 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Northbrook",
-          "centerName": "Uchicago Medicine Northbrook",
-          "address": "400 Skokie Blvd Suite 300, Northbrook, IL, 60062"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 157,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/joel-pekow",
       "normalizedExpertise": [
         "COLON_CANCER",
-        "ULCERATIVE_COLITIS",
-        "CROHNS_DISEASE",
-        "INFLAMMATORY_BOWEL_DISEASE"
+        "CROHN_S_DISEASE",
+        "ULCERATIVE_COLITIS"
       ]
     },
     {
@@ -1993,15 +1751,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 167,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/marc-bissonnette",
       "normalizedExpertise": [
-        "LIVER_DISEASES",
-        "COLONOSCOPY"
+        "COLONOSCOPY",
+        "LIVER_DISEASES"
       ]
     },
     {
@@ -2017,15 +1774,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 156,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/matthew-odenwald",
       "normalizedExpertise": [
-        "LIVER_DISEASES",
-        "FATTY_LIVER_DISEASE_NAFLD"
+        "FATTY_LIVER_DISEASE",
+        "LIVER_DISEASES"
       ]
     },
     {
@@ -2041,14 +1797,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 165,
       "normalizedExpertise": [
-        "LIVER_DISEASES",
-        "FATTY_LIVER_DISEASE_NAFLD"
+        "NAFLD"
       ]
     },
     {
@@ -2064,20 +1818,18 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 151,
       "normalizedExpertise": [
-        "GENERAL_GASTROENTEROLOGY",
-        "ESOPHAGEAL_MOTILITY_SWALLOWING_DISORDERS",
-        "GERD_ACID_REFLUX"
+        "ACID_REFLUX",
+        "ESOPHAGUS_CONDITIONS",
+        "SWALLOWING_DISORDERS"
       ]
     },
     {
@@ -2094,19 +1846,16 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         }
       ],
       "id": 166,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nina-gupta",
       "normalizedExpertise": [
-        "GENERAL_GASTROENTEROLOGY",
         "COLONOSCOPY"
       ]
     },
@@ -2123,15 +1872,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 150,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/russell-d-cohen",
       "normalizedExpertise": [
-        "INFLAMMATORY_BOWEL_DISEASE",
-        "CROHNS_DISEASE",
         "ULCERATIVE_COLITIS"
       ]
     },
@@ -2148,13 +1894,11 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 154,
@@ -2176,20 +1920,16 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sonia-kupfer",
       "id": 163,
-      "normalizedExpertise": [
-        "COLON_CANCER"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Tarek",
@@ -2204,14 +1944,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 177,
       "normalizedExpertise": [
-        "LIVER_DISEASES",
-        "FATTY_LIVER_DISEASE_NAFLD"
+        "NAFLD"
       ]
     },
     {
@@ -2227,20 +1965,17 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/uzma-siddiqui",
       "id": 164,
       "normalizedExpertise": [
-        "ENDOSCOPY",
-        "PANCREAS_PANCREATOBILIARY_DISEASE"
+        "PANCREATOBILIARY_DISEASE"
       ]
     },
     {
@@ -2256,14 +1991,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 172,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jeffrey-b-matthews",
       "normalizedExpertise": [
-        "PANCREAS_PANCREATOBILIARY_DISEASE"
+        "HEPATOBILIARY_DISEASES",
+        "PANCREAS"
       ]
     },
     {
@@ -2279,15 +2014,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 169,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/john-c-alverdy",
-      "normalizedExpertise": [
-        "GENERAL_GASTROENTEROLOGY"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Mitchell",
@@ -2302,20 +2034,18 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 171,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/mitchell-c-posner",
       "normalizedExpertise": [
-        "PANCREAS_PANCREATOBILIARY_DISEASE",
-        "HEPATOBILIARY_DISEASES"
+        "HEPATOBILIARY_DISEASES",
+        "PANCREAS"
       ]
     },
     {
@@ -2331,14 +2061,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 173,
       "normalizedExpertise": [
-        "COLON_RECTAL_SURGERY",
-        "INFLAMMATORY_BOWEL_DISEASE"
+        "COLON_RECTAL_SURGERY"
       ]
     },
     {
@@ -2354,15 +2082,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 180,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/samer-kassar",
       "normalizedExpertise": [
-        "LIVER_DISEASES",
-        "PANCREAS_PANCREATOBILIARY_DISEASE"
+        "HEPATOBILIARY_DISEASES",
+        "PANCREAS"
       ]
     },
     {
@@ -2378,15 +2105,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 179,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/allison-dalton",
       "normalizedExpertise": [
-        "COLON_RECTAL_SURGERY",
-        "INFLAMMATORY_BOWEL_DISEASE"
+        "COLON_RECTAL_SURGERY"
       ]
     },
     {
@@ -2402,15 +2127,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 170,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/vivek-n-prachand",
-      "normalizedExpertise": [
-        "GENERAL_GASTROENTEROLOGY"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Adil",
@@ -2425,18 +2147,11 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Ingalls - Flossmoor",
-          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
-          "address": "19550 Governors Highway, Flossmoor, IL, 60462"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 126,
@@ -2458,14 +2173,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/bakhtiar-yamini",
       "id": 129,
       "normalizedExpertise": [
-        "EPILEPSY_SEIZURES"
+        "BRAIN_TUMOR",
+        "EPILEPSY"
       ]
     },
     {
@@ -2481,19 +2196,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hinsdale",
-          "centerName": "Uchicago Medicine Hinsdale",
-          "address": "11 Salt Creek Lane Suite 300, Chicago, IL, 60521"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/behzad-elahi",
       "id": 130,
       "normalizedExpertise": [
-        "PARKINSONS_DISEASE"
+        "PARKINSON_S_DISEASE"
       ]
     },
     {
@@ -2509,14 +2218,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/carlos-lara",
       "id": 138,
       "normalizedExpertise": [
-        "NEUROPATHY"
+        "NEUROPATHIES"
       ]
     },
     {
@@ -2533,14 +2241,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 143,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/christopher-m-gomez",
       "normalizedExpertise": [
-        "GAIT_BALANCE_DISORDERS"
+        "GAIT_BALANCE_DISORDERS",
+        "PARKINSON_S_DISEASE"
       ]
     },
     {
@@ -2556,16 +2264,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/daniel-orozco",
       "id": 140,
       "normalizedExpertise": [
-        "EPILEPSY_SEIZURES",
-        "PARKINSONS_DISEASE",
-        "HEADACHE_DISORDERS_CHRONIC_MIGRAINE"
+        "EPILEPSY",
+        "PARKINSON_S_DISEASE"
       ]
     },
     {
@@ -2581,20 +2287,16 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
+          "address": "10855 Virginia Street, Crown Point, IN 46307"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/david-satzer",
       "id": 119,
-      "normalizedExpertise": [
-        "PARKINSONS_DISEASE"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Edwin",
@@ -2609,24 +2311,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "New Lenox",
-          "centerName": "UChicago Medicine at Silver Cross (Pavilion A) - New Lenox",
-          "address": "1850 Silver Cross Boulevard, Pavilion A, New Lenox, IL, 60451"
-        },
-        {
-          "name": "New Lenox",
-          "centerName": "UChicago Medicine at Silver Cross (Pavilion A) - New Lenox",
-          "address": "1850 Silver Cross Boulevard, Pavilion A, New Lenox, IL, 60451"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/Edwin-Ramos",
       "id": 121,
       "normalizedExpertise": [
-        "SPINE"
+        "COMPLEX_SPINE"
       ]
     },
     {
@@ -2642,20 +2333,18 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 128,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/james-r-brorson",
       "normalizedExpertise": [
-        "STROKE",
-        "DEMENTIA"
+        "DEMENTIA",
+        "STROKE"
       ]
     },
     {
@@ -2671,13 +2360,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Ingalls - Flossmoor",
-          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
-          "address": "19550 Governors Highway, Flossmoor, IL, 60422"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/james-siegler",
@@ -2699,19 +2382,18 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Comer Children's Hospital - Hyde Park",
-          "address": "5721 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 145,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/james-h-tonsgard",
       "normalizedExpertise": [
-        "EPILEPSY_SEIZURES"
+        "EPILEPSY",
+        "SEIZURES"
       ]
     },
     {
@@ -2727,24 +2409,18 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hinsdale",
-          "centerName": "Uchicago Medicine Hinsdale",
-          "address": "11 Salt Creek Lane Suite 300, Hinsdale, IL, 60521"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 147,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/kenneth-lee",
       "normalizedExpertise": [
-        "GENERAL_NEUROLOGY"
+        "OBSTRUCTIVE_SLEEP_APNEA",
+        "SLEEP_DISORDERS"
       ]
     },
     {
@@ -2760,17 +2436,16 @@
       "locations": [
         {
           "name": "Ingalls - Harvey",
-          "centerName": "UChicago Medicine at Ingalls Outpatient Center - Harvey",
-          "address": "71 West 156th Street, Harvey, IL, 60426"
+          "address": "71 West 156th Street, Harvey, IL 60426"
         }
       ],
       "id": 146,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/lakshmi-warrior",
       "normalizedExpertise": [
-        "HEADACHE_DISORDERS_CHRONIC_MIGRAINE",
-        "CONCUSSION_BRAIN_INJURIES",
-        "STROKE",
-        "DEMENTIA"
+        "BRAIN_INJURIES",
+        "CONCUSSION",
+        "DEMENTIA",
+        "STROKE"
       ]
     },
     {
@@ -2786,14 +2461,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 142,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/lauren-singer",
       "normalizedExpertise": [
-        "BRAIN_TUMORS"
+        "BRAIN_TUMOR"
       ]
     },
     {
@@ -2809,14 +2483,14 @@
       "locations": [
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         }
       ],
       "id": 127,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/marcello-cherchi",
       "normalizedExpertise": [
-        "DIZZINESS_OTONEUROLOGY"
+        "DIZZINESS",
+        "OTONEUROLOGY"
       ]
     },
     {
@@ -2832,19 +2506,18 @@
       "locations": [
         {
           "name": "South Loop",
-          "centerName": "UChicago Medicine South Loop",
-          "address": "1101 South Canal Street Suite 201, Chicago, IL, 60607"
+          "address": "1101 South Canal Street Suite 201, Chicago, IL 60607"
         },
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 137,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/margaret-a-kaystacey",
       "normalizedExpertise": [
-        "HEADACHE_DISORDERS_CHRONIC_MIGRAINE"
+        "OBSTRUCTIVE_SLEEP_APNEA",
+        "SLEEP_DISORDERS"
       ]
     },
     {
@@ -2860,19 +2533,17 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/martin-herman",
       "id": 124,
       "normalizedExpertise": [
-        "SPINE"
+        "SPINE_SURGERY"
       ]
     },
     {
@@ -2888,14 +2559,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/mohamad-bydon",
       "id": 148,
       "normalizedExpertise": [
-        "SPINE"
+        "SPINE_SURGERY"
       ]
     },
     {
@@ -2911,19 +2581,18 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
+          "address": "10855 Virginia Street, Crown Point, IN 46307"
         }
       ],
       "id": 125,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/naoum-p-issa",
       "normalizedExpertise": [
-        "EPILEPSY_SEIZURES"
+        "EPILEPSY",
+        "SEIZURES"
       ]
     },
     {
@@ -2940,20 +2609,18 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Ingalls - Harvey",
-          "centerName": "UChicago Medicine at Ingalls Outpatient Center - Harvey",
-          "address": "71 West 156th Street, Harvey, IL, 60426"
+          "address": "71 West 156th Street, Harvey, IL 60426"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/paramita-das",
       "id": 122,
       "normalizedExpertise": [
+        "BRAIN_TUMOR",
         "PITUITARY_TUMORS",
-        "BRAIN_TUMORS",
         "TRIGEMINAL_NEURALGIA"
       ]
     },
@@ -2970,24 +2637,18 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "South Loop",
-          "centerName": "UChicago Medicine South Loop",
-          "address": "1100 South Canal Street, Chicago, IL, 60607"
-        },
-        {
-          "name": "South Loop",
-          "centerName": "UChicago Medicine South Loop",
-          "address": "1100 South Canal Street, Chicago, IL, 60607"
+          "address": "1101 South Canal Street Suite 201, Chicago, IL 60607"
         }
       ],
       "id": 132,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/pei-ning-hsu",
       "normalizedExpertise": [
-        "HEADACHE_DISORDERS_CHRONIC_MIGRAINE"
+        "CHRONIC_MIGRAINE",
+        "HEADACHE_DISORDERS"
       ]
     },
     {
@@ -3004,21 +2665,19 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 123,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/peleg-m-horowitz",
       "normalizedExpertise": [
-        "PITUITARY_TUMORS",
-        "BRAIN_TUMORS",
-        "HEAD_NECK"
+        "BRAIN_TUMOR",
+        "HEAD_NECK_CANCER",
+        "PITUITARY_TUMORS"
       ]
     },
     {
@@ -3034,13 +2693,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/peter-warnke",
       "id": 118,
       "normalizedExpertise": [
+        "EPILEPSY",
         "TRIGEMINAL_NEURALGIA"
       ]
     },
@@ -3057,8 +2716,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/rachel-mehendale",
@@ -3080,14 +2738,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 120,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sean-p-polster",
       "normalizedExpertise": [
-        "BRAIN_TUMORS",
+        "BRAIN_TUMOR",
         "PITUITARY_TUMORS"
       ]
     },
@@ -3104,14 +2761,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/shubadra-priyadarshini",
       "id": 139,
       "normalizedExpertise": [
-        "NEUROPATHY"
+        "NEUROPATHIES"
       ]
     },
     {
@@ -3127,25 +2783,16 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
-        },
-        {
-          "name": "Ingalls - Flossmoor",
-          "centerName": "UChicago Medicine at Ingalls Outpatient Center - Flossmoor",
-          "address": "19550 Governors Highway, Flossmoor, IL, 60422"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 133,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/staci-l-graf",
       "normalizedExpertise": [
-        "EPILEPSY_SEIZURES",
-        "HEADACHE_DISORDERS_CHRONIC_MIGRAINE",
         "DEMENTIA",
-        "PARKINSONS_DISEASE",
-        "STROKE",
-        "MULTIPLE_SCLEROSIS",
-        "NEUROPATHY"
+        "EPILEPSY",
+        "NEUROPATHY",
+        "STROKE"
       ]
     },
     {
@@ -3163,14 +2810,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/tao-xie",
       "id": 144,
       "normalizedExpertise": [
-        "PARKINSONS_DISEASE"
+        "PARKINSON_S_DISEASE"
       ]
     },
     {
@@ -3188,13 +2834,11 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
+          "address": "10855 Virginia Street, Crown Point, IN 46307"
         }
       ],
       "id": 136,
@@ -3216,18 +2860,11 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/veronica-cipriani",
@@ -3249,15 +2886,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/william-roth",
       "id": 141,
       "normalizedExpertise": [
-        "GENERAL_NEUROLOGY",
-        "HEADACHE_DISORDERS_CHRONIC_MIGRAINE"
+        "GENERAL_NEUROLOGY"
       ]
     },
     {
@@ -3273,14 +2908,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ashish-premkumar",
       "id": 108,
       "normalizedExpertise": [
-        "HIGH_RISK_PREGNANCY_MFM"
+        "HIGH_RISK_PREGNANCY",
+        "MATERNAL_FETAL_MEDICINE_MFM"
       ]
     },
     {
@@ -3296,15 +2931,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/christina-lewicky-gaupp",
       "id": 113,
       "normalizedExpertise": [
-        "PROLAPSE",
-        "INCONTINENCE"
+        "PROLAPSE"
       ]
     },
     {
@@ -3320,14 +2953,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ernst-lengyel",
       "id": 109,
       "normalizedExpertise": [
-        "OVARIAN_UTERINE_CERVICAL_CANCER"
+        "CERVICAL_CANCER",
+        "OVARIAN_CANCER"
       ]
     },
     {
@@ -3343,14 +2976,15 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jacques-abramowicz",
       "id": 116,
       "normalizedExpertise": [
-        "HIGH_RISK_PREGNANCY_MFM"
+        "GYNECOLOGY",
+        "HIGH_RISK_PREGNANCY",
+        "MATERNAL_FETAL_MEDICINE_MFM"
       ]
     },
     {
@@ -3366,15 +3000,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 104,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jana-j-richards",
-      "normalizedExpertise": [
-        "GENERAL_OBSTETRICS_GYNECOLOGY"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Jayme",
@@ -3389,14 +3020,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jayme-castillo",
       "id": 115,
       "normalizedExpertise": [
-        "GENERAL_OBSTETRICS_GYNECOLOGY"
+        "GYNECOLOGY"
       ]
     },
     {
@@ -3412,14 +3042,15 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/john-moroney",
       "id": 111,
       "normalizedExpertise": [
-        "OVARIAN_UTERINE_CERVICAL_CANCER"
+        "OVARIAN_CANCER",
+        "CERVICAL_CANCER",
+        "UTERINE_CANCER"
       ]
     },
     {
@@ -3435,14 +3066,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/julia-simon",
       "id": 107,
       "normalizedExpertise": [
-        "GENERAL_OBSTETRICS_GYNECOLOGY"
+        "GENERAL_OBSTETRICS",
+        "GYNECOLOGY"
       ]
     },
     {
@@ -3458,15 +3089,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/kimberly-kenton",
       "id": 112,
       "normalizedExpertise": [
         "PROLAPSE",
-        "INCONTINENCE"
+        "URINARY_INCONTINENCE"
       ]
     },
     {
@@ -3482,14 +3112,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/maryam-siddiqui",
       "id": 114,
       "normalizedExpertise": [
-        "CERVICAL_CANCER_ABNORMAL_PAP_SMEAR"
+        "GYNECOLOGY"
       ]
     },
     {
@@ -3505,14 +3134,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/melinda-lukens",
       "id": 105,
       "normalizedExpertise": [
-        "GENERAL_OBSTETRICS_GYNECOLOGY"
+        "GENERAL_OBSTETRICS"
       ]
     },
     {
@@ -3528,20 +3156,19 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/monica-christmas",
       "id": 106,
       "normalizedExpertise": [
-        "UTERINE_FIBROIDS",
-        "PERIMENOPAUSE_MENOPAUSE"
+        "MENOPAUSE",
+        "PERIMENOPAUSE",
+        "UTERINE_FIBROIDS"
       ]
     },
     {
@@ -3557,14 +3184,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 110,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nita-karnik-lee",
       "normalizedExpertise": [
-        "OVARIAN_UTERINE_CERVICAL_CANCER"
+        "VAGINAL_CANCER"
       ]
     },
     {
@@ -3580,16 +3206,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sarah-collins",
       "id": 117,
-      "normalizedExpertise": [
-        "PROLAPSE",
-        "INCONTINENCE"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Shivika",
@@ -3605,16 +3227,17 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/shivika-trivedi",
       "id": 103,
       "normalizedExpertise": [
-        "CERVICAL_CANCER_ABNORMAL_PAP_SMEAR",
-        "HIGH_RISK_PREGNANCY_MFM",
-        "CONTRACEPTION_FAMILY_PLANNING"
+        "ABNORMAL_PAP_SMEAR",
+        "CONTRACEPTION",
+        "FAMILY_PLANNING",
+        "HIGH_RISK_PREGNANCY",
+        "MATERNAL_FETAL_MEDICINE_MFM"
       ]
     },
     {
@@ -3630,15 +3253,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 78,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ami-v-desai",
-      "normalizedExpertise": [
-        "GENERAL_ONCOLOGY"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Cristina",
@@ -3653,16 +3273,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/cristina-odonoghue",
       "id": 76,
       "normalizedExpertise": [
-        "MELANOMA",
         "BREAST_CANCER",
-        "SARCOMAS"
+        "MELANOMA"
       ]
     },
     {
@@ -3678,15 +3296,13 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 71,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/daniel-j-haraf",
       "normalizedExpertise": [
-        "LUNG_CANCER",
-        "HEAD_NECK"
+        "HEAD_NECK_CANCER"
       ]
     },
     {
@@ -3702,8 +3318,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ernst-lengyel",
@@ -3725,15 +3340,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 58,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/everett-e-vokes",
       "normalizedExpertise": [
-        "HEAD_NECK",
-        "LUNG_CANCER"
+        "HEAD_NECK_CANCER"
       ]
     },
     {
@@ -3749,15 +3362,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/gini-fleming",
       "id": 60,
       "normalizedExpertise": [
         "BREAST_CANCER",
-        "OVARIAN_UTERINE_CERVICAL_CANCER"
+        "GYNECOLOGIC_MALIGNANCY"
       ]
     },
     {
@@ -3770,23 +3382,12 @@
       "languages": [
         "English"
       ],
-      "locations": [
-        {
-          "name": "Ingalls - Flossmoor",
-          "centerName": "UChicago Medicine at Ingalls - Flossmoor",
-          "address": "19550 Governors Highway, Flossmoor, IL, 60422"
-        },
-        {
-          "name": "Calumet City",
-          "centerName": "UChicago Medicine at Ingalls - Calumet City",
-          "address": "1600 Torrence Avenue, Calumet City, IL, 60409"
-        }
-      ],
+      "locations": [],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ivy-abraham",
       "id": 65,
       "normalizedExpertise": [
-        "OVARIAN_UTERINE_CERVICAL_CANCER",
-        "BREAST_CANCER"
+        "BREAST_CANCER",
+        "GYNECOLOGIC_MALIGNANCY"
       ]
     },
     {
@@ -3802,15 +3403,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/james-labelle",
       "id": 80,
       "normalizedExpertise": [
-        "GENERAL_ONCOLOGY",
-        "HEMATOLOGY"
+        "HEMATOLOGY",
+        "LYMPHOMA"
       ]
     },
     {
@@ -3826,8 +3426,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/john-moroney",
@@ -3849,14 +3448,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/joseph-franses",
       "id": 63,
       "normalizedExpertise": [
-        "GENERAL_ONCOLOGY",
         "PANCREATIC_CANCER"
       ]
     },
@@ -3873,18 +3470,15 @@
       "locations": [
         {
           "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
+          "address": "10855 Virginia Street, Crown Point, IN 46307"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/joshua-lorenz",
       "id": 70,
       "normalizedExpertise": [
-        "BRAIN_TUMORS",
-        "SPINE",
-        "HEAD_NECK",
-        "BREAST_CANCER",
-        "LUNG_CANCER"
+        "BRAIN_TUMOR",
+        "HEAD_NECK_CANCER",
+        "BREAST_CANCER"
       ]
     },
     {
@@ -3900,8 +3494,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 66,
@@ -3924,13 +3517,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Comer Children's Hospital - Hyde Park",
-          "address": "5721 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/comer/find-a-physician/physician/mark-a-applebaum",
       "id": 79,
       "normalizedExpertise": [
+        "NEUROBLASTOMA",
         "SARCOMAS"
       ]
     },
@@ -3947,15 +3540,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/muzamil-arshad",
       "id": 69,
       "normalizedExpertise": [
-        "GENERAL_ONCOLOGY",
-        "HEAD_NECK",
+        "HEAD_NECK_CANCER",
         "BREAST_CANCER"
       ]
     },
@@ -3972,8 +3563,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nan-chen",
@@ -3996,8 +3586,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 73,
@@ -4019,8 +3608,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nora-jaskowiak",
@@ -4042,17 +3630,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 59,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/peter-h-odonnell",
       "normalizedExpertise": [
-        "BLADDER",
-        "PROSTATE",
-        "KIDNEY",
-        "TESTICULAR_CANCER"
+        "BLADDER"
       ]
     },
     {
@@ -4068,8 +3652,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/peter-riedell",
@@ -4091,15 +3674,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 67,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/ralph-r-weichselbaum",
-      "normalizedExpertise": [
-        "GENERAL_ONCOLOGY"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Russell",
@@ -4114,15 +3694,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/russell-szmulewitz",
       "id": 61,
       "normalizedExpertise": [
-        "PROSTATE_CANCER",
-        "UROLOGIC_ONCOLOGY"
+        "PROSTATE_CANCER"
       ]
     },
     {
@@ -4138,19 +3716,20 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
+          "address": "10855 Virginia Street, Crown Point, IN 46307"
         }
       ],
       "id": 75,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sarah-ackroyd",
       "normalizedExpertise": [
-        "OVARIAN_UTERINE_CERVICAL_CANCER"
+        "CERVICAL_CANCER",
+        "OVARIAN_CANCER",
+        "UTERINE_CANCER",
+        "VAGINAL_CANCER"
       ]
     },
     {
@@ -4166,15 +3745,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 68,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/steven-j-chmura",
       "normalizedExpertise": [
-        "BREAST_CANCER",
-        "GENERAL_ONCOLOGY"
+        "BRAIN_TUMOR",
+        "BREAST_CANCER"
       ]
     },
     {
@@ -4192,20 +3770,18 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/aravind-athiviraham",
       "id": 81,
       "normalizedExpertise": [
-        "KNEE",
-        "SHOULDER_ELBOW"
+        "KNEE_ARTHROSCOPY",
+        "SHOULDER_ARTHROSCOPY"
       ]
     },
     {
@@ -4221,23 +3797,19 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "Hyde Park",
-          "centerName": "Comer Children's Hospital - Hyde Park",
-          "address": "5721 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 98,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/christopher-sullivan",
       "normalizedExpertise": [
-        "HIP",
-        "KNEE",
         "FRACTURE_CARE",
-        "SCOLIOSIS",
-        "CEREBRAL_PALSY"
+        "HIP_SURGERY",
+        "SCOLIOSIS"
       ]
     },
     {
@@ -4253,23 +3825,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Comer Children's Hospital - Hyde Park",
-          "address": "5721 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "La Grange",
-          "centerName": "UChicago Medicine Orthopaedics - La Grange",
-          "address": "5201 South Willow Spring Road, Suite 340, La Grange, IL, 60525"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/clarabelle-devries",
       "id": 92,
       "normalizedExpertise": [
-        "SHOULDER_ELBOW",
-        "HIP",
-        "KNEE",
-        "SCOLIOSIS",
-        "SPINE"
+        "HIP_SURGERY",
+        "SCOLIOSIS"
       ]
     },
     {
@@ -4285,8 +3848,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/gregory-schimizzi",
@@ -4308,20 +3870,18 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Comer Children's Hospital - Hyde Park",
-          "address": "5721 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 101,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/holly-j-benjamin",
       "normalizedExpertise": [
-        "CONCUSSION_BRAIN_INJURIES",
-        "HIP"
+        "BRAIN_INJURIES",
+        "CONCUSSION"
       ]
     },
     {
@@ -4337,17 +3897,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/hue-luu",
       "id": 94,
-      "normalizedExpertise": [
-        "HIP",
-        "KNEE",
-        "SARCOMAS"
-      ]
+      "normalizedExpertise": []
     },
     {
       "firstName": "Jacob",
@@ -4362,15 +3917,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 96,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/george-wolf",
       "normalizedExpertise": [
-        "HAND_WRIST",
-        "SHOULDER_ELBOW"
+        "HAND_WRIST_SURGERY"
       ]
     },
     {
@@ -4386,20 +3939,17 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/jeffrey-stepan",
       "id": 85,
       "normalizedExpertise": [
-        "HAND_WRIST",
-        "SHOULDER_ELBOW"
+        "HAND_WRIST_SURGERY"
       ]
     },
     {
@@ -4415,30 +3965,17 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 84,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/lewis-l-shi",
       "normalizedExpertise": [
-        "SHOULDER_ELBOW",
-        "OSTEOARTHRITIS"
+        "SHOULDER_ARTHROSCOPY"
       ]
     },
     {
@@ -4454,21 +3991,14 @@
       "locations": [
         {
           "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
-        },
-        {
-          "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
+          "address": "10855 Virginia Street, Crown Point, IN 46307"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/lorin-brown",
       "id": 91,
       "normalizedExpertise": [
         "FRACTURE_CARE",
-        "SCOLIOSIS",
-        "HAND_WRIST"
+        "SCOLIOSIS"
       ]
     },
     {
@@ -4484,8 +4014,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 100,
@@ -4507,19 +4036,16 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 97,
       "normalizedExpertise": [
-        "HAND_WRIST",
-        "SHOULDER_ELBOW"
+        "HAND_WRIST_ELBOW"
       ]
     },
     {
@@ -4535,19 +4061,18 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/michael-h-davidson",
       "id": 87,
       "normalizedExpertise": [
-        "SPINE"
+        "SPINAL_DEFORMITIES",
+        "SPINE_SURGERY"
       ]
     },
     {
@@ -4563,29 +4088,17 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/nicholas-maassen",
       "id": 88,
       "normalizedExpertise": [
-        "SHOULDER_ELBOW"
+        "SHOULDER_ARTHROSCOPY"
       ]
     },
     {
@@ -4601,21 +4114,16 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Comer Children's Hospital - Hyde Park",
-          "address": "5721 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
+          "address": "10855 Virginia Street, Crown Point, IN 46307"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/rachel-garfinkel",
       "id": 99,
       "normalizedExpertise": [
-        "HIP",
-        "KNEE",
-        "SHOULDER_ELBOW",
         "SCOLIOSIS"
       ]
     },
@@ -4632,14 +4140,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/rebecca-kuo",
       "id": 95,
       "normalizedExpertise": [
-        "SPINE"
+        "COMPLEX_SPINE"
       ]
     },
     {
@@ -4655,25 +4162,17 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "La Grange",
-          "centerName": "UChicago Medicine Orthopaedics - La Grange",
-          "address": "5201 South Willow Spring Road, Suite 340, La Grange, IL, 60525"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sara-wallace",
       "id": 86,
       "normalizedExpertise": [
-        "HIP",
-        "KNEE"
+        "HIP_SURGERY"
       ]
     },
     {
@@ -4689,22 +4188,19 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         }
       ],
       "id": 93,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sherwin-sw-ho",
       "normalizedExpertise": [
-        "SHOULDER_ELBOW",
-        "KNEE",
-        "HIP",
-        "FOOT_ANKLE",
+        "HIP_ARTHROSCOPY",
+        "KNEE_ARTHROSCOPY",
+        "SHOULDER_ARTHROSCOPY",
         "SPORTS_MEDICINE"
       ]
     },
@@ -4722,19 +4218,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Calumet City",
-          "centerName": "UChicago Medicine at Ingalls - Calumet City",
-          "address": "1600 Torrence Avenue, Calumet City, IL, 60409"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 102,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sofia-bougioukli",
       "normalizedExpertise": [
-        "HAND_WRIST",
+        "HAND_WRIST_SURGERY",
         "OSTEOARTHRITIS"
       ]
     },
@@ -4752,19 +4242,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Calumet City",
-          "centerName": "UChicago Medicine at Ingalls - Calumet City",
-          "address": "1600 Torrence Avenue, Calumet City, IL, 60409"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sofia-bougioukli",
       "id": 83,
       "normalizedExpertise": [
-        "HAND_WRIST"
+        "HAND_WRIST_SURGERY"
       ]
     },
     {
@@ -4780,26 +4264,17 @@
       "locations": [
         {
           "name": "Orland Park",
-          "centerName": "UChicago Medicine Orland Park",
-          "address": "14290 South La Grange Road, Orland Park, IL, 60462"
+          "address": "14290 South La Grange Road, Orland Park, IL 60462"
         },
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/tessa-balach",
       "id": 82,
       "normalizedExpertise": [
-        "SARCOMAS",
-        "HIP",
-        "KNEE"
+        "SARCOMAS"
       ]
     },
     {
@@ -4816,29 +4291,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Calumet City",
-          "centerName": "UChicago Medicine at Ingalls - Calumet City",
-          "address": "1600 Torrence Avenue, Calumet City, IL, 60409"
-        },
-        {
-          "name": "Hyde Park",
-          "centerName": "Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
-        },
-        {
-          "name": "Calumet City",
-          "centerName": "UChicago Medicine at Ingalls - Calumet City",
-          "address": "1600 Torrence Avenue, Calumet City, IL, 60409"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/wonyong-lee",
       "id": 89,
       "normalizedExpertise": [
-        "FOOT_ANKLE"
+        "ANKLE_SURGERY",
+        "FOOT_SURGERY"
       ]
     },
     {
@@ -4854,20 +4314,18 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "Ingalls - Tinley Park",
-          "centerName": "Uchicago Medicine at Ingalls - Tinley Park",
-          "address": "6701 West 159th St, Tinley Park, IL, 60477"
+          "address": "6701 West 159th Street, Tinley Park, IL 60477"
         }
       ],
       "id": 183,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/abhinav-sidana",
       "normalizedExpertise": [
         "PROSTATE_CANCER",
-        "KIDNEY"
+        "UROLOGIC_ONCOLOGY"
       ]
     },
     {
@@ -4883,14 +4341,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 188,
       "normalizedExpertise": [
-        "URETHRAL_STRICTURE",
-        "PROSTATE"
+        "PROSTATE_CANCER",
+        "URETHRAL_STRICTURE"
       ]
     },
     {
@@ -4906,16 +4363,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 184,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/arieh-l-shalhav",
       "normalizedExpertise": [
-        "GENERAL_UROLOGY",
-        "KIDNEY",
-        "PROSTATE",
         "BLADDER"
       ]
     },
@@ -4932,14 +4385,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 186,
       "normalizedExpertise": [
-        "URINARY_INCONTINENCE",
-        "PROLAPSE"
+        "PROLAPSE",
+        "URINARY_INCONTINENCE"
       ]
     },
     {
@@ -4955,25 +4407,23 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         },
         {
           "name": "South Loop",
-          "centerName": "UChicago Medicine South Loop",
-          "address": "1100 South Canal Street, Chicago, IL, 60607"
+          "address": "1101 South Canal Street Suite 201, Chicago, IL 60607"
         }
       ],
       "id": 192,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/denise-asafu-adjei",
       "normalizedExpertise": [
-        "MALE_INFERTILITY",
-        "ERECTILE_DYSFUNCTION"
+        "ERECTILE_DYSFUNCTION",
+        "GENERAL_UROLOGY",
+        "MALE_INFERTILITY"
       ]
     },
     {
@@ -4989,16 +4439,14 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/gregory-zagaja",
       "id": 191,
       "normalizedExpertise": [
-        "GENERAL_UROLOGY",
         "BLADDER",
-        "PROSTATE"
+        "PROSTATE_CANCER"
       ]
     },
     {
@@ -5014,19 +4462,13 @@
       "locations": [
         {
           "name": "Crown Point",
-          "centerName": "UChicago Medicine Crown Point",
-          "address": "10855 Virginia Street, Crown Point, IN, 46307"
-        },
-        {
-          "name": "New Lenox",
-          "centerName": "UChicago Medicine at Silver Cross (Pavilion A) - New Lenox",
-          "address": "1850 Silver Cross Boulevard, Pavilion A, New Lenox, IL, 60451"
+          "address": "10855 Virginia Street, Crown Point, IN 46307"
         }
       ],
       "id": 189,
       "normalizedExpertise": [
-        "STONES",
-        "PROSTATE"
+        "PROSTATE_CANCER",
+        "STONES"
       ]
     },
     {
@@ -5042,14 +4484,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 185,
       "normalizedExpertise": [
-        "MALE_INFERTILITY",
-        "ERECTILE_DYSFUNCTION"
+        "ERECTILE_DYSFUNCTION",
+        "MALE_INFERTILITY"
       ]
     },
     {
@@ -5065,14 +4506,12 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "Comer Children's Hospital - Hyde Park",
-          "address": "5721 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 187,
       "normalizedExpertise": [
-        "PEDIATRIC_UROLOGY",
-        "STONES"
+        "PEDIATRIC_UROLOGY"
       ]
     },
     {
@@ -5089,17 +4528,15 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "id": 182,
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/parth-modi",
       "normalizedExpertise": [
-        "TESTICULAR_CANCER",
-        "PROSTATE_CANCER",
         "BLADDER",
-        "KIDNEY"
+        "PROSTATE_CANCER",
+        "UROLOGIC_ONCOLOGY"
       ]
     },
     {
@@ -5116,15 +4553,13 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/piyush-agarwal",
       "id": 190,
       "normalizedExpertise": [
-        "BLADDER",
-        "PROSTATE"
+        "BLADDER"
       ]
     },
     {
@@ -5140,8 +4575,7 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/sarah-faris",
@@ -5149,7 +4583,7 @@
       "normalizedExpertise": [
         "ERECTILE_DYSFUNCTION",
         "URINARY_INCONTINENCE",
-        "URETHRAL_STRICTURE"
+        "UROLOGIC_ONCOLOGY"
       ]
     },
     {
@@ -5165,21 +4599,19 @@
       "locations": [
         {
           "name": "Hyde Park",
-          "centerName": "UChicago Medicine Duchossois Center for Advanced Medicine - Hyde Park",
-          "address": "5758 South Maryland Avenue, Chicago, IL, 60637"
+          "address": "5758 South Maryland Avenue, Chicago, IL 60637"
         },
         {
           "name": "River East",
-          "centerName": "UChicago Medicine River East",
-          "address": "355 East Grand Avenue, Chicago, IL, 60611"
+          "address": "355 East Grand Avenue, Chicago, IL 60611"
         }
       ],
       "profileUrl": "https://www.uchicagomedicine.org/find-a-physician/physician/scott-eggener",
       "id": 181,
       "normalizedExpertise": [
         "PROSTATE_CANCER",
-        "KIDNEY",
-        "TESTICULAR_CANCER"
+        "TESTICULAR_CANCER",
+        "UROLOGIC_ONCOLOGY"
       ]
     }
   ]

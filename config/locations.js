@@ -231,6 +231,132 @@ const uchicagoLocations = {
   }
 };
 
+/**
+ * Primary location configuration for physician matching
+ * These are the fixed locations used for distance calculations
+ */
+const PRIMARY_LOCATIONS = [
+  {
+    id: 'hyde_park',
+    name: 'Hyde Park',
+    displayName: 'Hyde Park - Main Campus',
+    address: '5758 South Maryland Avenue, Chicago, IL 60637',
+    description: 'Center for Care & Discovery, DCAM, Comer Children\'s, Mitchell Hospital',
+    hours: 'Hospital: 24/7; Clinics: Mon–Fri 8:00 am – 5:00 pm; DCAM: Mon–Sat 7:30 am – 6:00 pm',
+    parking: 'Valet & garage parking; shuttle service between buildings'
+  },
+  {
+    id: 'south_loop',
+    name: 'South Loop',
+    displayName: 'South Loop',
+    address: '1101 South Canal Street Suite 201, Chicago, IL 60607',
+    description: 'Outpatient clinic location',
+    hours: 'Typical hours: Mon–Fri 8:00 am – 5:00 pm',
+    parking: 'Garage parking with validation; metered street parking'
+  },
+  {
+    id: 'river_east',
+    name: 'River East',
+    displayName: 'River East',
+    address: '355 East Grand Avenue, Chicago, IL 60611',
+    description: 'Outpatient clinic location',
+    hours: 'Typical hours: Mon–Fri 8:00 am – 5:00 pm',
+    parking: 'Garage parking with validation; metered street parking'
+  },
+  {
+    id: 'orland_park',
+    name: 'Orland Park',
+    displayName: 'Orland Park — Center for Advanced Care',
+    address: '14290 South La Grange Road, Orland Park, IL 60462',
+    description: 'Outpatient clinic with on-site lab/imaging',
+    hours: 'Typical hours: Mon–Fri 7:00 am – 5:00 pm',
+    parking: 'Garage & street parking; on-site lab/imaging'
+  },
+  {
+    id: 'tinley_park',
+    name: 'Tinley Park',
+    displayName: 'Tinley Park — UChicago Medicine at Ingalls',
+    address: '6701 West 159th Street, Tinley Park, IL 60477',
+    description: 'Ingalls outpatient location',
+    hours: 'Typical hours: Mon–Fri 7:00 am – 7:00 pm',
+    parking: 'Free on-site parking'
+  },
+  {
+    id: 'harvey',
+    name: 'Ingalls Memorial Hospital',
+    displayName: 'Ingalls Memorial Hospital (Harvey, IL)',
+    address: '71 West 156th Street, Harvey, IL 60426',
+    description: 'Full hospital with clinics',
+    hours: 'Hospital: 24/7; Clinics: Mon–Fri 8:00 am – 5:00 pm',
+    parking: 'On-site parking available'
+  },
+  {
+    id: 'crown_point',
+    name: 'Crown Point',
+    displayName: 'Crown Point',
+    address: '10855 Virginia Street, Crown Point, IN 46307',
+    description: 'Outpatient clinic location',
+    hours: 'Typical hours: Mon–Fri 8:00 am – 5:00 pm',
+    parking: 'On-site parking available'
+  }
+];
+
+/**
+ * Address mapping for normalizing physician location addresses
+ * Maps various address formats to the canonical location addresses
+ */
+const ADDRESS_MAPPING = {
+  // Hyde Park variations
+  '5758 South Maryland Avenue, Chicago, IL, 60637': '5758 South Maryland Avenue, Chicago, IL 60637',
+  '5721 South Maryland Avenue, Chicago, IL, 60637': '5758 South Maryland Avenue, Chicago, IL 60637',
+
+  // South Loop variations
+  '1101 South Canal Street Suite 201, Chicago, IL, 60607': '1101 South Canal Street Suite 201, Chicago, IL 60607',
+  '1100 South Canal Street, Chicago, IL, 60607': '1101 South Canal Street Suite 201, Chicago, IL 60607',
+
+  // River East variations
+  '355 East Grand Avenue, Chicago, IL, 60611': '355 East Grand Avenue, Chicago, IL 60611',
+
+  // Orland Park variations (normalize to "Road" not "Rd")
+  '14290 South La Grange Rd, Orland Park, IL, 60462': '14290 South La Grange Road, Orland Park, IL 60462',
+  '14290 South La Grange Road, Orland Park, IL, 60462': '14290 South La Grange Road, Orland Park, IL 60462',
+
+  // Tinley Park variations (normalize to "Street" not "St")
+  '6701 West 159th St, Tinley Park, IL, 60477': '6701 West 159th Street, Tinley Park, IL 60477',
+
+  // Harvey variations
+  '71 West 156th Street, Harvey, IL, 60426': '71 West 156th Street, Harvey, IL 60426',
+
+  // Crown Point variations
+  '10855 Virginia Street, Crown Point, IN, 46307': '10855 Virginia Street, Crown Point, IN 46307'
+};
+
+/**
+ * Get the canonical address for a given address
+ * @param {string} address - The address to normalize
+ * @returns {string|null} The canonical address, or null if not in mapping
+ */
+function getCanonicalAddress(address) {
+  return ADDRESS_MAPPING[address] || null;
+}
+
+/**
+ * Get location details by canonical address
+ * @param {string} address - The canonical address
+ * @returns {Object|null} Location object or null if not found
+ */
+function getLocationByAddress(address) {
+  return PRIMARY_LOCATIONS.find(loc => loc.address === address) || null;
+}
+
+/**
+ * Get all canonical addresses for distance calculation
+ * @returns {Array<string>} Array of canonical addresses
+ */
+function getAllCanonicalAddresses() {
+  return PRIMARY_LOCATIONS.map(loc => loc.address);
+}
+
 const locations = {
   precision: precisionLocations,
   uchicago: uchicagoLocations
@@ -239,5 +365,10 @@ const locations = {
 module.exports = {
   locations,
   precisionLocations,
-  uchicagoLocations
+  uchicagoLocations,
+  PRIMARY_LOCATIONS,
+  ADDRESS_MAPPING,
+  getCanonicalAddress,
+  getLocationByAddress,
+  getAllCanonicalAddresses
 };
