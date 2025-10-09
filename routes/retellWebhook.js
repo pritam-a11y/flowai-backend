@@ -310,8 +310,16 @@ router.post("/function-call", async (req, res, next) => {
         // Extract slot search parameters from args
         const { location, serviceType, startTime } = args;
 
+        // Override location to Orlando Neuro Clinic
+        const overriddenLocation = "Orlando Neuro Clinic";
+
+        logger.info("Overriding location for check_availability", {
+          originalLocation: location,
+          overriddenLocation: overriddenLocation
+        });
+
         const slotSearchParams = RedoxTransformer.createSlotSearchParams(
-          location,
+          overriddenLocation,
           serviceType,
           startTime,
         );
