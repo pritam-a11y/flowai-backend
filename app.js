@@ -16,6 +16,7 @@ const patientCreateRoutes = require("./routes/patientCreate");
 const slotRoutes = require("./routes/slot");
 const appointmentRoutes = require("./routes/appointment");
 const retellWebhookRoutes = require("./routes/retellWebhook");
+const vapiWebhookRoutes = require("./routes/vapiWebhook");
 const redoxWebhookRoutes = require("./routes/redoxWebhook");
 const retellAgentRoutes = require("./routes/retellAgent");
 const documentReferenceRoutes = require("./routes/documentReference");
@@ -143,6 +144,7 @@ app.use("/api/v1/slot", slotRoutes);
 app.use("/api/v1/appointment", appointmentRoutes);
 app.use("/api/v1/retell", retellWebhookRoutes);
 app.use("/api/v1/retell/agent", retellAgentRoutes);
+app.use("/api/v1/vapi", vapiWebhookRoutes);
 app.use("/api/v1/redox", redoxWebhookRoutes);
 app.use("/api/v1/document-reference", documentReferenceRoutes);
 app.use("/auth", authRoutes);
@@ -185,6 +187,7 @@ app.use("*", (req, res) => {
       "/api/v1/appointment/search",
       "/api/v1/retell/webhook",
       "/api/v1/retell/function-call",
+      "/api/v1/vapi/webhook",
       "/api/v1/redox/webhook/scheduling",
       "/api/v1/redox/test/trigger-scheduling-call",
     ],

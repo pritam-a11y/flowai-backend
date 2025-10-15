@@ -220,6 +220,12 @@ router.post("/webhook", async (req, res, next) => {
  *                   family:
  *                     type: string
  *                     description: Patient's last name (for find_patient)
+ *                   zipcode:
+ *                     type: string
+ *                     description: Patient's zipcode - optional (for find_patient)
+ *                   phone:
+ *                     type: string
+ *                     description: Patient's phone number - optional (for find_patient)
  *                   address:
  *                     type: string
  *                     description: Full address string (for sort_locations and get_physicians_by_specialty)
@@ -488,7 +494,7 @@ router.post("/function-call", async (req, res, next) => {
         logger.info("Processing find_patient function call");
 
         // Extract patient search parameters from args
-        const { birth_date, given, family } = args;
+        const { birth_date, given, family, zipcode, phone } = args;
 
         // Validate required fields
         if (!birth_date || !given || !family) {
@@ -496,6 +502,8 @@ router.post("/function-call", async (req, res, next) => {
             birth_date,
             given,
             family,
+            zipcode,
+            phone,
           });
           return res.status(400).json({
             success: false,
@@ -504,12 +512,14 @@ router.post("/function-call", async (req, res, next) => {
           });
         }
 
-        // Create search parameters
+        // Create search parameters with optional zipcode and phone
         const searchParams =
           RedoxTransformer.createPatientSearchByDobNameParams(
             birth_date,
             given,
             family,
+            phone,
+            zipcode,
           );
 
         // Execute patient search through Redox API
@@ -583,6 +593,8 @@ router.post("/function-call", async (req, res, next) => {
           birth_date,
           given,
           family,
+          zipcode: zipcode || null,
+          phone: phone || null,
         });
 
         // Return the patient data

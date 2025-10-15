@@ -39,21 +39,31 @@ class RedoxTransformer {
     return params;
   }
 
-  static createPatientSearchByDobNameParams(birthDate, given, family) {
+  static createPatientSearchByDobNameParams(birthDate, given, family, phone = null, zipcode = null) {
     const params = {};
-    
+
     if (birthDate) {
       params["birthdate"] = birthDate;
     }
-    
+
     if (given) {
       params["given"] = given;
     }
-    
+
     if (family) {
       params["family"] = family;
     }
-    
+
+    // Add optional phone parameter
+    if (phone) {
+      params["phone"] = phone;
+    }
+
+    // Add optional zipcode parameter
+    if (zipcode) {
+      params["address-postalcode"] = zipcode;
+    }
+
     return params;
   }
 
