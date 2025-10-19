@@ -13,10 +13,10 @@ const logger = require("../utils/logger");
  *       - in: path
  *         name: timezone
  *         required: true
- *         description: US timezone abbreviation (ET, CT, MT, PT, AKT)
+ *         description: Timezone abbreviation (ET, CT, MT, PT, AKT, UTC, AWST)
  *         schema:
  *           type: string
- *           enum: [ET, CT, MT, PT, AKT]
+ *           enum: [ET, CT, MT, PT, AKT, UTC, AWST]
  *     responses:
  *       200:
  *         description: Successfully retrieved current time for timezone
@@ -86,6 +86,18 @@ router.get("/current-time/:timezone", async (req, res) => {
         name: "Alaska Time",
         offsetStandard: -9,
         offsetDST: -8
+      },
+      "UTC": {
+        id: "UTC",
+        name: "Coordinated Universal Time",
+        offsetStandard: 0,
+        offsetDST: 0
+      },
+      "AWST": {
+        id: "Australia/Perth",
+        name: "Australian Western Standard Time",
+        offsetStandard: 8,
+        offsetDST: 8  // Perth doesn't observe DST
       }
     };
 
@@ -101,11 +113,22 @@ router.get("/current-time/:timezone", async (req, res) => {
     
     // Get current UTC time
     const now = new Date();
-    
-    // Determine if DST is active (rough approximation for US)
-    const month = now.getMonth() + 1;
-    const isDST = month >= 3 && month <= 11;
-    const currentOffset = isDST ? tzInfo.offsetDST : tzInfo.offsetStandard;
+
+    // Determine if DST is active
+    let isDST = false;
+    let currentOffset = tzInfo.offsetStandard;
+
+    // Handle DST logic based on timezone
+    if (requestedTimezone === "UTC" || requestedTimezone === "AWST") {
+      // UTC and AWST don't observe DST
+      isDST = false;
+      currentOffset = tzInfo.offsetStandard;
+    } else {
+      // US timezones - rough approximation for DST (March-November)
+      const month = now.getMonth() + 1;
+      isDST = month >= 3 && month <= 11;
+      currentOffset = isDST ? tzInfo.offsetDST : tzInfo.offsetStandard;
+    }
     
     // Calculate time in the requested timezone
     const utcTime = now.getTime();
@@ -119,7 +142,14 @@ router.get("/current-time/:timezone", async (req, res) => {
     // Create formatted strings
     const period = hours >= 12 ? "PM" : "AM";
     const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
-    const formattedTime = `${displayHours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")} ${period} ${requestedTimezone}${isDST ? "DT" : "ST"}`;
+
+    // Format timezone suffix
+    let timezoneSuffix = requestedTimezone;
+    if (requestedTimezone !== "UTC" && requestedTimezone !== "AWST") {
+      timezoneSuffix = `${requestedTimezone}${isDST ? "DT" : "ST"}`;
+    }
+
+    const formattedTime = `${displayHours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")} ${period} ${timezoneSuffix}`;
     
     // Create ISO string with proper offset
     const year = timezoneTime.getUTCFullYear();
