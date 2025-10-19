@@ -111,7 +111,7 @@ class RedoxTransformer {
           const slot = entry.resource;
           const startDate = new Date(slot.start);
           const dayOfWeek = startDate.toLocaleDateString('en-US', { weekday: 'long' });
-          
+
           return {
             slotId: slot.id,
             startTime: slot.start,
@@ -129,6 +129,83 @@ class RedoxTransformer {
 
     return slots;
   }
+
+  /**
+   * Transform slot search response with STAT parameter support
+   * When stat=false: only return slots with status="free"
+   * When stat=true: return all slots, then filter by booking count (<3)
+   */
+  static async transformSlotSearchResponseWithStat(redoxResponse, statEnabled = false, existingAppointments = []) {
+    const now = new Date();
+
+    if (!redoxResponse || !redoxResponse.entry) {
+      return [];
+    }
+
+    // Extract all slots from the response
+    const allSlots = redoxResponse.entry
+      .filter(entry => entry.resource && entry.resource.resourceType === "Slot")
+      .map(entry => entry.resource)
+      .filter(slot => new Date(slot.start) > now); // Only future slots
+
+    if (!statEnabled) {
+      // Simple mode: only return free slots
+      return allSlots
+        .filter(slot => slot.status === "free")
+        .map(slot => {
+          const startDate = new Date(slot.start);
+          return {
+            slotId: slot.id,
+            startTime: slot.start,
+            endTime: slot.end,
+            dayOfWeek: startDate.toLocaleDateString('en-US', { weekday: 'long' }),
+            serviceType: slot.serviceType?.[0]?.text || 'CONSULTATION',
+            location: slot.location?.display || 'Orlando Neuro Clinic',
+            status: 'free'
+          };
+        })
+        .sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
+        .slice(0, 10);
+    }
+
+    // STAT mode: calculate booking frequency for each time slot
+    const bookingCountMap = new Map();
+
+    // Count appointments for each time slot
+    existingAppointments.forEach(appt => {
+      const timeKey = `${appt.start}_${appt.end}`;
+      bookingCountMap.set(timeKey, (bookingCountMap.get(timeKey) || 0) + 1);
+    });
+
+    // Filter and enhance slots based on booking count
+    const availableSlots = allSlots
+      .filter(slot => {
+        const timeKey = `${slot.start}_${slot.end}`;
+        const bookingCount = bookingCountMap.get(timeKey) || 0;
+
+        // Include if free OR has less than 3 bookings
+        return slot.status === "free" || bookingCount < 3;
+      })
+      .map(slot => {
+        const startDate = new Date(slot.start);
+
+        // Keep response structure consistent - always show as "free"
+        return {
+          slotId: slot.id,
+          startTime: slot.start,
+          endTime: slot.end,
+          dayOfWeek: startDate.toLocaleDateString('en-US', { weekday: 'long' }),
+          serviceType: slot.serviceType?.[0]?.text || 'CONSULTATION',
+          location: slot.location?.display || 'Orlando Neuro Clinic',
+          status: 'free'  // Always show as free to the user
+        };
+      })
+      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
+      .slice(0, 10);
+
+    return availableSlots;
+  }
+
 
   static transformPatientSearchResponse(redoxResponse) {
     // Extract patients from FHIR Bundle response

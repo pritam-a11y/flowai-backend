@@ -149,7 +149,7 @@ router.post("/webhook", async (req, res, next) => {
             logger.info("Processing check_availability function call");
 
             // Extract slot search parameters from parameters
-            const { location, serviceType, startTime } = parameters;
+            const { location, serviceType, startTime, stat = false } = parameters;
 
             // Override location to Orlando Neuro Clinic
             const overriddenLocation = "Orlando Neuro Clinic";
@@ -157,6 +157,7 @@ router.post("/webhook", async (req, res, next) => {
             logger.info("Overriding location for check_availability", {
               originalLocation: location,
               overriddenLocation: overriddenLocation,
+              statEnabled: stat,
             });
 
             const slotSearchParams = RedoxTransformer.createSlotSearchParams(
@@ -172,7 +173,55 @@ router.post("/webhook", async (req, res, next) => {
               accessToken,
             );
 
-            result = RedoxTransformer.transformSlotSearchResponse(slotResponse);
+            // If stat is enabled, fetch existing appointments to count bookings
+            if (stat) {
+              logger.info("STAT mode enabled - fetching existing appointments for capacity tracking");
+
+              // Get date range for appointment search
+              const searchStartDate = startTime || new Date().toISOString();
+              const searchEndDate = new Date(searchStartDate);
+              searchEndDate.setDate(searchEndDate.getDate() + 30);
+
+              // Fetch existing appointments to count bookings
+              const appointmentParams = {
+                'date': `ge${searchStartDate}`,
+                '_sort': 'date',
+                '_count': '100'
+              };
+
+              const appointmentResponse = await RedoxAPIService.makeRequest(
+                'POST',
+                '/Appointment/_search',
+                null,
+                appointmentParams,
+                accessToken
+              );
+
+              // Extract appointments with timing info
+              let existingAppointments = [];
+              if (appointmentResponse && appointmentResponse.entry) {
+                existingAppointments = appointmentResponse.entry
+                  .filter(e => e.resource && e.resource.resourceType === 'Appointment')
+                  .map(e => ({
+                    id: e.resource.id,
+                    start: e.resource.start,
+                    end: e.resource.end,
+                    status: e.resource.status
+                  }));
+              }
+
+              // Use the enhanced transformer with stat support
+              result = await RedoxTransformer.transformSlotSearchResponseWithStat(
+                slotResponse,
+                stat,
+                existingAppointments
+              );
+
+              logger.info(`STAT mode: Found ${result.length} available slots with capacity`);
+            } else {
+              // Normal mode - only show free slots
+              result = RedoxTransformer.transformSlotSearchResponse(slotResponse);
+            }
             break;
 
           case "book_appointment":
@@ -186,6 +235,7 @@ router.post("/webhook", async (req, res, next) => {
               startTime: apptStart,
               endTime,
               status,
+              stat: bookStat = false,
             } = parameters;
 
             // Only patientId is required according to Redox (for participant reference)
@@ -195,6 +245,61 @@ router.post("/webhook", async (req, res, next) => {
                 error: "Missing required field for appointment booking: patientId",
               };
               break;
+            }
+
+            // If stat mode is enabled, check current booking count before booking
+            if (bookStat && apptStart && endTime) {
+              logger.info("STAT mode enabled for booking - checking current capacity");
+
+              // Fetch existing appointments for this time slot
+              const appointmentParams = {
+                'date': apptStart,
+                '_count': '10'
+              };
+
+              const appointmentResponse = await RedoxAPIService.makeRequest(
+                'POST',
+                '/Appointment/_search',
+                null,
+                appointmentParams,
+                accessToken
+              );
+
+              // Count bookings for this exact time slot
+              let bookingCount = 0;
+              if (appointmentResponse && appointmentResponse.entry) {
+                bookingCount = appointmentResponse.entry
+                  .filter(e => e.resource &&
+                              e.resource.resourceType === 'Appointment' &&
+                              e.resource.start === apptStart &&
+                              e.resource.end === endTime)
+                  .length;
+              }
+
+              // Check if we've reached capacity (3 bookings)
+              if (bookingCount >= 3) {
+                logger.warn(`STAT booking rejected - slot at capacity`, {
+                  timeSlot: `${apptStart} - ${endTime}`,
+                  currentBookings: bookingCount,
+                  maxCapacity: 3
+                });
+
+                result = {
+                  success: false,
+                  error: `This time slot has reached maximum capacity (3 bookings). Please select a different time.`,
+                  capacity: {
+                    current: bookingCount,
+                    maximum: 3
+                  }
+                };
+                break;
+              }
+
+              logger.info(`STAT booking allowed - slot has capacity`, {
+                timeSlot: `${apptStart} - ${endTime}`,
+                currentBookings: bookingCount,
+                availableCapacity: 3 - bookingCount
+              });
             }
 
             const appointmentBundle = RedoxTransformer.createAppointmentBundle(
