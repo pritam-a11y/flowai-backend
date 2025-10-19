@@ -267,6 +267,91 @@ class RedoxTransformer {
     return appointments.length > 0 ? [appointments[0]] : [];
   }
 
+  static transformAllPatientsWithAppointments(patientResponse, appointmentResponsesMap = {}) {
+    // Extract all patients from the search response
+    if (!patientResponse || !patientResponse.entry || patientResponse.entry.length === 0) {
+      return [];
+    }
+
+    // Filter for Patient resources only
+    const patientEntries = patientResponse.entry.filter(
+      (entry) => entry.resource && entry.resource.resourceType === "Patient"
+    );
+
+    // Transform each patient
+    return patientEntries.map(patientEntry => {
+      const patient = patientEntry.resource;
+      const patientId = patient.id;
+
+      // Extract patient name
+      const name = patient.name?.[0];
+      const fullName = name
+        ? `${name.given?.[0] || ""} ${name.family || ""}`.trim()
+        : "Unknown";
+
+      // Extract patient address
+      const address = patient.address?.[0];
+      const fullAddress = address
+        ? `${address.line?.[0] || ""}, ${address.city || ""}, ${address.state || ""} ${address.postalCode || ""}`.trim()
+        : "";
+
+      // Extract patient email
+      const emailContact = patient.telecom?.find(
+        (contact) => contact.system === "email"
+      );
+      const patientEmail = emailContact?.value || "";
+
+      // Extract insurance information
+      const insuranceContact = patient.contact?.find(
+        (contact) => contact.relationship?.[0]?.coding?.[0]?.code === "I"
+      );
+      const insuranceName = insuranceContact?.name?.text || "Flores-Rivera";
+
+      // Extract insurance member ID
+      const insuranceMemberIdIdentifier = patient.identifier?.find(
+        (identifier) =>
+          identifier.system === "urn:redox:flow-ai:insurance" ||
+          identifier.type?.coding?.[0]?.code === "MB"
+      );
+      const insuranceMemberId = insuranceMemberIdIdentifier?.value || null;
+
+      // Extract appointment details if available for this patient
+      let appointmentType = "";
+      let appointmentStatus = "";
+      let appointmentStartTime = "";
+
+      const appointmentResponse = appointmentResponsesMap[patientId];
+
+      if (appointmentResponse && appointmentResponse.entry && appointmentResponse.entry.length > 0) {
+        const appointmentEntry = appointmentResponse.entry.find(
+          (entry) => entry.resource && entry.resource.resourceType === "Appointment"
+        );
+
+        if (appointmentEntry) {
+          const appointment = appointmentEntry.resource;
+          appointmentType = appointment.appointmentType?.coding?.[0]?.code || "";
+          appointmentStatus = appointment.status || "";
+          appointmentStartTime = appointment.start || "";
+        }
+      }
+
+      // Return the patient object with all required fields
+      return {
+        patient_id: patientId,
+        patient_name: fullName,
+        patient_email: patientEmail,
+        patient_address: fullAddress,
+        patient_insurance_member_id: insuranceMemberId || "",
+        patient_insurance_name: insuranceName || "",
+        patient_appointment_type: appointmentType,
+        patient_appointment_status: appointmentStatus,
+        patient_appointment_start_time: appointmentStartTime,
+        provider_location: "Plantation, Florida",
+        alternate_location: ""
+      };
+    });
+  }
+
   static transformPatientWithAppointmentDetails(patientResponse, appointmentResponse) {
     // Extract the first patient from the search response
     if (!patientResponse || !patientResponse.entry || patientResponse.entry.length === 0) {

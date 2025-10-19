@@ -546,50 +546,56 @@ router.post("/function-call", async (req, res, next) => {
           result = {
             success: true,
             patient_found: false,
-            patient: null,
+            total_matches: 0,
+            patients: [],
           };
           break;
         }
 
-        // Get the first patient's ID for appointment search
-        const firstPatientEntry = searchResponse.entry.find(
+        // Get all patient IDs from the search response
+        const patientEntries = searchResponse.entry.filter(
           (entry) =>
             entry.resource && entry.resource.resourceType === "Patient",
         );
-        const patientId = firstPatientEntry?.resource?.id;
 
-        let appointmentResponse = null;
+        // Fetch appointments for all patients
+        const appointmentResponsesMap = {};
 
-        // Search for appointments if patient found
-        if (patientId) {
-          try {
-            const appointmentSearchParams =
-              RedoxTransformer.createAppointmentSearchParams(patientId);
-            appointmentResponse = await RedoxAPIService.makeRequest(
-              "POST",
-              "/Appointment/_search",
-              null,
-              appointmentSearchParams,
-              accessToken,
-            );
-          } catch (appointmentError) {
-            logger.warn("Failed to fetch appointments for patient", {
-              error: appointmentError.message,
-              patientId,
-            });
-            // Continue even if appointment fetch fails
+        for (const patientEntry of patientEntries) {
+          const patientId = patientEntry.resource?.id;
+
+          if (patientId) {
+            try {
+              const appointmentSearchParams =
+                RedoxTransformer.createAppointmentSearchParams(patientId);
+              const appointmentResponse = await RedoxAPIService.makeRequest(
+                "POST",
+                "/Appointment/_search",
+                null,
+                appointmentSearchParams,
+                accessToken,
+              );
+              appointmentResponsesMap[patientId] = appointmentResponse;
+            } catch (appointmentError) {
+              logger.warn("Failed to fetch appointments for patient", {
+                error: appointmentError.message,
+                patientId,
+              });
+              // Continue even if appointment fetch fails for one patient
+              appointmentResponsesMap[patientId] = null;
+            }
           }
         }
 
-        // Transform patient and appointment data into the required format
-        const patientData =
-          RedoxTransformer.transformPatientWithAppointmentDetails(
+        // Transform all patients with their appointment data
+        const patientsData =
+          RedoxTransformer.transformAllPatientsWithAppointments(
             searchResponse,
-            appointmentResponse,
+            appointmentResponsesMap,
           );
 
         logger.info("Patient search by DOB and name completed", {
-          patientFound: patientData !== null,
+          totalMatches: patientsData.length,
           birth_date,
           given,
           family,
@@ -600,8 +606,9 @@ router.post("/function-call", async (req, res, next) => {
         // Return the patient data
         result = {
           success: true,
-          patient_found: patientData !== null,
-          patient: patientData,
+          patient_found: patientsData.length > 0,
+          total_matches: patientsData.length,
+          patients: patientsData,
         };
         break;
       }
