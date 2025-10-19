@@ -357,15 +357,151 @@ function getAllCanonicalAddresses() {
   return PRIMARY_LOCATIONS.map(loc => loc.address);
 }
 
+const inlandImagingLocations = {
+  spokaneValley: {
+    name: "Spokane Valley",
+    address: "12420 East Mission Avenue, Spokane Valley, WA 99216",
+    zipCode: "99216",
+    coordinates: {
+      lat: 47.673889,
+      lng: -117.079444
+    },
+    services: [
+      "MRI Scan",
+      "CT Scan",
+      "Ultrasound",
+      "X-Ray",
+      "Mammography",
+      "PET/CT",
+      "Nuclear Medicine",
+      "Bone Densitometry"
+    ]
+  },
+  holyFamily: {
+    name: "Holy Family",
+    address: "5633 North Lidgerwood Street, Spokane, WA 99208",
+    zipCode: "99208",
+    coordinates: {
+      lat: 47.703889,
+      lng: -117.403611
+    },
+    services: [
+      "MRI Scan",
+      "CT Scan",
+      "Ultrasound",
+      "X-Ray",
+      "Mammography"
+    ]
+  },
+  southHill: {
+    name: "South Hill",
+    address: "606 South Cowley Street, Spokane, WA 99202",
+    zipCode: "99202",
+    coordinates: {
+      lat: 47.650556,
+      lng: -117.406389
+    },
+    services: [
+      "MRI Scan",
+      "CT Scan",
+      "Ultrasound",
+      "X-Ray",
+      "Mammography",
+      "PET/CT"
+    ]
+  },
+  northpointe: {
+    name: "Northpointe",
+    address: "9601 North Nevada Street, Suite 200, Spokane, WA 99218",
+    zipCode: "99218",
+    coordinates: {
+      lat: 47.752778,
+      lng: -117.412500
+    },
+    services: [
+      "MRI Scan",
+      "CT Scan",
+      "Ultrasound",
+      "X-Ray"
+    ]
+  },
+  coeurDAlene: {
+    name: "Coeur d'Alene",
+    address: "2003 Kootenai Health Way, Coeur d'Alene, ID 83814",
+    zipCode: "83814",
+    coordinates: {
+      lat: 47.697222,
+      lng: -116.795556
+    },
+    services: [
+      "MRI Scan",
+      "CT Scan",
+      "Ultrasound",
+      "X-Ray",
+      "Mammography",
+      "PET/CT",
+      "Nuclear Medicine"
+    ]
+  },
+  postFalls: {
+    name: "Post Falls",
+    address: "1300 East Mullan Avenue, Post Falls, ID 83854",
+    zipCode: "83854",
+    coordinates: {
+      lat: 47.717500,
+      lng: -116.935833
+    },
+    services: [
+      "MRI Scan",
+      "CT Scan",
+      "Ultrasound",
+      "X-Ray"
+    ]
+  },
+  libertyLake: {
+    name: "Liberty Lake",
+    address: "16528 East Desmet Court, Building B, Liberty Lake, WA 99019",
+    zipCode: "99019",
+    coordinates: {
+      lat: 47.669444,
+      lng: -117.086944
+    },
+    services: [
+      "MRI Scan",
+      "CT Scan",
+      "Ultrasound",
+      "X-Ray"
+    ]
+  },
+  valleyHospital: {
+    name: "Valley Hospital",
+    address: "12606 East Mission Avenue, Spokane Valley, WA 99216",
+    zipCode: "99216",
+    coordinates: {
+      lat: 47.673611,
+      lng: -117.076389
+    },
+    services: [
+      "MRI Scan",
+      "CT Scan",
+      "Ultrasound",
+      "X-Ray",
+      "Emergency Imaging"
+    ]
+  }
+};
+
 const locations = {
   precision: precisionLocations,
-  uchicago: uchicagoLocations
+  uchicago: uchicagoLocations,
+  inlandImaging: inlandImagingLocations
 };
 
 module.exports = {
   locations,
   precisionLocations,
   uchicagoLocations,
+  inlandImagingLocations,
   PRIMARY_LOCATIONS,
   ADDRESS_MAPPING,
   getCanonicalAddress,
