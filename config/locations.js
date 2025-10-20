@@ -358,8 +358,8 @@ function getAllCanonicalAddresses() {
 }
 
 const inlandImagingLocations = {
-  spokaneValley: {
-    name: "Spokane Valley",
+  spokaneValleyCenter: {
+    name: "Spokane Valley Center",
     address: "12420 East Mission Avenue, Spokane Valley, WA 99216",
     zipCode: "99216",
     coordinates: {
@@ -367,52 +367,54 @@ const inlandImagingLocations = {
       lng: -117.079444
     },
     services: [
-      "MRI Scan",
+      "3D Mammography",
       "CT Scan",
+      "MRI Scan",
       "Ultrasound",
-      "X-Ray",
-      "Mammography",
-      "PET/CT",
-      "Nuclear Medicine",
-      "Bone Densitometry"
+      "X-Ray"
     ]
   },
-  holyFamily: {
-    name: "Holy Family",
-    address: "5633 North Lidgerwood Street, Spokane, WA 99208",
+  holyFamilyCenter: {
+    name: "Holy Family Center",
+    address: "5715 North Lidgerwood, Spokane, WA 99208",
     zipCode: "99208",
     coordinates: {
       lat: 47.703889,
       lng: -117.403611
     },
     services: [
-      "MRI Scan",
+      "3D Mammography",
+      "Body Composition",
+      "Breast Imaging",
       "CT Scan",
+      "DEXA Bone Densitometry",
+      "MRI Scan",
       "Ultrasound",
-      "X-Ray",
-      "Mammography"
+      "X-Ray"
     ]
   },
-  southHill: {
-    name: "South Hill",
-    address: "606 South Cowley Street, Spokane, WA 99202",
+  southCowleyCenter: {
+    name: "South Cowley Center",
+    address: "525 South Cowley Street, Spokane, WA 99202",
     zipCode: "99202",
     coordinates: {
       lat: 47.650556,
       lng: -117.406389
     },
     services: [
-      "MRI Scan",
+      "3D Mammography",
+      "Body Composition",
+      "DEXA Bone Densitometry",
       "CT Scan",
+      "MRI Scan",
+      "Nuclear Medicine",
       "Ultrasound",
-      "X-Ray",
-      "Mammography",
-      "PET/CT"
+      "X-Ray"
     ]
   },
-  northpointe: {
-    name: "Northpointe",
-    address: "9601 North Nevada Street, Suite 200, Spokane, WA 99218",
+  northpointeCenter: {
+    name: "Northpointe Center",
+    address: "9631 North Nevada Street, Suite 101, Spokane, WA 99218",
     zipCode: "99218",
     coordinates: {
       lat: 47.752778,
@@ -420,73 +422,72 @@ const inlandImagingLocations = {
     },
     services: [
       "MRI Scan",
-      "CT Scan",
-      "Ultrasound",
       "X-Ray"
     ]
   },
-  coeurDAlene: {
-    name: "Coeur d'Alene",
-    address: "2003 Kootenai Health Way, Coeur d'Alene, ID 83814",
-    zipCode: "83814",
+  sacredHeartCenter: {
+    name: "Sacred Heart Center",
+    address: "105 West 8th Avenue, Suite 100C, Spokane, WA 99204",
+    zipCode: "99204",
     coordinates: {
-      lat: 47.697222,
-      lng: -116.795556
+      lat: 47.658333,
+      lng: -117.411667
     },
     services: [
+      "3D Mammography",
+      "Breast Imaging",
       "MRI Scan",
-      "CT Scan",
       "Ultrasound",
-      "X-Ray",
-      "Mammography",
-      "PET/CT",
-      "Nuclear Medicine"
+      "PET-CT"
     ]
   },
-  postFalls: {
-    name: "Post Falls",
-    address: "1300 East Mullan Avenue, Post Falls, ID 83854",
-    zipCode: "83854",
-    coordinates: {
-      lat: 47.717500,
-      lng: -116.935833
-    },
-    services: [
-      "MRI Scan",
-      "CT Scan",
-      "Ultrasound",
-      "X-Ray"
-    ]
-  },
-  libertyLake: {
-    name: "Liberty Lake",
-    address: "16528 East Desmet Court, Building B, Liberty Lake, WA 99019",
-    zipCode: "99019",
+  providenceMedicalPark: {
+    name: "Providence Medical Park (Spokane Valley)",
+    address: "16528 East Desmet Court, Suite A1300, Spokane Valley, WA 99216",
+    zipCode: "99216",
     coordinates: {
       lat: 47.669444,
       lng: -117.086944
     },
     services: [
-      "MRI Scan",
+      "3D Mammography",
+      "Body Composition",
+      "DEXA Bone Densitometry",
+      "Breast Imaging",
       "CT Scan",
+      "MRI Scan",
       "Ultrasound",
       "X-Ray"
     ]
   },
-  valleyHospital: {
-    name: "Valley Hospital",
-    address: "12606 East Mission Avenue, Spokane Valley, WA 99216",
-    zipCode: "99216",
+  obic: {
+    name: "Out-patient Based Interventional Center (OBIC)",
+    address: "5715 North Lidgerwood, Lower Level, Spokane, WA 99208",
+    zipCode: "99208",
     coordinates: {
-      lat: 47.673611,
-      lng: -117.076389
+      lat: 47.703889,
+      lng: -117.403611
+    },
+    services: [
+      "Interventional Radiology"
+    ]
+  },
+  triCities: {
+    name: "Inland Imaging Tri-Cities",
+    address: "7221 West Deschutes Avenue, Suite A, Kennewick, WA 99336",
+    zipCode: "99336",
+    coordinates: {
+      lat: 46.211944,
+      lng: -119.170833
     },
     services: [
       "MRI Scan",
+      "X-Ray",
       "CT Scan",
       "Ultrasound",
-      "X-Ray",
-      "Emergency Imaging"
+      "DEXA Bone Densitometry",
+      "Breast Imaging",
+      "3D Mammography"
     ]
   }
 };
