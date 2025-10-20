@@ -494,7 +494,7 @@ const inlandImagingLocations = {
 const locations = {
   precision: precisionLocations,
   uchicago: uchicagoLocations,
-  inlandImaging: inlandImagingLocations
+  inland: inlandImagingLocations
 };
 
 module.exports = {

@@ -30,7 +30,7 @@ const providers = {
     from_email: "patientservices@myflowai.com",
     default_location: "TBD",
   },
-  "inland imaging": {
+  "inland": {
     provider_id: "inland_imaging",
     name: "Inland Imaging",
     business_name: "Inland Imaging",
