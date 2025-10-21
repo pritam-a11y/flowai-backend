@@ -1454,16 +1454,22 @@ router.post("/call/update", async (req, res, next) => {
       console.log("patientId", patientId);
 
       if (scheduledCallbackTime && patientId) {
-        // Determine agent callback number from call numbers (generalized - no hardcoded checks)
-        // For inbound calls: agent number is to_number
-        // For outbound calls: agent number is from_number
-        const agentCallbackNumber = call.to_number || call.from_number;
+        // Determine agent callback number based on call direction
+        // For inbound calls: agent number is to_number (agent received the call)
+        // For outbound calls: agent number is from_number (agent made the call)
+        let agentCallbackNumber;
+        if (call.direction === "inbound") {
+          agentCallbackNumber = call.to_number;
+        } else if (call.direction === "outbound") {
+          agentCallbackNumber = call.from_number;
+        }
 
         if (!agentCallbackNumber) {
           logger.warn(
             "Cannot determine agent callback number - skipping callback processing",
             {
               call_id: call.call_id,
+              direction: call.direction,
               to_number: call.to_number,
               from_number: call.from_number,
             },
@@ -1473,6 +1479,7 @@ router.post("/call/update", async (req, res, next) => {
             call_id: call.call_id,
             is_transfer_attempted: isTransferAttempted,
             scheduled_callback_time: scheduledCallbackTime,
+            call_direction: call.direction,
             agent_callback_number: agentCallbackNumber,
             patient_id: patientId,
           });
