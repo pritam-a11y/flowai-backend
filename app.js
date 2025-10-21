@@ -30,8 +30,7 @@ const patientIntakeRoutes = require("./routes/patientIntakeAgent");
 const hammingRoutes = require("./routes/hamming");
 const timezoneRoutes = require("./routes/timezone");
 const membersRoutes = require("./routes/members");
-const intakeRoutes = require("./routes/intakeForm");
-const faxRoutes = require("./routes/fax");
+const intakeRoutes = require("./routes/intakeForm"); 
 
 const app = express();
 
@@ -157,8 +156,7 @@ app.use("/api/v1/patient-intake-agent", patientIntakeRoutes);
 app.use("/api/v1/hamming", hammingRoutes);
 app.use("/api/v1/timezones", timezoneRoutes);
 app.use("/api/v1/members", membersRoutes);
-app.use("/api/v1/intake", intakeRoutes); 
-app.use("/api/v1/fax", faxRoutes);
+app.use("/api/v1/intake", intakeRoutes);  
 
 // OAuth Routes (no prefix as per standard OAuth conventions)
 app.use("/oauth", oauthRoutes);
@@ -191,8 +189,7 @@ app.use("*", (req, res) => {
       "/api/v1/retell/function-call",
       "/api/v1/vapi/webhook",
       "/api/v1/redox/webhook/scheduling",
-      "/api/v1/redox/test/trigger-scheduling-call",
-      "/api/v1/fax/upload"
+      "/api/v1/redox/test/trigger-scheduling-call", 
     ],
   });
 });
