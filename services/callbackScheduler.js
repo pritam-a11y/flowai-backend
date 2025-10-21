@@ -15,6 +15,22 @@ class CallbackScheduler {
   }
 
   /**
+   * Map agent phone number to agent configuration
+   * @param {string} agentPhoneNumber - The agent's phone number
+   * @returns {Object|null} - Agent config with type, or null if not found
+   */
+  getAgentConfigByPhoneNumber(agentPhoneNumber) {
+    // Map of agent phone numbers to agent types
+    // This mapping is based on environment variables in retellService.js
+    const agentMapping = {
+      [process.env.RETELL_SCHEDULING_FROM_NUMBER || process.env.RETELL_FROM_NUMBER]: { type: "scheduling" },
+      [process.env.RETELL_INTAKE_FROM_NUMBER]: { type: "intake" },
+    };
+
+    return agentMapping[agentPhoneNumber] || null;
+  }
+
+  /**
    * Start the callback scheduler
    */
   start() {
@@ -70,7 +86,7 @@ class CallbackScheduler {
 
       // Query for pending callbacks within the time window
       const query = `
-        SELECT id, patient_id, agent_callback_number, scheduled_time
+        SELECT id, patient_id, callback_phone_number, agent_phone_number, scheduled_time
         FROM scheduled_callbacks
         WHERE status = 'pending'
           AND scheduled_time >= $1
@@ -106,12 +122,13 @@ class CallbackScheduler {
    * @param {Object} callback - The callback record from database
    */
   async processSingleCallback(callback) {
-    const { id, patient_id, agent_callback_number, scheduled_time } = callback;
+    const { id, patient_id, callback_phone_number, agent_phone_number, scheduled_time } = callback;
 
     logger.info("Processing callback", {
       callbackId: id,
       patientId: patient_id,
-      agentCallbackNumber: agent_callback_number,
+      callbackPhoneNumber: callback_phone_number,
+      agentPhoneNumber: agent_phone_number,
       scheduledTime: scheduled_time,
     });
 
@@ -136,10 +153,6 @@ class CallbackScheduler {
       const patientData = RedoxTransformer.transformPatientSearchResponse({
         entry: [{ resource: patientResponse }],
       })[0];
-
-      if (!patientData.phone) {
-        throw new Error(`Patient phone number not found for patient: ${patient_id}`);
-      }
 
       // Search for appointments
       let appointments = [];
@@ -191,22 +204,34 @@ class CallbackScheduler {
         appointment_description: appointment?.description || "",
       };
 
-      // Determine which Retell service method to use based on agent number
+      // Determine which Retell service method to use based on agent phone number
+      // Map agent phone number to agent type
+      const agentConfig = this.getAgentConfigByPhoneNumber(agent_phone_number);
+
+      if (!agentConfig) {
+        throw new Error(`Unknown agent phone number: ${agent_phone_number}`);
+      }
+
+      logger.info("Using agent configuration for callback", {
+        agentPhoneNumber: agent_phone_number,
+        agentType: agentConfig.type,
+        callbackId: id,
+      });
+
+      // Create the callback call using the callback phone number (not patient's Redox phone)
       let callResponse;
-      if (agent_callback_number === "+16018846979") {
-        // Scheduling agent
+      if (agentConfig.type === "scheduling") {
         callResponse = await retellService.createSchedulingCall(
-          patientData.phone,
+          callback_phone_number,
           dynamicVariables
         );
-      } else if (agent_callback_number === "+14088728200") {
-        // Intake agent
+      } else if (agentConfig.type === "intake") {
         callResponse = await retellService.createIntakeCall(
-          patientData.phone,
+          callback_phone_number,
           dynamicVariables
         );
       } else {
-        throw new Error(`Unknown agent callback number: ${agent_callback_number}`);
+        throw new Error(`Unknown agent type: ${agentConfig.type}`);
       }
 
       // Update callback status to completed

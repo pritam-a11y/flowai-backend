@@ -1050,21 +1050,20 @@ router.post("/call/update", async (req, res, next) => {
         let intakeFormUrl = null;
         try {
           // Extract patient_id, org_id, and specialty from dynamic variables
-          const patientId = 
+          const patientId =
             call.retell_llm_dynamic_variables?.patient_id ||
             call.collected_dynamic_variables?.patient_id;
-          
-          const orgId = 
+
+          const orgId =
             call.retell_llm_dynamic_variables?.org_id ||
-            call.collected_dynamic_variables?.org_id ||
-            35; // Default org_id
-          
-          const specialty = 
+            call.collected_dynamic_variables?.org_id;
+
+          const specialty =
             call.retell_llm_dynamic_variables?.specialty ||
             call.collected_dynamic_variables?.specialty ||
             "urology"; // Default specialty
 
-          if (patientId) {
+          if (patientId && orgId) {
             logger.info("Creating intake form for email", {
               call_id: call.call_id,
               patient_id: patientId,
@@ -1094,8 +1093,10 @@ router.post("/call/update", async (req, res, next) => {
               });
             }
           } else {
-            logger.info("No patient_id available for intake form", {
+            logger.info("Missing required data for intake form", {
               call_id: call.call_id,
+              has_patient_id: !!patientId,
+              has_org_id: !!orgId,
             });
           }
         } catch (intakeError) {
@@ -1453,19 +1454,15 @@ router.post("/call/update", async (req, res, next) => {
       console.log("patientId", patientId);
 
       if (scheduledCallbackTime && patientId) {
-        // Determine agent callback number from call numbers
-        const agentNumbers = ["+16018846979", "+14088728200"];
-        let agentCallbackNumber = null;
+        // Extract phone numbers for callback
+        // callback_phone_number: the patient's number to call back (from_number for inbound calls)
+        // agent_phone_number: the agent's number to use for the callback (to_number for inbound calls)
+        const callbackPhoneNumber = call.from_number;
+        const agentPhoneNumber = call.to_number;
 
-        if (agentNumbers.includes(call.to_number)) {
-          agentCallbackNumber = call.to_number;
-        } else if (agentNumbers.includes(call.from_number)) {
-          agentCallbackNumber = call.from_number;
-        }
-
-        if (!agentCallbackNumber) {
+        if (!callbackPhoneNumber || !agentPhoneNumber) {
           logger.warn(
-            "Cannot determine agent callback number - skipping callback processing",
+            "Cannot determine callback phone numbers - skipping callback processing",
             {
               call_id: call.call_id,
               to_number: call.to_number,
@@ -1477,7 +1474,8 @@ router.post("/call/update", async (req, res, next) => {
             call_id: call.call_id,
             is_transfer_attempted: isTransferAttempted,
             scheduled_callback_time: scheduledCallbackTime,
-            agent_callback_number: agentCallbackNumber,
+            callback_phone_number: callbackPhoneNumber,
+            agent_phone_number: agentPhoneNumber,
             patient_id: patientId,
           });
 
@@ -1538,22 +1536,25 @@ router.post("/call/update", async (req, res, next) => {
               const insertCallbackQuery = `
                 INSERT INTO scheduled_callbacks (
                   patient_id,
-                  agent_callback_number,
+                  callback_phone_number,
+                  agent_phone_number,
                   scheduled_time,
                   status
-                ) VALUES ($1, $2, $3, 'pending')
+                ) VALUES ($1, $2, $3, $4, 'pending')
               `;
 
               await db.query(insertCallbackQuery, [
                 patientId,
-                agentCallbackNumber,
+                callbackPhoneNumber,
+                agentPhoneNumber,
                 scheduledCallbackTime,
               ]);
 
               logger.info("Scheduled callback stored in database", {
                 call_id: call.call_id,
                 patient_id: patientId,
-                agent_callback_number: agentCallbackNumber,
+                callback_phone_number: callbackPhoneNumber,
+                agent_phone_number: agentPhoneNumber,
                 scheduled_time: scheduledCallbackTime,
               });
             } catch (dbError) {
