@@ -1454,15 +1454,14 @@ router.post("/call/update", async (req, res, next) => {
       console.log("patientId", patientId);
 
       if (scheduledCallbackTime && patientId) {
-        // Extract phone numbers for callback
-        // callback_phone_number: the patient's number to call back (from_number for inbound calls)
-        // agent_phone_number: the agent's number to use for the callback (to_number for inbound calls)
-        const callbackPhoneNumber = call.from_number;
-        const agentPhoneNumber = call.to_number;
+        // Determine agent callback number from call numbers (generalized - no hardcoded checks)
+        // For inbound calls: agent number is to_number
+        // For outbound calls: agent number is from_number
+        const agentCallbackNumber = call.to_number || call.from_number;
 
-        if (!callbackPhoneNumber || !agentPhoneNumber) {
+        if (!agentCallbackNumber) {
           logger.warn(
-            "Cannot determine callback phone numbers - skipping callback processing",
+            "Cannot determine agent callback number - skipping callback processing",
             {
               call_id: call.call_id,
               to_number: call.to_number,
@@ -1474,8 +1473,7 @@ router.post("/call/update", async (req, res, next) => {
             call_id: call.call_id,
             is_transfer_attempted: isTransferAttempted,
             scheduled_callback_time: scheduledCallbackTime,
-            callback_phone_number: callbackPhoneNumber,
-            agent_phone_number: agentPhoneNumber,
+            agent_callback_number: agentCallbackNumber,
             patient_id: patientId,
           });
 
@@ -1536,25 +1534,22 @@ router.post("/call/update", async (req, res, next) => {
               const insertCallbackQuery = `
                 INSERT INTO scheduled_callbacks (
                   patient_id,
-                  callback_phone_number,
-                  agent_phone_number,
+                  agent_callback_number,
                   scheduled_time,
                   status
-                ) VALUES ($1, $2, $3, $4, 'pending')
+                ) VALUES ($1, $2, $3, 'pending')
               `;
 
               await db.query(insertCallbackQuery, [
                 patientId,
-                callbackPhoneNumber,
-                agentPhoneNumber,
+                agentCallbackNumber,
                 scheduledCallbackTime,
               ]);
 
               logger.info("Scheduled callback stored in database", {
                 call_id: call.call_id,
                 patient_id: patientId,
-                callback_phone_number: callbackPhoneNumber,
-                agent_phone_number: agentPhoneNumber,
+                agent_callback_number: agentCallbackNumber,
                 scheduled_time: scheduledCallbackTime,
               });
             } catch (dbError) {
