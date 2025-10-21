@@ -16,7 +16,7 @@ require("dotenv").config();
 
 /**
  * @swagger
- * /fax/upload:
+ * /api/v1/fax/upload:
  *   post:
  *     summary: Upload a PDF file to Phelix Fax-AI for processing
  *     tags: [FaxAI]
@@ -109,7 +109,7 @@ router.post(
 
 /**
  * @swagger
- * /fax/response:
+ * /api/v1/fax/response:
  *   get:
  *     summary: Fetch Phelix Fax-AI job result using task_id
  *     tags: [FaxAI]
@@ -192,3 +192,4 @@ router.get("/response", authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
