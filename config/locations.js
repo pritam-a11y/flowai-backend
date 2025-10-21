@@ -438,7 +438,7 @@ const inlandImagingLocations = {
       "Breast Imaging",
       "MRI Scan",
       "Ultrasound",
-      "PET-CT"
+      "PET/CT"
     ]
   },
   providenceMedicalPark: {
