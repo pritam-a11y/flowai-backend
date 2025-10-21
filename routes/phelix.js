@@ -7,6 +7,64 @@ const logger = require("../utils/logger");
 const authMiddleware = require("../middleware/auth");
 require("dotenv").config();
 
+/**
+ * @swagger
+ * tags:
+ *   name: FaxAI
+ *   description: Endpoints for uploading and fetching Phelix Fax-AI jobs
+ */
+
+/**
+ * @swagger
+ * /fax/upload:
+ *   post:
+ *     summary: Upload a PDF file to Phelix Fax-AI for processing
+ *     tags: [FaxAI]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: PDF file to be uploaded (max 10MB)
+ *     responses:
+ *       200:
+ *         description: File uploaded successfully and task created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     is_success:
+ *                       type: boolean
+ *                       example: true
+ *                     task_id:
+ *                       type: string
+ *                       example: "abc123xyz"
+ *                     status:
+ *                       type: string
+ *                       example: "queued"
+ *       400:
+ *         description: Missing file or invalid request
+ *       401:
+ *         description: Unauthorized - missing or invalid token
+ *       500:
+ *         description: Internal server error
+ */
 // POST
 router.post(
   "/upload",
@@ -49,7 +107,56 @@ router.post(
   }
 );
 
-// GET
+/**
+ * @swagger
+ * /fax/response:
+ *   get:
+ *     summary: Fetch Phelix Fax-AI job result using task_id
+ *     tags: [FaxAI]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: task_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The unique task_id returned after upload
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved Fax-AI response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       example: "completed"
+ *                     task_id:
+ *                       type: string
+ *                       example: "abc123xyz"
+ *                     action:
+ *                       type: string
+ *                       example: "document_extraction"
+ *                     text:
+ *                       type: string
+ *                       description: Extracted text/content from document
+ *       400:
+ *         description: Missing task_id parameter
+ *       401:
+ *         description: Unauthorized - invalid or missing token
+ *       404:
+ *         description: Task not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get("/response", authMiddleware, async (req, res) => {
   try {
     const { task_id } = req.query;
@@ -73,7 +180,7 @@ router.get("/response", authMiddleware, async (req, res) => {
   } catch (error) {
     const status = error?.response?.status || 500;
 
-    logger.error("Invalid ID", {
+    logger.error("Invalid task_id", {
       error: error.message,
     });
 
