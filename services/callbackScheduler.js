@@ -191,23 +191,12 @@ class CallbackScheduler {
         appointment_description: appointment?.description || "",
       };
 
-      // Determine which Retell service method to use based on agent number
-      let callResponse;
-      if (agent_callback_number === "+16018846979") {
-        // Scheduling agent
-        callResponse = await retellService.createSchedulingCall(
-          patientData.phone,
-          dynamicVariables
-        );
-      } else if (agent_callback_number === "+14088728200") {
-        // Intake agent
-        callResponse = await retellService.createIntakeCall(
-          patientData.phone,
-          dynamicVariables
-        );
-      } else {
-        throw new Error(`Unknown agent callback number: ${agent_callback_number}`);
-      }
+      // Create callback call from agent_callback_number to patient's registered phone
+      const callResponse = await retellService.createCallbackCall(
+        agent_callback_number,
+        patientData.phone,
+        dynamicVariables
+      );
 
       // Update callback status to completed
       await db.query(

@@ -1050,21 +1050,20 @@ router.post("/call/update", async (req, res, next) => {
         let intakeFormUrl = null;
         try {
           // Extract patient_id, org_id, and specialty from dynamic variables
-          const patientId = 
+          const patientId =
             call.retell_llm_dynamic_variables?.patient_id ||
             call.collected_dynamic_variables?.patient_id;
-          
-          const orgId = 
+
+          const orgId =
             call.retell_llm_dynamic_variables?.org_id ||
-            call.collected_dynamic_variables?.org_id ||
-            35; // Default org_id
-          
-          const specialty = 
+            call.collected_dynamic_variables?.org_id;
+
+          const specialty =
             call.retell_llm_dynamic_variables?.specialty ||
             call.collected_dynamic_variables?.specialty ||
             "urology"; // Default specialty
 
-          if (patientId) {
+          if (patientId && orgId) {
             logger.info("Creating intake form for email", {
               call_id: call.call_id,
               patient_id: patientId,
@@ -1094,8 +1093,10 @@ router.post("/call/update", async (req, res, next) => {
               });
             }
           } else {
-            logger.info("No patient_id available for intake form", {
+            logger.info("Missing required data for intake form", {
               call_id: call.call_id,
+              has_patient_id: !!patientId,
+              has_org_id: !!orgId,
             });
           }
         } catch (intakeError) {
@@ -1453,13 +1454,13 @@ router.post("/call/update", async (req, res, next) => {
       console.log("patientId", patientId);
 
       if (scheduledCallbackTime && patientId) {
-        // Determine agent callback number from call numbers
-        const agentNumbers = ["+16018846979", "+14088728200"];
-        let agentCallbackNumber = null;
-
-        if (agentNumbers.includes(call.to_number)) {
+        // Determine agent callback number based on call direction
+        // For inbound calls: agent number is to_number (agent received the call)
+        // For outbound calls: agent number is from_number (agent made the call)
+        let agentCallbackNumber;
+        if (call.direction === "inbound") {
           agentCallbackNumber = call.to_number;
-        } else if (agentNumbers.includes(call.from_number)) {
+        } else if (call.direction === "outbound") {
           agentCallbackNumber = call.from_number;
         }
 
@@ -1468,6 +1469,7 @@ router.post("/call/update", async (req, res, next) => {
             "Cannot determine agent callback number - skipping callback processing",
             {
               call_id: call.call_id,
+              direction: call.direction,
               to_number: call.to_number,
               from_number: call.from_number,
             },
@@ -1477,6 +1479,7 @@ router.post("/call/update", async (req, res, next) => {
             call_id: call.call_id,
             is_transfer_attempted: isTransferAttempted,
             scheduled_callback_time: scheduledCallbackTime,
+            call_direction: call.direction,
             agent_callback_number: agentCallbackNumber,
             patient_id: patientId,
           });

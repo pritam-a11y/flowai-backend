@@ -75,6 +75,67 @@ class RetellService {
   }
 
   /**
+   * Create a callback call using just the from_number (agent phone)
+   * @param {string} fromNumber - The agent's phone number to call from
+   * @param {string} toNumber - The phone number to call
+   * @param {object} dynamicVariables - Variables to pass to the call
+   * @returns {Promise<object>} - The call creation response
+   */
+  async createCallbackCall(fromNumber, toNumber, dynamicVariables) {
+    try {
+      if (!this.apiKey) {
+        throw new Error("RETELL_API_KEY not configured");
+      }
+
+      if (!fromNumber) {
+        throw new Error("from_number is required for callback calls");
+      }
+
+      // Ensure all dynamic variables are strings
+      const stringifiedVariables = {};
+      for (const [key, value] of Object.entries(dynamicVariables)) {
+        stringifiedVariables[key] = String(value || "");
+      }
+
+      const payload = {
+        from_number: fromNumber,
+        to_number: toNumber,
+        retell_llm_dynamic_variables: stringifiedVariables,
+      };
+
+      logger.info("Creating callback call via Retell", {
+        fromNumber,
+        toNumber,
+        variableCount: Object.keys(stringifiedVariables).length,
+      });
+
+      const response = await axios.post(
+        `${this.baseUrl}/create-phone-call`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      logger.info("Callback call created successfully", {
+        callId: response.data.call_id,
+        status: response.data.status,
+      });
+
+      return response.data;
+    } catch (error) {
+      logger.error("Error creating callback call", {
+        error: error.message,
+        response: error.response?.data,
+      });
+      throw error;
+    }
+  }
+
+  /**
    * Internal method to create calls with specific config
    * @private
    */
