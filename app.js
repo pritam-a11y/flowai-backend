@@ -192,6 +192,7 @@ app.use("*", (req, res) => {
       "/api/v1/vapi/webhook",
       "/api/v1/redox/webhook/scheduling",
       "/api/v1/redox/test/trigger-scheduling-call",
+      "/api/v1/fax",
     ],
   });
 });

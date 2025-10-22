@@ -16,7 +16,7 @@ require("dotenv").config();
 
 /**
  * @swagger
- * /fax/upload:
+ * api/v1/fax/upload:
  *   post:
  *     summary: Upload a PDF file to Phelix Fax-AI for processing
  *     tags: [FaxAI]
@@ -65,7 +65,7 @@ require("dotenv").config();
  *       500:
  *         description: Internal server error
  */
-// POST
+
 router.post(
   "/upload",
   authMiddleware,
@@ -109,7 +109,7 @@ router.post(
 
 /**
  * @swagger
- * /fax/response:
+ * api/v1/fax/response:
  *   get:
  *     summary: Fetch Phelix Fax-AI job result using task_id
  *     tags: [FaxAI]
