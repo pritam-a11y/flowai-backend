@@ -24,8 +24,8 @@ async function findOrgIdByAgentId(targetAgentId) {
       const apiKey = org.api_key;
       const orgId = org.org_id;
 
-      console.log("apiKey-->", apiKey);
-      console.log("orgId-->", orgId);
+      // console.log("apiKey-->", apiKey);
+      // console.log("orgId-->", orgId);
 
       logger.info("Attempting Retell API call to check agent ownership.", {
         orgId: orgId,
@@ -45,14 +45,15 @@ async function findOrgIdByAgentId(targetAgentId) {
 
         //  Check if the target agent_id exists in the list returned by Retell
         const agents = response.data;
-        console.log("targetAgentId->", targetAgentId);
-        console.log("agents--->", agents);
-        console.log("response->", response.data);
+        // console.log("targetAgentId->", targetAgentId);
+        // console.log("agents--->", agents);
+        // console.log("response->", response.data);
 
         const matchingAgent = agents.find(
           (agent) => agent.agent_id === targetAgentId
         );
-        console.log("matchingAgent->", matchingAgent);
+
+        console.log("matchingAgent->", matchingAgent, "-->", targetAgentId);
         // If a match is found, return the org_id
         if (matchingAgent) {
           logger.info("Agent ownership confirmed.", {
