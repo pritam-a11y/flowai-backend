@@ -15,6 +15,7 @@ const {
   getProviderConfig,
   getDefaultProviderConfig,
 } = require("../config/providers");
+const { findOrgIdByAgentId } = require("../helpers/retellAgentList");
 
 const authService = new AuthService();
 
