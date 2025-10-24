@@ -35,7 +35,7 @@ const providers = {
     name: "Inland Imaging",
     business_name: "Inland Imaging",
     doctor_name: "Inland Imaging Team",
-    logo_url: "https://i.ibb.co/JWyDj5DX/Logo-Inland-Imaging-2016-blue.webp",
+    logo_url: "https://i.ibb.co/jvS35hSs/Logo-Inland-Imaging-2016-blue.png",
     office_phone: "(509) 363-7100",
     from_email: "patientservices@myflowai.com",
     default_location: "12420 East Mission Avenue, Spokane Valley, WA 99216",
