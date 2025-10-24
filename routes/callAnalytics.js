@@ -78,7 +78,6 @@ router.get("/", async (req, res) => {
   let queryParams = [];
 
   if (org_id) {
-    // Use parameterized query for safety
     whereClause = `WHERE org_id = $1`;
     queryParams.push(org_id);
     logger.info("Filtering CallAnalytics by Org ID.", { org_id: org_id });
@@ -150,7 +149,7 @@ router.get("/", async (req, res) => {
           SUM(CASE WHEN in_voicemail = TRUE THEN 1 ELSE 0 END) AS voicemail_count,
           SUM(CASE WHEN disconnection_reason = 'callTransfer' THEN 1 ELSE 0 END) AS transfer_count,
           SUM(CASE WHEN in_voicemail = FALSE THEN 1 ELSE 0 END) AS picked_up_count,
-          ROUND(AVG(total_duration_seconds::NUMERIC) / 1000) AS avg_duration_seconds,
+          ROUND(AVG(total_duration_seconds::NUMERIC)) AS avg_duration_seconds,
           ROUND(AVG(latency_e2e_p50::NUMERIC)) AS avg_latency_ms,
           
           jsonb_build_object(
