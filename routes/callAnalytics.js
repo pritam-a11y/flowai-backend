@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db/connection");
 const logger = require("../utils/logger");
+const authMiddleware = require("../middleware/auth");
 
 const calculatePercentage = (numerator, denominator) => {
   if (denominator === 0) return 0.0;
@@ -70,7 +71,7 @@ const calculatePercentage = (numerator, denominator) => {
  *                 error: "Failed to retrieve call dashboard data from database."
  *                 details: "invalid input syntax for type bigint: '2025-09-16T12:00:00Z'"
  */
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   const { org_id } = req.query;
 
   // Build the WHERE clause dynamically
