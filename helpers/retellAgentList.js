@@ -23,10 +23,6 @@ async function findOrgIdByAgentId(targetAgentId) {
     for (const org of orgs) {
       const apiKey = org.api_key;
       const orgId = org.org_id;
-
-      // console.log("apiKey-->", apiKey);
-      // console.log("orgId-->", orgId);
-
       logger.info("Attempting Retell API call to check agent ownership.", {
         orgId: orgId,
         apiKey: apiKey,
@@ -50,7 +46,6 @@ async function findOrgIdByAgentId(targetAgentId) {
           (agent) => agent.agent_id === targetAgentId
         );
 
-        // console.log("matchingAgent->", matchingAgent, "-->", targetAgentId);
         // If a match is found, return the org_id
         if (matchingAgent) {
           logger.info("Agent ownership confirmed.", {
@@ -60,7 +55,6 @@ async function findOrgIdByAgentId(targetAgentId) {
           return orgId;
         }
       } catch (error) {
-        // Log and continue if the API key is invalid or unauthorized
         const status = error.response?.status || "N/A";
         logger.warn("Retell API key failed to validate or authorize.", {
           orgId: orgId,
@@ -77,7 +71,6 @@ async function findOrgIdByAgentId(targetAgentId) {
     });
     return null;
   } catch (dbError) {
-    // Handle errors in the initial database query
     logger.error("Database error while fetching organization API keys.", {
       error: dbError.message,
       stack: dbError.stack,

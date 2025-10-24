@@ -108,7 +108,7 @@ router.get("/", async (req, res) => {
       ${whereClause};
   `;
 
-  // Query : Global Aggregates (Need to pass parameters here too) 
+  // Query : Global Aggregates (Need to pass parameters here too)
   const disconnectionQuery = `
       SELECT jsonb_object_agg(disconnection_reason, count) AS reasons
       FROM (
