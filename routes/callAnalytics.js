@@ -52,8 +52,9 @@ const calculatePercentage = (numerator, denominator) => {
  *                 error: Failed to retrieve call dashboard data from database
  */
 router.get("/", async (req, res) => {
-  // const { startDate, endDate, limit } = req.query;
 
+   const { org_id } = req.query;
+   
   // ---  Query for Summary and Aggregate Counts ---
   const simpleSummaryQuery = `
   SELECT

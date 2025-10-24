@@ -981,14 +981,20 @@ router.post("/call/update", async (req, res, next) => {
     }
 
     try {
-      if (event === "call_analyzed") {
+      // ----calling retell for agent id and db to check orgId
+      const orgId = await findOrgIdByAgentId(call.agent_id);
+
+      console.log("orgId --->", orgId);
+      if (event === "call_analyzed" && orgId) {
         // --- Data Extraction ---
         const data = {
           // Dates and IDs
           date: call.start_timestamp, // Millisecond timestamp
           call_id: call.call_id,
-          org_id: 3,
-          // body: 
+          org_id: orgId,
+
+          // --rawBody
+          body: JSON.stringify(req.body),
 
           // Duration
           total_duration_seconds: call.call_cost?.total_duration_seconds,
@@ -1111,6 +1117,11 @@ router.post("/call/update", async (req, res, next) => {
         logger.info("Hamming API call initiated", {
           call_id: call.call_id,
           agent_id: call.agent_id,
+        });
+      } else {
+        logger.error("OrgId not found!", {
+          error: "Not found!",
+          call_id: call.agent_id,
         });
       }
     } catch (hammingError) {
