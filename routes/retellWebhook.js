@@ -1121,11 +1121,6 @@ router.post("/call/update", async (req, res, next) => {
           call_id: call.call_id,
           agent_id: call.agent_id,
         });
-      } else {
-        logger.error("OrgId not found!", {
-          error: "Not found!",
-          call_id: call.agent_id,
-        });
       }
     } catch (hammingError) {
       // Log error but don't fail the request

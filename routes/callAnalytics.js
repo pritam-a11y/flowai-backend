@@ -92,7 +92,7 @@ router.get("/", async (req, res) => {
   const simpleSummaryQuery = `
       SELECT
           COUNT(*) AS total_calls,
-          ROUND(AVG(total_duration_seconds::NUMERIC) / 1000) AS average_call_duration, 
+          ROUND(AVG(total_duration_seconds::NUMERIC)) AS average_call_duration, 
           ROUND(AVG(latency_e2e_p50::NUMERIC)) AS average_latency, 
           
           TO_CHAR(MIN(TO_TIMESTAMP(
@@ -108,8 +108,7 @@ router.get("/", async (req, res) => {
       ${whereClause};
   `;
 
-  // Query : Global Aggregates (Need to pass parameters here too)
-  // Note: The $1 placeholder will only be present if whereClause is not empty.
+  // Query : Global Aggregates (Need to pass parameters here too) 
   const disconnectionQuery = `
       SELECT jsonb_object_agg(disconnection_reason, count) AS reasons
       FROM (
