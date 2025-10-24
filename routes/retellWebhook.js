@@ -61,7 +61,7 @@ router.post("/webhook", async (req, res, next) => {
         "Retell webhook failed: missing call_inbound or from_number",
         {
           receivedBody: req.body,
-        },
+        }
       );
       return res.status(400).json({
         success: false,
@@ -86,7 +86,7 @@ router.post("/webhook", async (req, res, next) => {
       "/Patient/_search",
       null,
       patientSearchParams,
-      accessToken,
+      accessToken
     );
 
     // Transform patient response
@@ -110,13 +110,13 @@ router.post("/webhook", async (req, res, next) => {
         "/Appointment/_search",
         null,
         appointmentSearchParams,
-        accessToken,
+        accessToken
       );
 
       // Transform appointment response
       appointments =
         RedoxTransformer.transformAppointmentSearchResponse(
-          appointmentResponse,
+          appointmentResponse
         );
     }
 
@@ -322,25 +322,27 @@ router.post("/function-call", async (req, res, next) => {
         logger.info("Overriding location for check_availability", {
           originalLocation: location,
           overriddenLocation: overriddenLocation,
-          statEnabled: stat
+          statEnabled: stat,
         });
 
         const slotSearchParams = RedoxTransformer.createSlotSearchParams(
           overriddenLocation,
           serviceType,
-          startTime,
+          startTime
         );
         const slotResponse = await RedoxAPIService.makeRequest(
           "POST",
           "/Slot/_search",
           null,
           slotSearchParams,
-          accessToken,
+          accessToken
         );
 
         // If stat is enabled, fetch existing appointments to count bookings
         if (stat) {
-          logger.info("STAT mode enabled - fetching existing appointments for capacity tracking");
+          logger.info(
+            "STAT mode enabled - fetching existing appointments for capacity tracking"
+          );
 
           // Get date range for appointment search
           const searchStartDate = startTime || new Date().toISOString();
@@ -349,14 +351,14 @@ router.post("/function-call", async (req, res, next) => {
 
           // Fetch existing appointments to count bookings
           const appointmentParams = {
-            'date': `ge${searchStartDate}`,
-            '_sort': 'date',
-            '_count': '100'
+            date: `ge${searchStartDate}`,
+            _sort: "date",
+            _count: "100",
           };
 
           const appointmentResponse = await RedoxAPIService.makeRequest(
-            'POST',
-            '/Appointment/_search',
+            "POST",
+            "/Appointment/_search",
             null,
             appointmentParams,
             accessToken
@@ -366,12 +368,14 @@ router.post("/function-call", async (req, res, next) => {
           let existingAppointments = [];
           if (appointmentResponse && appointmentResponse.entry) {
             existingAppointments = appointmentResponse.entry
-              .filter(e => e.resource && e.resource.resourceType === 'Appointment')
-              .map(e => ({
+              .filter(
+                (e) => e.resource && e.resource.resourceType === "Appointment"
+              )
+              .map((e) => ({
                 id: e.resource.id,
                 start: e.resource.start,
                 end: e.resource.end,
-                status: e.resource.status
+                status: e.resource.status,
               }));
           }
 
@@ -382,7 +386,9 @@ router.post("/function-call", async (req, res, next) => {
             existingAppointments
           );
 
-          logger.info(`STAT mode: Found ${result.length} available slots with capacity`);
+          logger.info(
+            `STAT mode: Found ${result.length} available slots with capacity`
+          );
         } else {
           // Normal mode - only show free slots
           result = RedoxTransformer.transformSlotSearchResponse(slotResponse);
@@ -413,17 +419,19 @@ router.post("/function-call", async (req, res, next) => {
 
         // If stat mode is enabled, check current booking count before booking
         if (bookStat && apptStart && endTime) {
-          logger.info("STAT mode enabled for booking - checking current capacity");
+          logger.info(
+            "STAT mode enabled for booking - checking current capacity"
+          );
 
           // Fetch existing appointments for this time slot
           const appointmentParams = {
-            'date': apptStart,
-            '_count': '10'
+            date: apptStart,
+            _count: "10",
           };
 
           const appointmentResponse = await RedoxAPIService.makeRequest(
-            'POST',
-            '/Appointment/_search',
+            "POST",
+            "/Appointment/_search",
             null,
             appointmentParams,
             accessToken
@@ -432,12 +440,13 @@ router.post("/function-call", async (req, res, next) => {
           // Count bookings for this exact time slot
           let bookingCount = 0;
           if (appointmentResponse && appointmentResponse.entry) {
-            bookingCount = appointmentResponse.entry
-              .filter(e => e.resource &&
-                          e.resource.resourceType === 'Appointment' &&
-                          e.resource.start === apptStart &&
-                          e.resource.end === endTime)
-              .length;
+            bookingCount = appointmentResponse.entry.filter(
+              (e) =>
+                e.resource &&
+                e.resource.resourceType === "Appointment" &&
+                e.resource.start === apptStart &&
+                e.resource.end === endTime
+            ).length;
           }
 
           // Check if we've reached capacity (3 bookings)
@@ -445,7 +454,7 @@ router.post("/function-call", async (req, res, next) => {
             logger.warn(`STAT booking rejected - slot at capacity`, {
               timeSlot: `${apptStart} - ${endTime}`,
               currentBookings: bookingCount,
-              maxCapacity: 3
+              maxCapacity: 3,
             });
 
             return res.json({
@@ -453,15 +462,15 @@ router.post("/function-call", async (req, res, next) => {
               error: `This time slot has reached maximum capacity (3 bookings). Please select a different time.`,
               capacity: {
                 current: bookingCount,
-                maximum: 3
-              }
+                maximum: 3,
+              },
             });
           }
 
           logger.info(`STAT booking allowed - slot has capacity`, {
             timeSlot: `${apptStart} - ${endTime}`,
             currentBookings: bookingCount,
-            availableCapacity: 3 - bookingCount
+            availableCapacity: 3 - bookingCount,
           });
         }
 
@@ -470,7 +479,7 @@ router.post("/function-call", async (req, res, next) => {
           appointmentType,
           apptStart,
           endTime,
-          status,
+          status
         );
 
         const createResponse = await RedoxAPIService.makeRequest(
@@ -478,7 +487,7 @@ router.post("/function-call", async (req, res, next) => {
           "/Appointment/$appointment-create",
           appointmentBundle,
           null,
-          accessToken,
+          accessToken
         );
 
         result =
@@ -513,7 +522,7 @@ router.post("/function-call", async (req, res, next) => {
           updateType,
           updateStart,
           updateEnd,
-          updateStatus,
+          updateStatus
         );
 
         const updateResponse = await RedoxAPIService.makeRequest(
@@ -521,7 +530,7 @@ router.post("/function-call", async (req, res, next) => {
           "/Appointment/$appointment-update",
           updateBundle,
           null,
-          accessToken,
+          accessToken
         );
 
         result =
@@ -576,13 +585,13 @@ router.post("/function-call", async (req, res, next) => {
           "/Patient/$patient-create",
           patientBundle,
           null,
-          accessToken,
+          accessToken
         );
 
         // Transform the response to extract patient ID
         const createResult =
           RedoxTransformer.transformAppointmentCreateResponse(
-            patientCreateResponse,
+            patientCreateResponse
           );
 
         // Return the patient ID as the result
@@ -623,7 +632,7 @@ router.post("/function-call", async (req, res, next) => {
             given,
             family,
             phone,
-            zipcode,
+            zipcode
           );
 
         // Execute patient search through Redox API
@@ -632,7 +641,7 @@ router.post("/function-call", async (req, res, next) => {
           "/Patient/_search",
           null,
           searchParams,
-          accessToken,
+          accessToken
         );
 
         // Check if patient found
@@ -658,8 +667,7 @@ router.post("/function-call", async (req, res, next) => {
 
         // Get all patient IDs from the search response
         const patientEntries = searchResponse.entry.filter(
-          (entry) =>
-            entry.resource && entry.resource.resourceType === "Patient",
+          (entry) => entry.resource && entry.resource.resourceType === "Patient"
         );
 
         // Fetch appointments for all patients
@@ -677,7 +685,7 @@ router.post("/function-call", async (req, res, next) => {
                 "/Appointment/_search",
                 null,
                 appointmentSearchParams,
-                accessToken,
+                accessToken
               );
               appointmentResponsesMap[patientId] = appointmentResponse;
             } catch (appointmentError) {
@@ -695,7 +703,7 @@ router.post("/function-call", async (req, res, next) => {
         const patientsData =
           RedoxTransformer.transformAllPatientsWithAppointments(
             searchResponse,
-            appointmentResponsesMap,
+            appointmentResponsesMap
           );
 
         logger.info("Patient search by DOB and name completed", {
@@ -741,7 +749,7 @@ router.post("/function-call", async (req, res, next) => {
         const sortResult = await LocationSorter.sortLocationsByDistance(
           address,
           appointmentType,
-          provider,
+          provider
         );
 
         if (!sortResult.success) {
@@ -792,7 +800,7 @@ router.post("/function-call", async (req, res, next) => {
         const searchResult = await physicianSearchService.searchPhysicians(
           specialty,
           firstName || null,
-          address || null,
+          address || null
         );
 
         logger.info("search_physician completed", {
@@ -814,9 +822,12 @@ router.post("/function-call", async (req, res, next) => {
 
         // Validate required field
         if (!specialty) {
-          logger.warn("get_physicians_by_specialty failed: missing required specialty", {
-            specialty,
-          });
+          logger.warn(
+            "get_physicians_by_specialty failed: missing required specialty",
+            {
+              specialty,
+            }
+          );
           return res.status(400).json({
             success: false,
             error: "Missing required field: specialty is required",
@@ -827,10 +838,11 @@ router.post("/function-call", async (req, res, next) => {
         const physicianSearchService = require("../services/physicianSearchService");
 
         // Get all physicians by specialty with optional address for distance sorting
-        const searchResult = await physicianSearchService.getPhysiciansBySpecialty(
-          specialty,
-          address || null
-        );
+        const searchResult =
+          await physicianSearchService.getPhysiciansBySpecialty(
+            specialty,
+            address || null
+          );
 
         logger.info("get_physicians_by_specialty completed", {
           specialty,
@@ -851,13 +863,17 @@ router.post("/function-call", async (req, res, next) => {
 
         // Validate required fields
         if (!address || !symptom_text) {
-          logger.warn("find_physicians_by_symptoms failed: missing required fields", {
-            address,
-            symptom_text,
-          });
+          logger.warn(
+            "find_physicians_by_symptoms failed: missing required fields",
+            {
+              address,
+              symptom_text,
+            }
+          );
           return res.status(400).json({
             success: false,
-            error: "Missing required fields: address and symptom_text are required",
+            error:
+              "Missing required fields: address and symptom_text are required",
           });
         }
 
@@ -865,10 +881,11 @@ router.post("/function-call", async (req, res, next) => {
         const symptomPhysicianMatcher = require("../services/symptomPhysicianMatcher");
 
         // Find physicians by symptoms
-        const searchResult = await symptomPhysicianMatcher.findPhysiciansBySymptoms(
-          address,
-          symptom_text
-        );
+        const searchResult =
+          await symptomPhysicianMatcher.findPhysiciansBySymptoms(
+            address,
+            symptom_text
+          );
 
         logger.info("find_physicians_by_symptoms completed", {
           symptomTextLength: symptom_text.length,
@@ -954,8 +971,107 @@ router.post("/call/update", async (req, res, next) => {
     console.log("hit");
     const { event, call } = req.body;
 
+    if (!call || !call.call_id) {
+      logger.error("Invalid call", {
+        error: "Invalid call: missing call data or call_id.",
+      });
+      return res
+        .status(400)
+        .json({ error: "Invalid call: missing call data or call_id." });
+    }
+
     try {
       if (event === "call_analyzed") {
+        // --- Data Extraction ---
+        const data = {
+          // Dates and IDs
+          date: call.start_timestamp, // Millisecond timestamp
+          call_id: call.call_id,
+          org_id: 3,
+          // body: 
+
+          // Duration
+          total_duration_seconds: call.call_cost?.total_duration_seconds,
+
+          // Agent and Call Info
+          agent_id: call.agent_id,
+          agent_name: call.agent_name,
+          direction: call.direction,
+          call_type: call.call_type,
+          disconnection_reason: call.disconnection_reason,
+
+          // Analysis Results
+          call_successful: call.call_analysis?.call_successful,
+          user_sentiment: call.call_analysis?.user_sentiment,
+          in_voicemail: call.call_analysis?.in_voicemail,
+
+          // JSONB Fields
+          custom_analysis_data: call.call_analysis?.custom_analysis_data,
+          retell_llm_dynamic_variables: call.retell_llm_dynamic_variables,
+
+          // Latencies (P50)
+          latency_e2e_p50: call.latency?.e2e?.p50,
+          latency_llm_p50: call.latency?.llm?.p50,
+          latency_tts_p50: call.latency?.tts?.p50,
+          latency_stt_p50: call.latency?.stt?.p50 || null,
+
+          // Latencies (P99)
+          latency_e2e_p99: call.latency?.e2e?.p99,
+          latency_llm_p99: call.latency?.llm?.p99,
+          latency_tts_p99: call.latency?.tts?.p99,
+          latency_stt_p99: call.latency?.stt?.p99 || null,
+        };
+
+        // --- Database Insertion ---
+        const insertQuery = `
+          INSERT INTO calls (
+              date, call_id, org_id, total_duration_seconds, 
+              agent_id, agent_name, direction, call_type, disconnection_reason, 
+              call_successful, user_sentiment, in_voicemail, 
+              custom_analysis_data, retell_llm_dynamic_variables,
+              latency_e2e_p50, latency_e2e_p99, latency_llm_p50, latency_llm_p99, 
+              latency_tts_p50, latency_tts_p99, latency_stt_p50, latency_stt_p99
+          ) VALUES (
+              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 
+              $15, $16, $17, $18, $19, $20, $21, $22
+          )
+          ON CONFLICT (call_id) DO NOTHING;  
+      `;
+
+        const values = [
+          data.date,
+          data.call_id,
+          data.org_id,
+          data.total_duration_seconds,
+          data.agent_id,
+          data.agent_name,
+          data.direction,
+          data.call_type,
+          data.disconnection_reason,
+          data.call_successful,
+          data.user_sentiment,
+          data.in_voicemail,
+          data.custom_analysis_data,
+          data.retell_llm_dynamic_variables,
+          data.latency_e2e_p50,
+          data.latency_e2e_p99,
+          data.latency_llm_p50,
+          data.latency_llm_p99,
+          data.latency_tts_p50,
+          data.latency_tts_p99,
+          data.latency_stt_p50,
+          data.latency_stt_p99,
+        ];
+
+        await db.query(insertQuery, values);
+
+        logger.info("Data inserted successfully!", {
+          call_id: data.call_id,
+          agent_id: data.agent_id,
+        });
+
+        //-----Hamming-------------
+
         const hammingPayload = {
           provider: "retell",
           metadata: {
@@ -975,7 +1091,7 @@ router.post("/call/update", async (req, res, next) => {
                 Authorization: "Bearer sk-5e183fff2b1c44430892aade02e62496",
               },
               timeout: 10000,
-            },
+            }
           )
           .then((response) => {
             logger.info("Successfully sent call data to Hamming", {
@@ -1128,7 +1244,7 @@ router.post("/call/update", async (req, res, next) => {
                 `dr. ${p.firstName.toLowerCase()} ${p.lastName.toLowerCase()}` ===
                   normalizedPhysicianName ||
                 `${p.firstName.toLowerCase()} ${p.lastName.toLowerCase()}` ===
-                  normalizedPhysicianName,
+                  normalizedPhysicianName
             );
 
             if (physician) {
@@ -1227,16 +1343,16 @@ router.post("/call/update", async (req, res, next) => {
       callIdStorage.markAsProcessed(call.call_id);
 
       // 2. Insert into calls table
-      const insertCallQuery = `
-        INSERT INTO calls (call_id, body)
-        VALUES ($1, $2)
-      `;
-      await db.query(insertCallQuery, [call.call_id, JSON.stringify(req.body)]);
+      // const insertCallQuery = `
+      //   INSERT INTO calls (call_id, body)
+      //   VALUES ($1, $2)
+      // `;
+      // await db.query(insertCallQuery, [call.call_id, JSON.stringify(req.body)]);
 
       // 3. Get current agent analytics
       const agentResult = await db.query(
         "SELECT * FROM agents WHERE agent_id = $1",
-        [call.agent_id],
+        [call.agent_id]
       );
 
       // if (agentResult.rows.length === 0) {
@@ -1358,7 +1474,7 @@ router.post("/call/update", async (req, res, next) => {
             {
               call_id: call.call_id,
               patient_id: patientId,
-            },
+            }
           );
         } else {
           // Create DocumentReference
@@ -1400,7 +1516,7 @@ router.post("/call/update", async (req, res, next) => {
                   callId: call.call_id,
                   agentId: call.agent_id,
                   callTimestamp: new Date(call.start_timestamp).toISOString(),
-                },
+                }
               );
 
             logger.info("=== RETELL BUNDLE STRUCTURE ===", {
@@ -1417,12 +1533,12 @@ router.post("/call/update", async (req, res, next) => {
               "/DocumentReference/$documentreference-create",
               documentBundle,
               null,
-              accessToken,
+              accessToken
             );
 
             const documentResult =
               RedoxTransformer.transformAppointmentCreateResponse(
-                documentResponse,
+                documentResponse
               );
 
             logger.info("DocumentReference created for patient intake", {
@@ -1472,7 +1588,7 @@ router.post("/call/update", async (req, res, next) => {
               direction: call.direction,
               to_number: call.to_number,
               from_number: call.from_number,
-            },
+            }
           );
         } else {
           logger.info("Processing callback request", {
@@ -1503,7 +1619,7 @@ router.post("/call/update", async (req, res, next) => {
                     callTimestamp: new Date(call.start_timestamp).toISOString(),
                     transferAttempted: true,
                     scheduledCallbackTime: scheduledCallbackTime,
-                  },
+                  }
                 );
 
               const documentResponse = await RedoxAPIService.makeRequest(
@@ -1511,12 +1627,12 @@ router.post("/call/update", async (req, res, next) => {
                 "/DocumentReference/$documentreference-create",
                 documentBundle,
                 null,
-                accessToken,
+                accessToken
               );
 
               const documentResult =
                 RedoxTransformer.transformAppointmentCreateResponse(
-                  documentResponse,
+                  documentResponse
                 );
 
               logger.info("DocumentReference created for transfer attempt", {
@@ -1532,7 +1648,7 @@ router.post("/call/update", async (req, res, next) => {
                   call_id: call.call_id,
                   patient_id: patientId,
                   error: docError.message,
-                },
+                }
               );
             }
           } else {
@@ -1678,7 +1794,9 @@ function renderAppointmentConfirmationHTML(d) {
 
   // Create Google Maps URL if location is provided
   const mapUrl = d.appointment_location
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.appointment_location)}`
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        d.appointment_location
+      )}`
     : null;
 
   return `
@@ -1697,10 +1815,20 @@ function renderAppointmentConfirmationHTML(d) {
           <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:100%;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e6eaf2;">
             <tr>
               <td style="padding:24px 24px 8px 24px;text-align:left;">
-                ${d.logo_url ? `<img src="${d.logo_url}" alt="${escapeHTML(d.provider_name)}" style="display:block;max-width:160px;height:auto;margin-bottom:12px;">` : ""}
+                ${
+                  d.logo_url
+                    ? `<img src="${d.logo_url}" alt="${escapeHTML(
+                        d.provider_name
+                      )}" style="display:block;max-width:160px;height:auto;margin-bottom:12px;">`
+                    : ""
+                }
                 <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;">
-                  <div style="font-size:14px;">Hi ${escapeHTML(d.patient_first_name)},</div>
-                  <div style="margin-top:8px;">Thanks for scheduling with ${escapeHTML(d.provider_name)}. Your appointment is confirmed.</div>
+                  <div style="font-size:14px;">Hi ${escapeHTML(
+                    d.patient_first_name
+                  )},</div>
+                  <div style="margin-top:8px;">Thanks for scheduling with ${escapeHTML(
+                    d.provider_name
+                  )}. Your appointment is confirmed.</div>
                 </div>
               </td>
             </tr>
@@ -1710,13 +1838,19 @@ function renderAppointmentConfirmationHTML(d) {
                 <div style="font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#111827;">Appointment Confirmation</div>
                 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:8px;">
                   <tr>
-                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Date &amp; Time:</strong> ${escapeHTML(d.date_str)} at ${escapeHTML(d.time_str)}. Please arrive 10–15 minutes early.</td>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Date &amp; Time:</strong> ${escapeHTML(
+                      d.date_str
+                    )} at ${escapeHTML(
+    d.time_str
+  )}. Please arrive 10–15 minutes early.</td>
                   </tr>
                   ${
                     d.appointment_department && d.appointment_department.trim()
                       ? `
                   <tr>
-                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Department:</strong> ${escapeHTML(d.appointment_department)}</td>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Department:</strong> ${escapeHTML(
+                      d.appointment_department
+                    )}</td>
                   </tr>`
                       : ""
                   }
@@ -1726,7 +1860,11 @@ function renderAppointmentConfirmationHTML(d) {
                   <tr>
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Physician:</strong> ${
                       d.physician_profile_url
-                        ? `<a href="${escapeHTML(d.physician_profile_url)}" target="_blank" style="color:#2563eb;text-decoration:underline;">${escapeHTML(d.physician_name)}</a>`
+                        ? `<a href="${escapeHTML(
+                            d.physician_profile_url
+                          )}" target="_blank" style="color:#2563eb;text-decoration:underline;">${escapeHTML(
+                            d.physician_name
+                          )}</a>`
                         : escapeHTML(d.physician_name)
                     }</td>
                   </tr>`
@@ -1735,14 +1873,20 @@ function renderAppointmentConfirmationHTML(d) {
                   <tr>
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">
                       • <strong>Location:</strong> ${locationDisplay}
-                      ${mapUrl ? `<br>&nbsp;&nbsp;<a href="${mapUrl}" target="_blank" style="color:#2563eb;text-decoration:underline;font-size:13px;">📍 View on Google Maps</a>` : ""}
+                      ${
+                        mapUrl
+                          ? `<br>&nbsp;&nbsp;<a href="${mapUrl}" target="_blank" style="color:#2563eb;text-decoration:underline;font-size:13px;">📍 View on Google Maps</a>`
+                          : ""
+                      }
                     </td>
                   </tr>
                   ${
                     d.intake_form_url
                       ? `
                   <tr>
-                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Intake Form:</strong> <a href="${escapeHTML(d.intake_form_url)}" target="_blank" style="color:#2563eb;text-decoration:underline;">Complete your intake form online</a></td>
+                    <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">• <strong>Intake Form:</strong> <a href="${escapeHTML(
+                      d.intake_form_url
+                    )}" target="_blank" style="color:#2563eb;text-decoration:underline;">Complete your intake form online</a></td>
                   </tr>`
                       : ""
                   }
@@ -1766,7 +1910,9 @@ function renderAppointmentConfirmationHTML(d) {
                   </tr>
                   <tr>
                     <td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;padding:2px 0;">
-                      • If you need language or accessibility support, please call ${escapeHTML(d.office_phone)}. We're glad to help.
+                      • If you need language or accessibility support, please call ${escapeHTML(
+                        d.office_phone
+                      )}. We're glad to help.
                     </td>
                   </tr>
                 </table>
@@ -1792,7 +1938,9 @@ function renderAppointmentConfirmationHTML(d) {
               <td style="padding:16px 24px 0 24px;">
                 <div style="font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#111827;">Appointment Changes or Questions</div>
                 <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#111827;margin-top:8px;">
-                  • To reschedule or cancel, please call ${escapeHTML(d.office_phone)}.<br>
+                  • To reschedule or cancel, please call ${escapeHTML(
+                    d.office_phone
+                  )}.<br>
                 </div>
               </td>
             </tr>
@@ -1807,16 +1955,32 @@ function renderAppointmentConfirmationHTML(d) {
                         Best Regards,<br><br>
                         <strong>${escapeHTML(d.doctor_name)}</strong><br>
                         ${escapeHTML(d.business_name)}<br>
-                        ${d.appointment_location ? escapeHTML(d.appointment_location) : d.default_location ? escapeHTML(d.default_location) : ""}<br>
+                        ${
+                          d.appointment_location
+                            ? escapeHTML(d.appointment_location)
+                            : d.default_location
+                            ? escapeHTML(d.default_location)
+                            : ""
+                        }<br>
                         T: ${escapeHTML(d.office_phone)}
                       </div>
                       <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6b7280;margin-top:16px;line-height:1.4;">
-                        This message may include protected health information meant only for ${escapeHTML(d.patient_first_name)}. 
-                        If you received it in error, please delete and call ${escapeHTML(d.office_phone)}.
+                        This message may include protected health information meant only for ${escapeHTML(
+                          d.patient_first_name
+                        )}. 
+                        If you received it in error, please delete and call ${escapeHTML(
+                          d.office_phone
+                        )}.
                       </div>
                     </td>
                     <td style="vertical-align:bottom;text-align:right;padding-left:20px;">
-                      ${d.bottom_right_image_url ? `<img src="${d.bottom_right_image_url}" alt="${d.bottom_right_image_alt || "Footer Image"}" style="display:block;max-width:150px;max-height:150px;width:auto;height:auto;">` : ""}
+                      ${
+                        d.bottom_right_image_url
+                          ? `<img src="${d.bottom_right_image_url}" alt="${
+                              d.bottom_right_image_alt || "Footer Image"
+                            }" style="display:block;max-width:150px;max-height:150px;width:auto;height:auto;">`
+                          : ""
+                      }
                     </td>
                   </tr>
                 </table>
@@ -1857,7 +2021,7 @@ router.post("/trigger-intake-call", authMiddleware, async (req, res, next) => {
       `/Patient/${patientId}`,
       null,
       null,
-      accessToken,
+      accessToken
     );
 
     if (!patientResponse || !patientResponse.id) {
@@ -1894,11 +2058,11 @@ router.post("/trigger-intake-call", authMiddleware, async (req, res, next) => {
         "/Appointment/_search",
         null,
         appointmentSearchParams,
-        accessToken,
+        accessToken
       );
       appointments =
         RedoxTransformer.transformAppointmentSearchResponse(
-          appointmentResponse,
+          appointmentResponse
         );
     } catch (appointmentError) {
       logger.warn("Failed to fetch appointments for intake call", {
@@ -1939,7 +2103,7 @@ router.post("/trigger-intake-call", authMiddleware, async (req, res, next) => {
     // Use the new intake-specific method
     const callResponse = await retellService.createIntakeCall(
       patientData.phone,
-      dynamicVariables,
+      dynamicVariables
     );
 
     logger.info("Intake call created successfully", {
