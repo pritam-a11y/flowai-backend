@@ -984,10 +984,10 @@ router.post("/call/update", async (req, res, next) => {
     try {
       // ----calling retell for agent id and db to check orgId
 
-      const orgId = await findOrgIdByAgentId(call.agent_id);
+      if (event === "call_analyzed") {
+        const orgId = await findOrgIdByAgentId(call.agent_id);
 
-      console.log("orgId->", orgId);
-      if (event === "call_analyzed" && orgId) {
+        console.log("orgId->", orgId);
         // --- Data Extraction ---
         const data = {
           // Dates and IDs
