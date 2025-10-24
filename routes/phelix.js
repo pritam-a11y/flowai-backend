@@ -65,7 +65,7 @@ require("dotenv").config();
  *       500:
  *         description: Internal server error
  */
-// POST
+
 router.post(
   "/upload",
   authMiddleware,
@@ -157,6 +157,7 @@ router.post(
  *       500:
  *         description: Internal server error
  */
+
 router.get("/response", authMiddleware, async (req, res) => {
   try {
     const { task_id } = req.query;
