@@ -4,7 +4,7 @@ const FormData = require("form-data");
 const upload = require("../middleware/uploadMiddleware");
 const PhelixService = require("../services/phelixService");
 const logger = require("../utils/logger");
-const authMiddleware = require("../middleware/auth");
+const jwtMiddleware = require("../middleware/jwt");
 require("dotenv").config();
 
 /**
@@ -68,7 +68,7 @@ require("dotenv").config();
 
 router.post(
   "/upload",
-  authMiddleware,
+  jwtMiddleware,
   upload.single("file"),
   async (req, res) => {
     try {
@@ -158,7 +158,7 @@ router.post(
  *         description: Internal server error
  */
 
-router.get("/response", authMiddleware, async (req, res) => {
+router.get("/response", jwtMiddleware, async (req, res) => {
   try {
     const { task_id } = req.query;
     if (!task_id) {
@@ -193,4 +193,3 @@ router.get("/response", authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
-
