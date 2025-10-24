@@ -1,5 +1,6 @@
 const axios = require("axios");
 const db = require("../db/connection");
+const logger = require("../utils/logger");
 
 async function findOrgIdByAgentId(targetAgentId) {
   if (!targetAgentId) {
