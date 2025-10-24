@@ -44,7 +44,7 @@ async function findOrgIdByAgentId(targetAgentId) {
         );
 
         //  Check if the target agent_id exists in the list returned by Retell
-        const agents = response;
+        const agents = response.data;
         console.log("targetAgentId->", targetAgentId);
         console.log("agents--->", agents);
         console.log("response->", response.data);

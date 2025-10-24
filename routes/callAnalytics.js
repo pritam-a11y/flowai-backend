@@ -19,7 +19,7 @@ const calculatePercentage = (numerator, denominator) => {
  * @swagger
  * /api/v1/callAnalytics:
  *   get:
- *     summary: Retrieve comprehensive dashboard metrics and time series data
+ *     summary: Retrieve comprehensive dashboard metrics and time series data (filtered by org_id)
  *     tags:
  *       - CallAnalytics
  *     security:
@@ -27,6 +27,15 @@ const calculatePercentage = (numerator, denominator) => {
  *     description: |
  *       Aggregates and returns high-level summary metrics, daily time series data,
  *       and detailed agent performance statistics in a single response for the dashboard.
+ *       Optionally filters all analytics by `org_id` if provided.
+ *     parameters:
+ *       - in: query
+ *         name: org_id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Organization ID to filter analytics data.
+ *         example: org_12345
  *     responses:
  *       200:
  *         description: Successfully retrieved all dashboard analytics data.
@@ -35,137 +44,203 @@ const calculatePercentage = (numerator, denominator) => {
  *             schema:
  *               type: object
  *               example:
- *                 summary:
- *                   totalCalls: 155
- *                   averageCallDuration: 95.5
- *                   averageLatency: 255
- *                   dateRange:
- *                     start: "2025-10-01"
- *                     end: "2025-10-23"
- *       500:
- *         description: Failed to retrieve data due to a server or database error
+ *                 status: true
+ *                 data:
+ *                   summary:
+ *                     totalCalls: 155
+ *                     averageCallDuration: 95.5
+ *                     averageLatency: 255
+ *                     dateRange:
+ *                       start: "2025-10-01"
+ *                       end: "2025-10-23"
+ *       400:
+ *         description: Missing or invalid org_id parameter.
  *         content:
  *           application/json:
  *             schema:
- *               type: object
  *               example:
- *                 error: Failed to retrieve call dashboard data from database
+ *                 success: false
+ *                 message: "org_id query parameter is required."
+ *       500:
+ *         description: Failed to retrieve data due to a server or database error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               example:
+ *                 error: "Failed to retrieve call dashboard data from database."
+ *                 details: "invalid input syntax for type bigint: '2025-09-16T12:00:00Z'"
  */
 router.get("/", async (req, res) => {
+  const { org_id } = req.query;
 
-   const { org_id } = req.query;
-   
-  // ---  Query for Summary and Aggregate Counts ---
+  // Build the WHERE clause dynamically
+  let whereClause = "";
+  let queryParams = [];
+
+  if (org_id) {
+    // Use parameterized query for safety
+    whereClause = `WHERE org_id = $1`;
+    queryParams.push(org_id);
+    logger.info("Filtering CallAnalytics by Org ID.", { org_id: org_id });
+  } else {
+    logger.info(
+      "Retrieving CallAnalytics for all organizations (no org_id filter provided)."
+    );
+  }
+
+  // --- Query for Summary and Aggregate Counts ---
   const simpleSummaryQuery = `
-  SELECT
-      COUNT(*) AS total_calls,
-      -- Cast duration/latency to NUMERIC
-      ROUND(AVG(total_duration_seconds::NUMERIC) / 1000) AS average_call_duration, 
-      ROUND(AVG(latency_e2e_p50::NUMERIC)) AS average_latency, 
-      
-      -- FIX: Apply safe cast to both MIN and MAX to handle mixed date column formats
-      TO_CHAR(MIN(TO_TIMESTAMP(
-          CASE WHEN date ~ '^[0-9]+$' THEN date::BIGINT ELSE NULL END / 1000
-      )), 'YYYY-MM-DD') AS date_start,
-      TO_CHAR(MAX(TO_TIMESTAMP(
-          CASE WHEN date ~ '^[0-9]+$' THEN date::BIGINT ELSE NULL END / 1000
-      )), 'YYYY-MM-DD') AS date_end,
-      
-      SUM(CASE WHEN call_successful = TRUE THEN 1 ELSE 0 END) AS successful_calls,
-      SUM(CASE WHEN call_successful = FALSE THEN 1 ELSE 0 END) AS unsuccessful_calls
-  FROM calls;
-`;
+      SELECT
+          COUNT(*) AS total_calls,
+          ROUND(AVG(total_duration_seconds::NUMERIC) / 1000) AS average_call_duration, 
+          ROUND(AVG(latency_e2e_p50::NUMERIC)) AS average_latency, 
+          
+          TO_CHAR(MIN(TO_TIMESTAMP(
+              CASE WHEN date ~ '^[0-9]+$' THEN date::BIGINT ELSE NULL END / 1000
+          )), 'YYYY-MM-DD') AS date_start,
+          TO_CHAR(MAX(TO_TIMESTAMP(
+              CASE WHEN date ~ '^[0-9]+$' THEN date::BIGINT ELSE NULL END / 1000
+          )), 'YYYY-MM-DD') AS date_end,
+          
+          SUM(CASE WHEN call_successful = TRUE THEN 1 ELSE 0 END) AS successful_calls,
+          SUM(CASE WHEN call_successful = FALSE THEN 1 ELSE 0 END) AS unsuccessful_calls
+      FROM calls
+      ${whereClause};
+  `;
 
-  // Query : Global Aggregates
+  // Query : Global Aggregates (Need to pass parameters here too)
+  // Note: The $1 placeholder will only be present if whereClause is not empty.
   const disconnectionQuery = `
-  SELECT jsonb_object_agg(disconnection_reason, count) AS reasons
-  FROM (SELECT disconnection_reason, COUNT(*) AS count FROM calls WHERE disconnection_reason IS NOT NULL GROUP BY disconnection_reason) AS sub;
-`;
+      SELECT jsonb_object_agg(disconnection_reason, count) AS reasons
+      FROM (
+          SELECT disconnection_reason, COUNT(*) AS count 
+          FROM calls 
+          ${whereClause} 
+          AND disconnection_reason IS NOT NULL 
+          GROUP BY disconnection_reason
+      ) AS sub;
+  `;
   const sentimentQuery = `
-  SELECT jsonb_object_agg(user_sentiment, count) AS sentiments
-  FROM (SELECT user_sentiment, COUNT(*) AS count FROM calls WHERE user_sentiment IS NOT NULL GROUP BY user_sentiment) AS sub;
-`;
+      SELECT jsonb_object_agg(user_sentiment, count) AS sentiments
+      FROM (
+          SELECT user_sentiment, COUNT(*) AS count 
+          FROM calls 
+          ${whereClause} 
+          AND user_sentiment IS NOT NULL 
+          GROUP BY user_sentiment
+      ) AS sub;
+  `;
   const directionQuery = `
-  SELECT jsonb_object_agg(direction, count) AS directions
-  FROM (SELECT direction, COUNT(*) AS count FROM calls WHERE direction IS NOT NULL GROUP BY direction) AS sub;
-`;
+      SELECT jsonb_object_agg(direction, count) AS directions
+      FROM (
+          SELECT direction, COUNT(*) AS count 
+          FROM calls 
+          ${whereClause} 
+          AND direction IS NOT NULL 
+          GROUP BY direction
+      ) AS sub;
+  `;
 
   // Query : Daily Summary (Main Time Series Data)
   const dailySummaryQuery = `
-  SELECT
-      -- FIX: Apply safe cast to the main date column to prevent errors during grouping
-      TO_CHAR(TO_TIMESTAMP(CASE WHEN date ~ '^[0-9]+$' THEN date::BIGINT ELSE NULL END / 1000), 'YYYY-MM-DD') AS call_date,
-      COUNT(*) AS total_calls,
-      SUM(CASE WHEN call_successful = TRUE THEN 1 ELSE 0 END) AS successful_calls,
-      SUM(CASE WHEN call_successful = FALSE THEN 1 ELSE 0 END) AS unsuccessful_calls,
-      SUM(CASE WHEN in_voicemail = TRUE THEN 1 ELSE 0 END) AS voicemail_count,
-      SUM(CASE WHEN disconnection_reason = 'callTransfer' THEN 1 ELSE 0 END) AS transfer_count,
-      SUM(CASE WHEN in_voicemail = FALSE THEN 1 ELSE 0 END) AS picked_up_count,
-      ROUND(AVG(total_duration_seconds::NUMERIC) / 1000) AS avg_duration_seconds,
-      ROUND(AVG(latency_e2e_p50::NUMERIC)) AS avg_latency_ms,
-      
-      -- Explicitly build sentiment object using non-nested aggregates
-      jsonb_build_object(
-          'negative', SUM(CASE WHEN user_sentiment = 'negative' THEN 1 ELSE 0 END),
-          'positive', SUM(CASE WHEN user_sentiment = 'positive' THEN 1 ELSE 0 END),
-          'neutral', SUM(CASE WHEN user_sentiment = 'neutral' THEN 1 ELSE 0 END),
-          'unknown', SUM(CASE WHEN user_sentiment IS NULL OR user_sentiment = 'unknown' THEN 1 ELSE 0 END)
-      ) AS sentiment_counts
-  FROM
-      calls
-  WHERE date ~ '^[0-9]+$'
-  GROUP BY
-      call_date
-  ORDER BY
-      call_date ASC;
-`;
-
-  // Query : Daily Disconnection Reasons (Separated to resolve nested aggregate error)
-  const dailyDisconnectionQuery = `
-  SELECT
-      TO_CHAR(TO_TIMESTAMP(CASE WHEN date ~ '^[0-9]+$' THEN date::BIGINT ELSE NULL END / 1000), 'YYYY-MM-DD') AS call_date,
-      jsonb_object_agg(disconnection_reason, count) AS disconnection_reasons
-  FROM (
       SELECT
-          date,
-          disconnection_reason,
-          COUNT(*) AS count
+          TO_CHAR(TO_TIMESTAMP(CASE WHEN date ~ '^[0-9]+$' THEN date::BIGINT ELSE NULL END / 1000), 'YYYY-MM-DD') AS call_date,
+          COUNT(*) AS total_calls,
+          SUM(CASE WHEN call_successful = TRUE THEN 1 ELSE 0 END) AS successful_calls,
+          SUM(CASE WHEN call_successful = FALSE THEN 1 ELSE 0 END) AS unsuccessful_calls,
+          SUM(CASE WHEN in_voicemail = TRUE THEN 1 ELSE 0 END) AS voicemail_count,
+          SUM(CASE WHEN disconnection_reason = 'callTransfer' THEN 1 ELSE 0 END) AS transfer_count,
+          SUM(CASE WHEN in_voicemail = FALSE THEN 1 ELSE 0 END) AS picked_up_count,
+          ROUND(AVG(total_duration_seconds::NUMERIC) / 1000) AS avg_duration_seconds,
+          ROUND(AVG(latency_e2e_p50::NUMERIC)) AS avg_latency_ms,
+          
+          jsonb_build_object(
+              'negative', SUM(CASE WHEN user_sentiment = 'negative' THEN 1 ELSE 0 END),
+              'positive', SUM(CASE WHEN user_sentiment = 'positive' THEN 1 ELSE 0 END),
+              'neutral', SUM(CASE WHEN user_sentiment = 'neutral' THEN 1 ELSE 0 END),
+              'unknown', SUM(CASE WHEN user_sentiment IS NULL OR user_sentiment = 'unknown' THEN 1 ELSE 0 END)
+          ) AS sentiment_counts
       FROM
           calls
-      WHERE 
-          disconnection_reason IS NOT NULL
-          AND date ~ '^[0-9]+$'
-      GROUP BY 
-          date, disconnection_reason
-  ) AS sub
-  GROUP BY
-      call_date
-  ORDER BY
-      call_date ASC;
-`;
+      ${
+        whereClause
+          ? `WHERE date ~ '^[0-9]+$' AND ${whereClause.substring(6)}`
+          : `WHERE date ~ '^[0-9]+$'`
+      }
+      GROUP BY
+          call_date
+      ORDER BY
+          call_date ASC;
+  `;
+
+  // Query : Daily Disconnection Reasons
+  const dailyDisconnectionQuery = `
+      SELECT
+          TO_CHAR(TO_TIMESTAMP(CASE WHEN date ~ '^[0-9]+$' THEN date::BIGINT ELSE NULL END / 1000), 'YYYY-MM-DD') AS call_date,
+          jsonb_object_agg(disconnection_reason, count) AS disconnection_reasons
+      FROM (
+          SELECT
+              date,
+              disconnection_reason,
+              COUNT(*) AS count
+          FROM
+              calls
+          ${
+            whereClause
+              ? `WHERE date ~ '^[0-9]+$' AND disconnection_reason IS NOT NULL AND ${whereClause.substring(
+                  6
+                )}`
+              : `WHERE date ~ '^[0-9]+$' AND disconnection_reason IS NOT NULL`
+          }
+          GROUP BY 
+              date, disconnection_reason
+      ) AS sub
+      GROUP BY
+          call_date
+      ORDER BY
+          call_date ASC;
+  `;
 
   // Query : Agent Performance
   const agentQuery = `
-  SELECT
-      agent_id,
-      agent_name,
-      COUNT(*) AS total_calls,
-      SUM(CASE WHEN call_successful = TRUE THEN 1 ELSE 0 END) AS successful_calls,
-      SUM(CASE WHEN call_successful = FALSE THEN 1 ELSE 0 END) AS unsuccessful_calls,
-      SUM(CASE WHEN in_voicemail = FALSE THEN 1 ELSE 0 END) AS picked_up_calls,
-      SUM(CASE WHEN disconnection_reason = 'callTransfer' THEN 1 ELSE 0 END) AS transferred_calls
-  FROM
-      calls
-  WHERE
-      agent_id IS NOT NULL
-  GROUP BY
-      agent_id, agent_name
-  ORDER BY
-      successful_calls DESC;
-`;
+      SELECT
+          agent_id,
+          agent_name,
+          COUNT(*) AS total_calls,
+          SUM(CASE WHEN call_successful = TRUE THEN 1 ELSE 0 END) AS successful_calls,
+          SUM(CASE WHEN call_successful = FALSE THEN 1 ELSE 0 END) AS unsuccessful_calls,
+          SUM(CASE WHEN in_voicemail = FALSE THEN 1 ELSE 0 END) AS picked_up_calls,
+          SUM(CASE WHEN disconnection_reason = 'callTransfer' THEN 1 ELSE 0 END) AS transferred_calls
+      FROM
+          calls
+      ${
+        whereClause
+          ? `WHERE agent_id IS NOT NULL AND ${whereClause.substring(6)}`
+          : `WHERE agent_id IS NOT NULL`
+      }
+      GROUP BY
+          agent_id, agent_name
+      ORDER BY
+          successful_calls DESC;
+  `;
+
+  const queries = [
+    simpleSummaryQuery,
+    disconnectionQuery,
+    sentimentQuery,
+    directionQuery,
+    dailySummaryQuery,
+    dailyDisconnectionQuery,
+    agentQuery,
+  ];
 
   try {
     // --- Execute all queries concurrently ---
+    const results = await Promise.all(
+      queries.map((q) => db.query(q, queryParams))
+    );
+
+    // Destructure results
     const [
       summaryResult,
       disconnectionResult,
@@ -174,15 +249,7 @@ router.get("/", async (req, res) => {
       dailySummaryResults,
       dailyDisconnectionResults,
       agentResults,
-    ] = await Promise.all([
-      db.query(simpleSummaryQuery),
-      db.query(disconnectionQuery),
-      db.query(sentimentQuery),
-      db.query(directionQuery),
-      db.query(dailySummaryQuery),
-      db.query(dailyDisconnectionQuery),
-      db.query(agentQuery),
-    ]);
+    ] = results;
 
     // --- Data Assembly ---
 
