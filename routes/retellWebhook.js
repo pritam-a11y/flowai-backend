@@ -1032,7 +1032,7 @@ router.post("/call/update", async (req, res, next) => {
         // --- Database Insertion ---
         const insertQuery = `
           INSERT INTO calls (
-              date, call_id, org_id, total_duration_seconds, 
+              date, call_id, org_id, body, total_duration_seconds, 
               agent_id, agent_name, direction, call_type, disconnection_reason, 
               call_successful, user_sentiment, in_voicemail, 
               custom_analysis_data, retell_llm_dynamic_variables,
@@ -1049,6 +1049,7 @@ router.post("/call/update", async (req, res, next) => {
           data.date,
           data.call_id,
           data.org_id,
+          data.body,
           data.total_duration_seconds,
           data.agent_id,
           data.agent_name,
