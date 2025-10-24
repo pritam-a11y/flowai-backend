@@ -987,7 +987,7 @@ router.post("/call/update", async (req, res, next) => {
       if (event === "call_analyzed") {
         const orgId = await findOrgIdByAgentId(call.agent_id);
 
-        console.log("orgId->", orgId);
+        // console.log("orgId->", orgId);
         // --- Data Extraction ---
         const data = {
           // Dates and IDs
@@ -1041,7 +1041,7 @@ router.post("/call/update", async (req, res, next) => {
               latency_tts_p50, latency_tts_p99, latency_stt_p50, latency_stt_p99
           ) VALUES (
               $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 
-              $15, $16, $17, $18, $19, $20, $21, $22
+              $15, $16, $17, $18, $19, $20, $21, $22, $23
           )
           ON CONFLICT (call_id) DO NOTHING;  
       `;
