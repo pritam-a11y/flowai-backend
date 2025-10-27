@@ -203,7 +203,7 @@ router.post("/webhook", async (req, res, next) => {
  *                     description: Access token from call context
  *               name:
  *                 type: string
- *                 enum: [check_availability, book_appointment, update_appointment, create_patient, find_patient, sort_locations, search_physician, get_physicians_by_specialty]
+ *                 enum: [check_availability, book_appointment, update_appointment, create_patient, find_patient, sort_locations, search_physician, get_physicians_by_specialty, find_physicians_by_symptoms, get_slots_by_symptoms]
  *                 description: Function name
  *               args:
  *                 type: object
@@ -242,6 +242,9 @@ router.post("/webhook", async (req, res, next) => {
  *                   firstName:
  *                     type: string
  *                     description: Physician first name - optional for search_physician
+ *                   symptom_text:
+ *                     type: string
+ *                     description: Patient's symptom description - required for find_physicians_by_symptoms and get_slots_by_symptoms
  *     responses:
  *       200:
  *         description: Function call result
@@ -897,6 +900,50 @@ router.post("/function-call", async (req, res, next) => {
         });
 
         result = searchResult;
+        break;
+      }
+
+      case "get_slots_by_symptoms": {
+        logger.info("Processing get_slots_by_symptoms function call");
+
+        // Extract parameters from args
+        const { address, symptom_text, serviceType, startTime } = args;
+
+        // Validate required fields
+        if (!address || !symptom_text) {
+          logger.warn("get_slots_by_symptoms failed: missing required fields", {
+            address,
+            symptom_text,
+          });
+          return res.status(400).json({
+            success: false,
+            error: "Missing required fields: address and symptom_text are required",
+          });
+        }
+
+        // Import slot symptom matcher service
+        const slotSymptomMatcher = require("../services/slotSymptomMatcher");
+
+        // Get slots for symptoms
+        const slotsResult = await slotSymptomMatcher.getSlotsForSymptoms(
+          symptom_text,
+          address,
+          serviceType,
+          startTime,
+          RedoxAPIService,
+          RedoxTransformer,
+          accessToken
+        );
+
+        logger.info("get_slots_by_symptoms completed", {
+          symptomTextLength: symptom_text.length,
+          hasAddress: !!address,
+          success: slotsResult.success,
+          matchedPhysicians: slotsResult.matched_physicians?.length || 0,
+          slotsFound: slotsResult.slots?.length || 0,
+        });
+
+        result = slotsResult;
         break;
       }
 
