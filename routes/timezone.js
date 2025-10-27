@@ -165,13 +165,18 @@ router.get("/current-time/:timezone", async (req, res) => {
     
     const isoString = `${year}-${monthStr}-${day}T${hoursStr}:${minutesStr}:${secondsStr}${offsetString}`;
 
+    // Get day of week
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayOfWeek = daysOfWeek[timezoneTime.getUTCDay()];
+
     logger.info(`Successfully retrieved current time for ${requestedTimezone}`);
 
     res.json({
       success: true,
       timezone: requestedTimezone,
       timezoneName: tzInfo.name,
-      currentTime: isoString
+      currentTime: isoString,
+      day: dayOfWeek
     });
 
   } catch (error) {
