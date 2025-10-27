@@ -22,7 +22,7 @@ const poolConfig = {
   },
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 3000,
+  connectionTimeoutMillis: 10000,
 };
 
 // Create the pool

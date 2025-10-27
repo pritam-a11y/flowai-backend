@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/connection");
-const logger = require("../utils/logger"); 
+const logger = require("../utils/logger");
 const jwtMiddleware = require("../middleware/jwt");
+const moment = require("moment");
 
 const calculatePercentage = (numerator, denominator) => {
   if (denominator === 0) return 0.0;
@@ -20,15 +21,14 @@ const calculatePercentage = (numerator, denominator) => {
  * @swagger
  * /api/v1/callAnalytics:
  *   get:
- *     summary: Retrieve comprehensive dashboard metrics and time series data (filtered by org_id)
- *     tags:
- *       - CallAnalytics
+ *     summary: Retrieve comprehensive dashboard metrics and time series data
+ *     tags: [CallAnalytics]
  *     security:
  *       - bearerAuth: []
  *     description: |
  *       Aggregates and returns high-level summary metrics, daily time series data,
- *       and detailed agent performance statistics in a single response for the dashboard.
- *       Optionally filters all analytics by `org_id` if provided.
+ *       and detailed agent performance statistics in a single response. All data is filtered by `org_id`
+ *       and the optional date range (`from`/`to`).
  *     parameters:
  *       - in: query
  *         name: org_id
@@ -37,6 +37,29 @@ const calculatePercentage = (numerator, denominator) => {
  *         required: true
  *         description: Organization ID to filter analytics data.
  *         example: org_12345
+ *       - in: query
+ *         name: from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         required: false
+ *         description: Start date (YYYY-MM-DD) for the filter range. Defaults to one year ago if omitted.
+ *         example: 2025-08-01
+ *       - in: query
+ *         name: to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         required: false
+ *         description: End date (YYYY-MM-DD) for the filter range. Defaults to today's date if omitted.
+ *         example: 2025-10-31
+ *       - in: query
+ *         name: agent_name
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Optional filter to search for a specific agent name (case-insensitive partial match).
+ *         example: Urology
  *     responses:
  *       200:
  *         description: Successfully retrieved all dashboard analytics data.
@@ -69,44 +92,87 @@ const calculatePercentage = (numerator, denominator) => {
  *             schema:
  *               example:
  *                 error: "Failed to retrieve call dashboard data from database."
- *                 details: "invalid input syntax for type bigint: '2025-09-16T12:00:00Z'"
+ *                 details: "Database query error."
  */
 router.get("/", jwtMiddleware, async (req, res) => {
-  const { org_id } = req.query;
+  const { org_id, from, to, agent_name } = req.query;
 
-  // Build the WHERE clause dynamically
-  let whereClause = "";
-  let queryParams = [];
+  // Default to one year of data from the current date.
+  const currentDate = moment().utc().endOf("day");
+  const defaultFromDate = currentDate
+    .clone()
+    .subtract(1, "year")
+    .startOf("day");
 
-  if (org_id) {
-    whereClause = `WHERE org_id = $1`;
-    queryParams.push(org_id);
-    logger.info("Filtering CallAnalytics by Org ID.", { org_id: org_id });
-  } else {
-    logger.info(
-      "Retrieving CallAnalytics for all organizations (no org_id filter provided)."
-    );
+  // Parse 'from' and 'to' dates, defaulting if not provided
+  let dateFrom = from ? moment.utc(from).startOf("day") : defaultFromDate;
+  let dateTo = to ? moment.utc(to).endOf("day") : currentDate;
+
+  // Enforce minimum 1-day range
+  if (dateTo.isSameOrBefore(dateFrom)) {
+    logger.warn("Invalid date range provided. Using default 1-year range.", {
+      from,
+      to,
+    });
+    dateFrom = defaultFromDate;
+    dateTo = currentDate;
   }
 
+  // Convert dates to Unix timestamps in milliseconds
+  const fromTimestampMs = dateFrom.valueOf();
+  const toTimestampMs = dateTo.valueOf();
+
+  logger.info("CallAnalytics Date Range", {
+    from: dateFrom.format("YYYY-MM-DD"),
+    to: dateTo.format("YYYY-MM-DD"),
+  });
+
+  // Build the WHERE clause dynamically
+  let whereClause = "WHERE ";
+  let queryParams = [];
+  let paramIndex = 1;
+
+  // Date Filter (Always included)
+  whereClause += `date >= $${paramIndex} AND date <= $${paramIndex + 1}`;
+
+  // to prevent the pg driver from converting it to an ISO string.
+  queryParams.push(String(fromTimestampMs), String(toTimestampMs));
+  paramIndex += 2;
+
+  if (org_id) {
+    whereClause += ` AND org_id = $${paramIndex}`;
+    queryParams.push(org_id);
+    paramIndex++;
+    logger.info("Filtering CallAnalytics by Org ID.", { org_id: org_id });
+  }
+
+  // Agent Name Filter
+  if (agent_name) {
+    whereClause += ` AND agent_name ILIKE $${paramIndex}`;
+    queryParams.push(`%${agent_name}%`);
+    paramIndex++;
+    logger.info("Filtering CallAnalytics by Agent Name.", {
+      agent_name: agent_name,
+    });
+  }
+
+  // SQL queries
   // --- Query for Summary and Aggregate Counts ---
   const simpleSummaryQuery = `
       SELECT
           COUNT(*) AS total_calls,
           ROUND(AVG(total_duration_seconds::NUMERIC)) AS average_call_duration, 
-          ROUND(AVG(latency_e2e_p50::NUMERIC)) AS average_latency, 
-          
+          ROUND(AVG(latency_e2e_p50::NUMERIC)) AS average_latency,        
           TO_CHAR(MIN(TO_TIMESTAMP(
               CASE WHEN date ~ '^[0-9]+$' THEN date::BIGINT ELSE NULL END / 1000
-          )), 'YYYY-MM-DD') AS date_start,
-          TO_CHAR(MAX(TO_TIMESTAMP(
+             )), 'YYYY-MM-DD') AS date_start,
+             TO_CHAR(MAX(TO_TIMESTAMP(
               CASE WHEN date ~ '^[0-9]+$' THEN date::BIGINT ELSE NULL END / 1000
-          )), 'YYYY-MM-DD') AS date_end,
-          
+             )), 'YYYY-MM-DD') AS date_end,
           SUM(CASE WHEN call_successful = TRUE THEN 1 ELSE 0 END) AS successful_calls,
           SUM(CASE WHEN call_successful = FALSE THEN 1 ELSE 0 END) AS unsuccessful_calls
       FROM calls
-      ${whereClause};
-  `;
+      ${whereClause}`;
 
   // Query : Global Aggregates (Need to pass parameters here too)
   const disconnectionQuery = `
@@ -148,7 +214,7 @@ router.get("/", jwtMiddleware, async (req, res) => {
           SUM(CASE WHEN call_successful = TRUE THEN 1 ELSE 0 END) AS successful_calls,
           SUM(CASE WHEN call_successful = FALSE THEN 1 ELSE 0 END) AS unsuccessful_calls,
           SUM(CASE WHEN in_voicemail = TRUE THEN 1 ELSE 0 END) AS voicemail_count,
-          SUM(CASE WHEN disconnection_reason = 'callTransfer' THEN 1 ELSE 0 END) AS transfer_count,
+          SUM(CASE WHEN disconnection_reason = 'call_Transfer' THEN 1 ELSE 0 END) AS transfer_count,
           SUM(CASE WHEN in_voicemail = FALSE THEN 1 ELSE 0 END) AS picked_up_count,
           ROUND(AVG(total_duration_seconds::NUMERIC)) AS avg_duration_seconds,
           ROUND(AVG(latency_e2e_p50::NUMERIC)) AS avg_latency_ms,
@@ -161,11 +227,7 @@ router.get("/", jwtMiddleware, async (req, res) => {
           ) AS sentiment_counts
       FROM
           calls
-      ${
-        whereClause
-          ? `WHERE date ~ '^[0-9]+$' AND ${whereClause.substring(6)}`
-          : `WHERE date ~ '^[0-9]+$'`
-      }
+          ${whereClause}
       GROUP BY
           call_date
       ORDER BY
@@ -184,14 +246,9 @@ router.get("/", jwtMiddleware, async (req, res) => {
               COUNT(*) AS count
           FROM
               calls
-          ${
-            whereClause
-              ? `WHERE date ~ '^[0-9]+$' AND disconnection_reason IS NOT NULL AND ${whereClause.substring(
-                  6
-                )}`
-              : `WHERE date ~ '^[0-9]+$' AND disconnection_reason IS NOT NULL`
-          }
-          GROUP BY 
+              ${whereClause}
+              AND disconnection_reason IS NOT NULL
+              GROUP BY
               date, disconnection_reason
       ) AS sub
       GROUP BY
@@ -203,24 +260,21 @@ router.get("/", jwtMiddleware, async (req, res) => {
   // Query : Agent Performance
   const agentQuery = `
       SELECT
-          agent_id,
-          agent_name,
-          COUNT(*) AS total_calls,
-          SUM(CASE WHEN call_successful = TRUE THEN 1 ELSE 0 END) AS successful_calls,
-          SUM(CASE WHEN call_successful = FALSE THEN 1 ELSE 0 END) AS unsuccessful_calls,
-          SUM(CASE WHEN in_voicemail = FALSE THEN 1 ELSE 0 END) AS picked_up_calls,
-          SUM(CASE WHEN disconnection_reason = 'callTransfer' THEN 1 ELSE 0 END) AS transferred_calls
+      agent_id,
+      agent_name,
+      COUNT(*) AS total_calls,
+      SUM(CASE WHEN call_successful = TRUE THEN 1 ELSE 0 END) AS successful_calls,
+      SUM(CASE WHEN call_successful = FALSE THEN 1 ELSE 0 END) AS unsuccessful_calls,
+      SUM(CASE WHEN in_voicemail = FALSE THEN 1 ELSE 0 END) AS picked_up_calls,
+      SUM(CASE WHEN disconnection_reason = 'call_transfer' THEN 1 ELSE 0 END) AS transferred_calls
       FROM
-          calls
-      ${
-        whereClause
-          ? `WHERE agent_id IS NOT NULL AND ${whereClause.substring(6)}`
-          : `WHERE agent_id IS NOT NULL`
-      }
+      calls
+      ${whereClause} 
+      AND agent_id IS NOT NULL 
       GROUP BY
-          agent_id, agent_name
+      agent_id, agent_name
       ORDER BY
-          successful_calls DESC;
+      successful_calls DESC;
   `;
 
   const queries = [
@@ -270,8 +324,10 @@ router.get("/", jwtMiddleware, async (req, res) => {
         averageCallDuration: Number(summaryRow.average_call_duration || 0),
         averageLatency: Number(summaryRow.average_latency || 0),
         dateRange: {
-          start: summaryRow.date_start,
-          end: summaryRow.date_end,
+          //start: summaryRow.date_start,
+          start: dateFrom.format("YYYY-MM-DD"),
+          end: dateTo.format("YYYY-MM-DD"),
+          //end: summaryRow.date_end,
         },
       },
       callSuccessRate: {
