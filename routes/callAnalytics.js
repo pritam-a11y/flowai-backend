@@ -36,7 +36,7 @@ const calculatePercentage = (numerator, denominator) => {
  *           type: string
  *         required: true
  *         description: Organization ID to filter analytics data.
- *         example: org_12345
+ *         example: org_123
  *       - in: query
  *         name: from
  *         schema:
@@ -75,7 +75,7 @@ const calculatePercentage = (numerator, denominator) => {
  *                     averageCallDuration: 95.5
  *                     averageLatency: 255
  *                     dateRange:
- *                       start: "2025-10-01"
+ *                       start: "2025-08-01"
  *                       end: "2025-10-23"
  *       400:
  *         description: Missing or invalid org_id parameter.
@@ -214,7 +214,7 @@ router.get("/", jwtMiddleware, async (req, res) => {
           SUM(CASE WHEN call_successful = TRUE THEN 1 ELSE 0 END) AS successful_calls,
           SUM(CASE WHEN call_successful = FALSE THEN 1 ELSE 0 END) AS unsuccessful_calls,
           SUM(CASE WHEN in_voicemail = TRUE THEN 1 ELSE 0 END) AS voicemail_count,
-          SUM(CASE WHEN disconnection_reason = 'call_Transfer' THEN 1 ELSE 0 END) AS transfer_count,
+          SUM(CASE WHEN disconnection_reason = 'call_transfer' THEN 1 ELSE 0 END) AS transfer_count,
           SUM(CASE WHEN in_voicemail = FALSE THEN 1 ELSE 0 END) AS picked_up_count,
           ROUND(AVG(total_duration_seconds::NUMERIC)) AS avg_duration_seconds,
           ROUND(AVG(latency_e2e_p50::NUMERIC)) AS avg_latency_ms,
