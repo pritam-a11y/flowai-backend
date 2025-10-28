@@ -220,10 +220,10 @@ router.get("/", jwtMiddleware, async (req, res) => {
           ROUND(AVG(latency_e2e_p50::NUMERIC)) AS avg_latency_ms,
           
           jsonb_build_object(
-              'negative', SUM(CASE WHEN user_sentiment = 'negative' THEN 1 ELSE 0 END),
-              'positive', SUM(CASE WHEN user_sentiment = 'positive' THEN 1 ELSE 0 END),
-              'neutral', SUM(CASE WHEN user_sentiment = 'neutral' THEN 1 ELSE 0 END),
-              'unknown', SUM(CASE WHEN user_sentiment IS NULL OR user_sentiment = 'unknown' THEN 1 ELSE 0 END)
+              'negative', SUM(CASE WHEN user_sentiment = 'Negative' THEN 1 ELSE 0 END),
+              'positive', SUM(CASE WHEN user_sentiment = 'Positive' THEN 1 ELSE 0 END),
+              'neutral', SUM(CASE WHEN user_sentiment = 'Neutral' THEN 1 ELSE 0 END),
+              'unknown', SUM(CASE WHEN user_sentiment IS NULL OR user_sentiment = 'Unknown' THEN 1 ELSE 0 END)
           ) AS sentiment_counts
       FROM
           calls
