@@ -112,8 +112,16 @@ router.get("/", jwtMiddleware, async (req, res) => {
     .startOf("day");
 
   // Parse 'from' and 'to' dates, defaulting if not provided
-  let dateFrom = from ? moment.utc(from).startOf("day") : defaultFromDate;
-  let dateTo = to ? moment.utc(to).endOf("day") : currentDate;
+  let fromDate = from?.trim();
+  let toDate = to?.trim();
+
+  let dateFrom =
+    fromDate && fromDate?.length > 0
+      ? moment.utc(from).startOf("day")
+      : defaultFromDate;
+
+  let dateTo =
+    toDate && toDate?.length > 0 ? moment.utc(to).endOf("day") : currentDate;
 
   // Enforce minimum 1-day range
   if (dateTo.isSameOrBefore(dateFrom)) {
@@ -150,13 +158,6 @@ router.get("/", jwtMiddleware, async (req, res) => {
   // to prevent the pg driver from converting it to an ISO string.
   queryParams.push(String(fromTimestampMs), String(toTimestampMs));
   paramIndex += 2;
-
-  // if (org_id) {
-  //   whereClause += ` AND org_id = $${paramIndex}`;
-  //   queryParams.push(org_id);
-  //   paramIndex++;
-  //   logger.info("Filtering CallAnalytics by Org ID.", { org_id: org_id });
-  // }
 
   // Agent Name Filter (Optional)
   if (agent_name) {
