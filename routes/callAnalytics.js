@@ -160,12 +160,15 @@ router.get("/", jwtMiddleware, async (req, res) => {
   paramIndex += 2;
 
   // Agent Name Filter (Optional)
-  if (agent_name) {
+
+  let agentName = agent_name.trim();
+
+  if (agentName) {
     whereClause += ` AND agent_name ILIKE $${paramIndex}`;
-    queryParams.push(`%${agent_name}%`);
+    queryParams.push(`%${agentName}%`);
     paramIndex++;
     logger.info("Filtering CallAnalytics by Agent Name.", {
-      agent_name: agent_name,
+      agent_name: agentName,
     });
   }
 
