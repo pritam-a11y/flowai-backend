@@ -161,7 +161,7 @@ router.get("/", jwtMiddleware, async (req, res) => {
 
   // Agent Name Filter (Optional)
 
-  let agentName = agent_name.trim();
+  let agentName = agent_name?.trim();
 
   if (agentName) {
     whereClause += ` AND agent_name ILIKE $${paramIndex}`;
