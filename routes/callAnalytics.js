@@ -97,6 +97,13 @@ const calculatePercentage = (numerator, denominator) => {
 router.get("/", jwtMiddleware, async (req, res) => {
   const { org_id, from, to, agent_name } = req.query;
 
+  // Manditory org_id ---
+  if (!org_id) {
+    return res
+      .status(400)
+      .json({ success: false, message: "org_id query parameter is required." });
+  }
+
   // Default to one year of data from the current date.
   const currentDate = moment().utc().endOf("day");
   const defaultFromDate = currentDate
@@ -105,8 +112,16 @@ router.get("/", jwtMiddleware, async (req, res) => {
     .startOf("day");
 
   // Parse 'from' and 'to' dates, defaulting if not provided
-  let dateFrom = from ? moment.utc(from).startOf("day") : defaultFromDate;
-  let dateTo = to ? moment.utc(to).endOf("day") : currentDate;
+  let fromDate = from?.trim();
+  let toDate = to?.trim();
+
+  let dateFrom =
+    fromDate && fromDate?.length > 0
+      ? moment.utc(from).startOf("day")
+      : defaultFromDate;
+
+  let dateTo =
+    toDate && toDate?.length > 0 ? moment.utc(to).endOf("day") : currentDate;
 
   // Enforce minimum 1-day range
   if (dateTo.isSameOrBefore(dateFrom)) {
@@ -127,32 +142,33 @@ router.get("/", jwtMiddleware, async (req, res) => {
     to: dateTo.format("YYYY-MM-DD"),
   });
 
-  // Build the WHERE clause dynamically
+  // Building the WHERE clause dynamically
   let whereClause = "WHERE ";
   let queryParams = [];
   let paramIndex = 1;
 
-  // Date Filter (Always included)
-  whereClause += `date >= $${paramIndex} AND date <= $${paramIndex + 1}`;
+  // ORG_ID Filter
+  whereClause += `org_id = $${paramIndex}`;
+  queryParams.push(org_id);
+  paramIndex++;
+
+  // Date Filter
+  whereClause += ` AND date >= $${paramIndex} AND date <= $${paramIndex + 1}`;
 
   // to prevent the pg driver from converting it to an ISO string.
   queryParams.push(String(fromTimestampMs), String(toTimestampMs));
   paramIndex += 2;
 
-  if (org_id) {
-    whereClause += ` AND org_id = $${paramIndex}`;
-    queryParams.push(org_id);
-    paramIndex++;
-    logger.info("Filtering CallAnalytics by Org ID.", { org_id: org_id });
-  }
+  // Agent Name Filter (Optional)
 
-  // Agent Name Filter
-  if (agent_name) {
+  let agentName = agent_name?.trim();
+
+  if (agentName) {
     whereClause += ` AND agent_name ILIKE $${paramIndex}`;
-    queryParams.push(`%${agent_name}%`);
+    queryParams.push(`%${agentName}%`);
     paramIndex++;
     logger.info("Filtering CallAnalytics by Agent Name.", {
-      agent_name: agent_name,
+      agent_name: agentName,
     });
   }
 
