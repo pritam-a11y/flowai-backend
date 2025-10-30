@@ -16,6 +16,7 @@ const {
   getDefaultProviderConfig,
 } = require("../config/providers");
 const { findOrgIdByAgentId } = require("../helpers/retellAgentList");
+const { generateIntakeFormPDF } = require("../services/intakeFormGenerator");
 
 const authService = new AuthService();
 
@@ -1689,39 +1690,156 @@ router.post("/call/update", async (req, res, next) => {
             }
           );
         } else {
-          // Create DocumentReference
+          // Create DocumentReference with PDF or fallback to text
           try {
             const accessToken =
               call.retell_llm_dynamic_variables?.access_token ||
               (await authService.getAccessToken());
 
-            // Ensure the text has proper formatting (normalize newlines)
-            const formattedIntakeDetails = patientIntakeDetails
-              .replace(/\r\n/g, "\n") // Convert Windows newlines
-              .replace(/\r/g, "\n") // Convert old Mac newlines
-              .trim(); // Remove leading/trailing whitespace
+            let documentBundle;
+            let documentType = "text"; // Default to text
 
-            // Log details for comparison with Swagger flow
-            logger.info("=== RETELL DOCUMENT CREATION DEBUG ===", {
-              call_id: call.call_id,
-              patient_id: patientId,
-              content_type: typeof formattedIntakeDetails,
-              content_length: formattedIntakeDetails.length,
-              content_preview: formattedIntakeDetails.substring(0, 100),
-              has_access_token: !!accessToken,
-              access_token_source: call.retell_llm_dynamic_variables
-                ?.access_token
-                ? "retell_variables"
-                : "auth_service",
-              metadata: {
-                callId: call.call_id,
-                agentId: call.agent_id,
-                callTimestamp: new Date(call.start_timestamp).toISOString(),
-              },
-            });
+            // Try to generate PDF from transcript
+            if (call.transcript) {
+              try {
+                logger.info("Attempting to generate PDF from transcript", {
+                  call_id: call.call_id,
+                  patient_id: patientId,
+                  transcript_length: call.transcript.length,
+                });
 
-            const documentBundle =
-              RedoxTransformer.createDocumentReferenceBundle(
+                // Fetch patient details from Redox for PDF header
+                let patientDemographics = null;
+                try {
+                  const patientResponse = await RedoxAPIService.makeRequest(
+                    "GET",
+                    `/Patient/${patientId}`,
+                    null,
+                    null,
+                    accessToken
+                  );
+
+                  if (patientResponse && patientResponse.id) {
+                    // Transform patient data for PDF header
+                    const name = patientResponse.name?.[0];
+                    const fullName = name
+                      ? `${name.family || ""}, ${name.given?.[0] || ""}`.trim()
+                      : "";
+
+                    const phoneContact = patientResponse.telecom?.find(
+                      (contact) => contact.system === "phone"
+                    );
+                    const phone = phoneContact?.value || "";
+
+                    const address = patientResponse.address?.[0];
+                    const fullAddress = address
+                      ? `${address.line?.[0] || ""}, ${address.city || ""}, ${address.state || ""}-${address.postalCode || ""}`.trim()
+                      : "";
+
+                    // Extract insurance info
+                    const insuranceContact = patientResponse.contact?.find(
+                      (contact) => contact.relationship?.[0]?.coding?.[0]?.code === "I"
+                    );
+                    const insuranceName = insuranceContact?.name?.text || "";
+
+                    const insuranceMemberIdIdentifier = patientResponse.identifier?.find(
+                      (identifier) =>
+                        identifier.system === "urn:redox:flow-ai:insurance" ||
+                        identifier.type?.coding?.[0]?.code === "MB"
+                    );
+                    const insuranceMemberId = insuranceMemberIdIdentifier?.value || "";
+
+                    // Get encounter date from dynamic variables
+                    const encounterDate =
+                      call.retell_llm_dynamic_variables?.appointment_start ||
+                      call.collected_dynamic_variables?.appointment_start ||
+                      "";
+
+                    patientDemographics = {
+                      name: fullName,
+                      birthDate: patientResponse.birthDate || "",
+                      gender: patientResponse.gender
+                        ? patientResponse.gender.charAt(0).toUpperCase() + patientResponse.gender.slice(1)
+                        : "",
+                      phone: phone,
+                      insuranceName: insuranceName,
+                      insuranceMemberId: insuranceMemberId,
+                      address: fullAddress,
+                      encounterDate: encounterDate,
+                    };
+
+                    logger.info("Patient demographics fetched for PDF", {
+                      call_id: call.call_id,
+                      patient_id: patientId,
+                      has_demographics: true,
+                    });
+                  }
+                } catch (patientFetchError) {
+                  logger.warn("Failed to fetch patient demographics for PDF", {
+                    call_id: call.call_id,
+                    patient_id: patientId,
+                    error: patientFetchError.message,
+                  });
+                  // Continue without demographics
+                }
+
+                // Generate PDF from transcript using ChatGPT with patient demographics
+                const pdfBase64 = await generateIntakeFormPDF(call.transcript, patientDemographics);
+
+                // Create PDF document bundle
+                documentBundle = RedoxTransformer.createDocumentReferencePDFBundle(
+                  patientId,
+                  pdfBase64,
+                  {
+                    callId: call.call_id,
+                    agentId: call.agent_id,
+                    callTimestamp: new Date(call.start_timestamp).toISOString(),
+                  }
+                );
+
+                documentType = "pdf";
+
+                logger.info("PDF intake form generated successfully", {
+                  call_id: call.call_id,
+                  patient_id: patientId,
+                  pdf_size_bytes: Buffer.from(pdfBase64, "base64").length,
+                });
+              } catch (pdfError) {
+                logger.warn("PDF generation failed, falling back to text", {
+                  call_id: call.call_id,
+                  patient_id: patientId,
+                  error: pdfError.message,
+                });
+
+                // Fallback to text document
+                const formattedIntakeDetails = patientIntakeDetails
+                  .replace(/\r\n/g, "\n")
+                  .replace(/\r/g, "\n")
+                  .trim();
+
+                documentBundle = RedoxTransformer.createDocumentReferenceBundle(
+                  patientId,
+                  formattedIntakeDetails,
+                  {
+                    callId: call.call_id,
+                    agentId: call.agent_id,
+                    callTimestamp: new Date(call.start_timestamp).toISOString(),
+                  }
+                );
+              }
+            } else {
+              // No transcript available, use text approach
+              logger.info("No transcript available, using text approach", {
+                call_id: call.call_id,
+                patient_id: patientId,
+              });
+
+              const formattedIntakeDetails = patientIntakeDetails
+                .replace(/\r\n/g, "\n")
+                .replace(/\r/g, "\n")
+                .trim();
+
+              documentBundle = RedoxTransformer.createDocumentReferenceBundle(
                 patientId,
                 formattedIntakeDetails,
                 {
@@ -1730,14 +1848,14 @@ router.post("/call/update", async (req, res, next) => {
                   callTimestamp: new Date(call.start_timestamp).toISOString(),
                 }
               );
+            }
 
-            logger.info("=== RETELL BUNDLE STRUCTURE ===", {
+            logger.info("=== RETELL DOCUMENT CREATION ===", {
               call_id: call.call_id,
+              patient_id: patientId,
+              document_type: documentType,
               bundle_type: documentBundle.resourceType,
               bundle_entries: documentBundle.entry?.length,
-              message_header_id: documentBundle.entry?.[0]?.resource?.id,
-              document_id: documentBundle.entry?.[1]?.resource?.id,
-              bundle_json: JSON.stringify(documentBundle, null, 2),
             });
 
             const documentResponse = await RedoxAPIService.makeRequest(
@@ -1757,6 +1875,7 @@ router.post("/call/update", async (req, res, next) => {
               call_id: call.call_id,
               patient_id: patientId,
               document_id: documentResult.generatedId,
+              document_type: documentType,
               success: documentResult.success,
             });
           } catch (docError) {

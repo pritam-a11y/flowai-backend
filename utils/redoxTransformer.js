@@ -1090,6 +1090,73 @@ class RedoxTransformer {
     };
   }
 
+  static createDocumentReferencePDFBundle(
+    patientId,
+    pdfBase64Data,
+    metadata = {},
+  ) {
+    const documentUuid = `urn:uuid:${uuidv4()}`;
+
+    const messageHeader = this.createMessageHeader(
+      "https://fhir.redoxengine.com/EventDefinition/DocumentReferenceCreate",
+      documentUuid,
+    );
+
+    const documentReference = {
+      fullUrl: documentUuid,
+      resource: {
+        resourceType: "DocumentReference",
+        identifier: [
+          {
+            system: "urn:redox:flow-ai:document",
+            value: `DOC-${uuidv4()}`,
+          },
+        ],
+        status: "current",
+        type: {
+          text: "Patient Intake Form",
+        },
+        category: [
+          {
+            coding: [
+              {
+                system: "urn:redox:document_kind",
+                code: "Media",
+              },
+            ],
+          },
+        ],
+        subject: {
+          reference: `Patient/${patientId}`,
+          display: `Patient ${patientId}`,
+        },
+        date: new Date().toISOString(),
+        author: [
+          {
+            display: "Flow AI System",
+          },
+        ],
+        content: [
+          {
+            attachment: {
+              contentType: "application/pdf",
+              data: pdfBase64Data,
+              title: "Patient Intake Form",
+            },
+          },
+        ],
+        description: "Patient intake form generated from call transcript",
+      },
+    };
+
+    return {
+      resourceType: "Bundle",
+      type: "message",
+      timestamp: new Date().toISOString(),
+      entry: [messageHeader, documentReference],
+    };
+  }
+
   static createAppointmentBundle(
     patientId,
     appointmentType,
