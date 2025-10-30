@@ -4,11 +4,6 @@ const db = require("../db/connection");
 const logger = require("../utils/logger");
 const jwtMiddleware = require("../middleware/jwt");
 
-// Utility to escape string for SQL LIKE comparison (optional, but good practice)
-// const sanitizeInput = (str) => {
-//   return str.replace(/[^\w\s]/gi, ""); // Removes special characters
-// };
-
 /**
  * @swagger
  * tags:
