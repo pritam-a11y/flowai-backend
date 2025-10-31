@@ -33,8 +33,7 @@ const membersRoutes = require("./routes/members");
 const intakeRoutes = require("./routes/intakeForm");
 const faxRoutes = require("./routes/phelix");
 const callsRoutes = require("./routes/callAnalytics");
-const listAgentRoutes = require("./routes/listAgent");
-const insuranceRoutes = require("./routes/insurance");
+const listAgentRoutes = require("./routes/listAgent"); 
 
 const app = express();
 
@@ -163,8 +162,7 @@ app.use("/api/v1/members", membersRoutes);
 app.use("/api/v1/intake", intakeRoutes);
 app.use("/api/v1/fax", faxRoutes);
 app.use("/api/v1/callAnalytics", callsRoutes);
-app.use("/api/v1/list-agent", listAgentRoutes);
-app.use("/api/v1/insurance", insuranceRoutes);
+app.use("/api/v1/list-agent", listAgentRoutes); 
 
 // OAuth Routes (no prefix as per standard OAuth conventions)
 app.use("/oauth", oauthRoutes);
@@ -200,8 +198,7 @@ app.use("*", (req, res) => {
       "/api/v1/redox/test/trigger-scheduling-call",
       "/api/v1/fax",
       "/api/v1/callAnalytics",
-      "/api/v1/list-agent",
-      "/api/v1/insurance",
+      "/api/v1/list-agent", 
     ],
   });
 });
