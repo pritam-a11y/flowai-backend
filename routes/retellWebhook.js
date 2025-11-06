@@ -1080,13 +1080,6 @@ router.post("/function-call", async (req, res, next) => {
           logger.error("Missing mandatory 'Self Pay' configuration.", {
             org_id,
           });
-          logger.info("verify_patient_insurance completed", {
-            symptomTextLength: symptom_text.length,
-            hasAddress: !!address,
-            success: slotsResult.success,
-            matchedPhysicians: slotsResult.matched_physicians?.length || 0,
-            slotsFound: slotsResult.slots?.length || 0,
-          });
 
           return res.status(500).json({
             status: false,
@@ -1105,6 +1098,138 @@ router.post("/function-call", async (req, res, next) => {
             details: error.message,
           });
         }
+      }
+      
+      case "check_insurance_eligibility": {
+        logger.info("Processing check_insurance_eligibility function call");
+
+        // Extract subscriber details from args
+        const { firstName, lastName, dateOfBirth, memberId } = args;
+
+        // Validate required fields
+        if (!firstName || !lastName || !dateOfBirth || !memberId) {
+          logger.warn("check_insurance_eligibility failed: missing required fields", {
+            firstName: firstName ? 'provided' : 'missing',
+            lastName: lastName ? 'provided' : 'missing',
+            dateOfBirth: dateOfBirth ? 'provided' : 'missing',
+            memberId: memberId ? 'provided' : 'missing'
+          });
+          return res.status(400).json({
+            success: false,
+            error: "Missing required fields: firstName, lastName, dateOfBirth, and memberId are required"
+          });
+        }
+
+        try {
+          // Make request to Stedi Healthcare API
+          const stediResponse = await axios.post(
+            'https://healthcare.us.stedi.com/2024-04-01/change/medicalnetwork/eligibility/v3',
+            {
+              tradingPartnerServiceId: "87726",
+              provider: {
+                organizationName: "Provider Name",
+                npi: "1999999984"
+              },
+              subscriber: {
+                firstName: firstName,
+                lastName: lastName,
+                dateOfBirth: dateOfBirth,
+                memberId: memberId
+              },
+              encounter: {
+                serviceTypeCodes: ["30"]
+              }
+            },
+            {
+              headers: {
+                'Authorization': 'Key test_YSVA5HJ.7zJoTjyDCZxYeYOsHL7Z0if7',
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+
+          logger.info("Stedi eligibility check completed", {
+            status: stediResponse.status,
+            hasData: !!stediResponse.data
+          });
+
+          // Extract simplified eligibility information
+          const data = stediResponse.data;
+          const primaryCoverage = data.planStatus ? data.planStatus.find(ps => ps.statusCode === "1") : null;
+
+          // Get deductible information
+          const individualDeductible = data.benefitsInformation ?
+            data.benefitsInformation.find(b => b.code === "C" && b.coverageLevelCode === "IND" && b.timeQualifierCode === "29") : null;
+
+          // Get out of pocket information
+          const individualOOP = data.benefitsInformation ?
+            data.benefitsInformation.find(b => b.code === "G" && b.coverageLevelCode === "IND" && b.timeQualifierCode === "29") : null;
+
+          // Get primary care provider
+          const pcpInfo = data.benefitsInformation ?
+            data.benefitsInformation.find(b => b.code === "L") : null;
+
+          // Create simplified response
+          result = {
+            success: true,
+            eligibility_verified: true,
+            subscriber: {
+              name: `${data.subscriber?.firstName || ''} ${data.subscriber?.lastName || ''}`.trim(),
+              memberId: data.subscriber?.memberId || memberId,
+              dateOfBirth: data.subscriber?.dateOfBirth || dateOfBirth,
+              gender: data.subscriber?.gender || '',
+              groupNumber: data.subscriber?.groupNumber || ''
+            },
+            coverage: {
+              status: primaryCoverage ? primaryCoverage.status : "Unknown",
+              statusCode: primaryCoverage ? primaryCoverage.statusCode : "",
+              planDetails: primaryCoverage ? primaryCoverage.planDetails : "",
+              planBeginDate: data.planDateInformation?.planBegin || "",
+              insuranceType: data.benefitsInformation?.[0]?.insuranceType || ""
+            },
+            payer: {
+              name: data.payer?.name || "",
+              payerId: data.payer?.payorIdentification || ""
+            },
+            financials: {
+              deductible: {
+                remaining: individualDeductible ? individualDeductible.benefitAmount : "0",
+                level: individualDeductible ? individualDeductible.coverageLevel : ""
+              },
+              outOfPocket: {
+                remaining: individualOOP ? individualOOP.benefitAmount : "0",
+                level: individualOOP ? individualOOP.coverageLevel : ""
+              }
+            },
+            primaryCareProvider: pcpInfo && pcpInfo.benefitsRelatedEntity ? {
+              name: `${pcpInfo.benefitsRelatedEntity.entityFirstname || ''} ${pcpInfo.benefitsRelatedEntity.entityName || ''}`.trim(),
+              npi: pcpInfo.benefitsRelatedEntity.entityIdentificationValue || ""
+            } : null,
+            rawResponse: {
+              controlNumber: data.controlNumber,
+              traceId: data.meta?.traceId
+            }
+          };
+
+          logger.info("Eligibility check response simplified", {
+            subscriberName: result.subscriber.name,
+            coverageStatus: result.coverage.status,
+            payerName: result.payer.name
+          });
+
+        } catch (error) {
+          logger.error("Stedi eligibility check failed", {
+            error: error.message,
+            response: error.response?.data
+          });
+
+          result = {
+            success: false,
+            eligibility_verified: false,
+            error: error.response?.data?.error || error.message || "Failed to verify insurance eligibility"
+          };
+        }
+        break;
       }
 
       default:

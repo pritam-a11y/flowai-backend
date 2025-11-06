@@ -9,7 +9,7 @@ const logger = require('../utils/logger');
  * @swagger
  * /api/v1/patient/search:
  *   post:
- *     summary: Search for patients by phone number
+ *     summary: Search for patients with flexible parameters
  *     tags: [Patient]
  *     security:
  *       - bearerAuth: []
@@ -19,13 +19,28 @@ const logger = require('../utils/logger');
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - phone
  *             properties:
+ *               first_name:
+ *                 type: string
+ *                 description: Patient's first name
+ *                 example: "John"
+ *               last_name:
+ *                 type: string
+ *                 description: Patient's last name
+ *                 example: "Doe"
  *               phone:
  *                 type: string
  *                 description: Patient's phone number
  *                 example: "+18330165712"
+ *               birth_date:
+ *                 type: string
+ *                 format: date
+ *                 description: Patient's date of birth (YYYY-MM-DD)
+ *                 example: "1982-10-01"
+ *               zip_code:
+ *                 type: string
+ *                 description: Patient's zip code
+ *                 example: "33056"
  *               access_token:
  *                 type: string
  *                 description: Optional access token (can also be in Authorization header)
@@ -33,6 +48,8 @@ const logger = require('../utils/logger');
  *     responses:
  *       200:
  *         description: Patient search results
+ *       400:
+ *         description: No search parameters provided
  *       401:
  *         description: Authentication failed
  *       500:
@@ -40,18 +57,36 @@ const logger = require('../utils/logger');
  */
 router.post('/search', authMiddleware, async (req, res, next) => {
   try {
-    const { phone } = req.body;
-    logger.info('Patient search request', { phone: phone ? 'provided' : 'missing' });
-    
-    if (!phone) {
-      logger.warn('Patient search failed: missing phone number');
+    const { first_name, last_name, phone, birth_date, zip_code } = req.body;
+
+    logger.info('Patient search request', {
+      first_name: first_name ? 'provided' : 'missing',
+      last_name: last_name ? 'provided' : 'missing',
+      phone: phone ? 'provided' : 'missing',
+      birth_date: birth_date ? 'provided' : 'missing',
+      zip_code: zip_code ? 'provided' : 'missing'
+    });
+
+    // Check if at least one search parameter is provided
+    if (!first_name && !last_name && !phone && !birth_date && !zip_code) {
+      logger.warn('Patient search failed: no search parameters provided');
       return res.status(400).json({
         success: false,
-        error: 'Missing required field: phone'
+        error: 'At least one search parameter is required'
       });
     }
 
-    const searchParams = RedoxTransformer.createPatientSearchParams(phone);
+    // Use the flexible search method with whatever parameters were provided
+    const searchParams = RedoxTransformer.createPatientSearchByDobNameParams(
+      birth_date || null,
+      first_name || null,
+      last_name || null,
+      phone || null,
+      zip_code || null
+    );
+
+    logger.info('Executing patient search', { searchParams });
+
     const redoxResponse = await RedoxAPIService.makeRequest(
       'POST',
       '/Patient/_search',
@@ -62,20 +97,27 @@ router.post('/search', authMiddleware, async (req, res, next) => {
 
     // Transform the response to return simplified patient objects
     const patients = RedoxTransformer.transformPatientSearchResponse(redoxResponse);
-    
+
     // Add access token to each patient record
     const patientsWithToken = patients.map(patient => ({
       ...patient,
       accessToken: req.accessToken
     }));
 
-    logger.info('Patient search completed successfully', { patientsFound: patients.length });
+    logger.info('Patient search completed successfully', {
+      patientsFound: patients.length,
+      searchParams
+    });
+
     res.json({
       success: true,
       data: patientsWithToken
     });
   } catch (error) {
-    logger.error('Patient search error', { error: error.message });
+    logger.error('Patient search error', {
+      error: error.message,
+      params: req.body
+    });
     next(error);
   }
 });
