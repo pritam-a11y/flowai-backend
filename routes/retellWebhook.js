@@ -250,6 +250,103 @@ router.post("/webhook", async (req, res, next) => {
  *       200:
  *         description: Function call result
  */
+
+// Helper function to extract prior authorization information
+const extractPriorAuth = (benefitsInfo) => {
+  if (!benefitsInfo) return { required: false, status: "unknown", message: null };
+
+  // Look through all benefit information entries
+  for (const benefit of benefitsInfo) {
+    // Check authOrCertIndicator field first (most reliable)
+    if (benefit.authOrCertIndicator) {
+      return {
+        required: benefit.authOrCertIndicator === "Y",
+        status: benefit.authOrCertIndicator === "Y" ? "required" :
+                benefit.authOrCertIndicator === "N" ? "not_required" : "unknown",
+        message: benefit.authOrCertIndicator === "U" ?
+                 "Unable to determine - check with payer" : null
+      };
+    }
+
+    // Fallback: Search description fields for prior auth keywords
+    const descriptions = benefit.additionalInformation?.map(ai => ai.description.toLowerCase()) || [];
+    for (const desc of descriptions) {
+      if (desc.includes('prior auth') ||
+          desc.includes('preauth') ||
+          desc.includes('precert') ||
+          desc.includes('pre-authorization') ||
+          desc.includes('authorization required')) {
+        return {
+          required: true,
+          status: "likely_required",
+          message: benefit.additionalInformation.find(ai =>
+            ai.description.toLowerCase().includes('auth') ||
+            ai.description.toLowerCase().includes('cert')
+          )?.description
+        };
+      }
+    }
+  }
+
+  // If authOrCertIndicator not present, assume not required (per Stedi docs)
+  return {
+    required: false,
+    status: "not_required",
+    message: "No prior authorization required"
+  };
+};
+
+// Helper function to extract copay amounts for common services
+const extractCopayAmounts = (benefitsInfo) => {
+  if (!benefitsInfo) return {};
+
+  const copays = {};
+
+  // Service type mappings
+  const serviceTypes = {
+    primaryCare: { codes: ["98"], keywords: ["primary care"] },
+    specialist: { codes: ["98"], keywords: ["specialist"] },
+    urgentCare: { codes: ["UC", "86"], keywords: ["urgent care"] },
+    emergency: { codes: ["86"], keywords: ["emergency"] },
+    hospitalInpatient: { codes: ["48"], keywords: ["hospital", "inpatient", "semi private room"] },
+    hospitalOutpatient: { codes: ["50"], keywords: ["outpatient"] }
+  };
+
+  for (const [serviceType, config] of Object.entries(serviceTypes)) {
+    // Find in-network copay (code "B" with inPlanNetworkIndicatorCode "Y")
+    const copayBenefit = benefitsInfo.find(b =>
+      b.code === "B" &&
+      b.inPlanNetworkIndicatorCode === "Y" &&
+      b.serviceTypeCodes?.some(stc => config.codes.includes(stc)) &&
+      b.additionalInformation?.some(ai =>
+        config.keywords.some(keyword =>
+          ai.description.toLowerCase().includes(keyword)
+        )
+      )
+    );
+
+    if (copayBenefit) {
+      copays[serviceType] = parseFloat(copayBenefit.benefitAmount) || 0;
+    } else {
+      // Check for co-insurance instead
+      const coinsuranceBenefit = benefitsInfo.find(b =>
+        b.code === "A" &&
+        b.inPlanNetworkIndicatorCode === "Y" &&
+        b.serviceTypeCodes?.some(stc => config.codes.includes(stc))
+      );
+
+      if (coinsuranceBenefit) {
+        copays[serviceType] = {
+          type: "coinsurance",
+          percent: parseFloat(coinsuranceBenefit.benefitPercent) || 0
+        };
+      }
+    }
+  }
+
+  return copays;
+};
+
 router.post("/function-call", async (req, res, next) => {
   try {
     // Log function call request body (excluding transcript and transcript_object for cleaner logs)
@@ -1155,66 +1252,86 @@ router.post("/function-call", async (req, res, next) => {
 
           // Extract simplified eligibility information
           const data = stediResponse.data;
+
+          // Check if policy is active
           const primaryCoverage = data.planStatus ? data.planStatus.find(ps => ps.statusCode === "1") : null;
+          const isPolicyActive = !!primaryCoverage;
 
-          // Get deductible information
-          const individualDeductible = data.benefitsInformation ?
-            data.benefitsInformation.find(b => b.code === "C" && b.coverageLevelCode === "IND" && b.timeQualifierCode === "29") : null;
+          // Extract prior authorization information
+          const priorAuth = extractPriorAuth(data.benefitsInformation);
 
-          // Get out of pocket information
-          const individualOOP = data.benefitsInformation ?
-            data.benefitsInformation.find(b => b.code === "G" && b.coverageLevelCode === "IND" && b.timeQualifierCode === "29") : null;
+          // Extract copay amounts for common services
+          const copayInfo = extractCopayAmounts(data.benefitsInformation);
 
-          // Get primary care provider
-          const pcpInfo = data.benefitsInformation ?
-            data.benefitsInformation.find(b => b.code === "L") : null;
+          // Format copay amounts for response
+          const formattedCopays = {};
+          for (const [service, value] of Object.entries(copayInfo)) {
+            if (typeof value === 'object' && value.type === 'coinsurance') {
+              formattedCopays[service] = `${value.percent}% coinsurance`;
+            } else if (typeof value === 'number') {
+              formattedCopays[service] = value > 0 ? `$${value}` : "No copay";
+            } else {
+              formattedCopays[service] = "Not specified";
+            }
+          }
 
-          // Create simplified response
+          // Create simplified response focused on key information
           result = {
             success: true,
-            eligibility_verified: true,
-            subscriber: {
-              name: `${data.subscriber?.firstName || ''} ${data.subscriber?.lastName || ''}`.trim(),
-              memberId: data.subscriber?.memberId || memberId,
-              dateOfBirth: data.subscriber?.dateOfBirth || dateOfBirth,
-              gender: data.subscriber?.gender || '',
-              groupNumber: data.subscriber?.groupNumber || ''
-            },
-            coverage: {
-              status: primaryCoverage ? primaryCoverage.status : "Unknown",
-              statusCode: primaryCoverage ? primaryCoverage.statusCode : "",
-              planDetails: primaryCoverage ? primaryCoverage.planDetails : "",
-              planBeginDate: data.planDateInformation?.planBegin || "",
-              insuranceType: data.benefitsInformation?.[0]?.insuranceType || ""
-            },
-            payer: {
-              name: data.payer?.name || "",
-              payerId: data.payer?.payorIdentification || ""
-            },
-            financials: {
-              deductible: {
-                remaining: individualDeductible ? individualDeductible.benefitAmount : "0",
-                level: individualDeductible ? individualDeductible.coverageLevel : ""
+            eligibility: {
+              // 1. Policy Active Status
+              isActive: isPolicyActive,
+              policyStatus: primaryCoverage ? primaryCoverage.status : "Unknown",
+              planName: primaryCoverage ? primaryCoverage.planDetails : "Unknown",
+
+              // 2. Prior Authorization
+              priorAuthRequired: priorAuth.required,
+              priorAuthStatus: priorAuth.status,
+              priorAuthMessage: priorAuth.message,
+
+              // 3. Copay Information
+              copays: {
+                primaryCare: formattedCopays.primaryCare || "Not specified",
+                specialist: formattedCopays.specialist || "Not specified",
+                urgentCare: formattedCopays.urgentCare || "Not specified",
+                emergency: formattedCopays.emergency || "Not specified",
+                hospitalInpatient: formattedCopays.hospitalInpatient || "Not specified",
+                hospitalOutpatient: formattedCopays.hospitalOutpatient || "Not specified"
               },
-              outOfPocket: {
-                remaining: individualOOP ? individualOOP.benefitAmount : "0",
-                level: individualOOP ? individualOOP.coverageLevel : ""
+
+              // Member verification info
+              member: {
+                name: `${data.subscriber?.firstName || ''} ${data.subscriber?.lastName || ''}`.trim(),
+                memberId: data.subscriber?.memberId || memberId,
+                groupNumber: data.subscriber?.groupNumber || '',
+                verified: true
+              },
+
+              // Payer information
+              payer: {
+                name: data.payer?.name || "",
+                payerId: data.payer?.payorIdentification || ""
+              },
+
+              // Additional coverage details
+              coverageDates: {
+                planBeginDate: data.planDateInformation?.planBegin || "",
+                eligibilityBeginDate: data.planDateInformation?.eligibilityBegin || "",
+                serviceDate: data.planDateInformation?.service || ""
               }
             },
-            primaryCareProvider: pcpInfo && pcpInfo.benefitsRelatedEntity ? {
-              name: `${pcpInfo.benefitsRelatedEntity.entityFirstname || ''} ${pcpInfo.benefitsRelatedEntity.entityName || ''}`.trim(),
-              npi: pcpInfo.benefitsRelatedEntity.entityIdentificationValue || ""
-            } : null,
             rawResponse: {
               controlNumber: data.controlNumber,
-              traceId: data.meta?.traceId
+              traceId: data.meta?.traceId,
+              eligibilitySearchId: data.eligibilitySearchId
             }
           };
 
           logger.info("Eligibility check response simplified", {
-            subscriberName: result.subscriber.name,
-            coverageStatus: result.coverage.status,
-            payerName: result.payer.name
+            subscriberName: result.eligibility.member.name,
+            isPolicyActive: result.eligibility.isActive,
+            priorAuthRequired: result.eligibility.priorAuthRequired,
+            payerName: result.eligibility.payer.name
           });
 
         } catch (error) {
@@ -1225,8 +1342,28 @@ router.post("/function-call", async (req, res, next) => {
 
           result = {
             success: false,
-            eligibility_verified: false,
-            error: error.response?.data?.error || error.message || "Failed to verify insurance eligibility"
+            eligibility: {
+              isActive: false,
+              policyStatus: "Error",
+              planName: "Unknown",
+              priorAuthRequired: false,
+              priorAuthStatus: "unknown",
+              priorAuthMessage: null,
+              copays: {
+                primaryCare: "Unable to verify",
+                specialist: "Unable to verify",
+                urgentCare: "Unable to verify",
+                emergency: "Unable to verify",
+                hospitalInpatient: "Unable to verify",
+                hospitalOutpatient: "Unable to verify"
+              },
+              member: {
+                name: `${firstName || ''} ${lastName || ''}`.trim(),
+                memberId: memberId || "",
+                verified: false
+              },
+              error: error.response?.data?.error || error.message || "Failed to verify insurance eligibility"
+            }
           };
         }
         break;
