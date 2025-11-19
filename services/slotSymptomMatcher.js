@@ -231,13 +231,10 @@ Return ONLY the JSON array, no explanation or additional text.`;
    * @param {string} symptomText - Patient's symptom description
    * @param {string} address - Patient's address
    * @param {string} serviceType - Type of service (optional)
-   * @param {string} startTime - Start time for slot search (optional)
-   * @param {Object} redoxApiService - Redox API service instance
-   * @param {Object} redoxTransformer - Redox transformer instance
-   * @param {string} accessToken - Access token for Redox API
+   * @param {string} startTime - Start time for slot search (optional)  
    * @returns {Promise<Object>} Result with slots sorted by time and distance
    */
-  async getSlotsForSymptoms(symptomText, address, serviceType, startTime, redoxApiService, redoxTransformer, accessToken) {
+  async getSlotsForSymptoms(symptomText, address, serviceType, startTime, accessToken) {
     try {
       // Step 1: Match symptoms to top 3 physicians using GPT
       const matchResult = await this.matchSymptomsToDoctors(symptomText);
@@ -271,26 +268,7 @@ Return ONLY the JSON array, no explanation or additional text.`;
               originalLocation: location,
               overriddenLocation
             });
-
-            // Create slot search params (same as check_availability)
-            const slotSearchParams = redoxTransformer.createSlotSearchParams(
-              overriddenLocation,
-              serviceType,
-              startTime
-            );
-
-            // Fetch slots from Redox API
-            const slotResponse = await redoxApiService.makeRequest(
-              'POST',
-              '/Slot/_search',
-              null,
-              slotSearchParams,
-              accessToken
-            );
-
-            // Transform slot response
-            const slots = redoxTransformer.transformSlotSearchResponse(slotResponse);
-
+  
             // Calculate distance for this location
             const distanceInfo = await this.calculateDistance(address, location);
 

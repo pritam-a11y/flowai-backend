@@ -10,16 +10,12 @@ const { v4: uuidv4 } = require("uuid");
 const authRoutes = require("./routes/auth");
 
 const logger = require("./utils/logger");
-const errorHandler = require("./middleware/errorHandler");
-const patientRoutes = require("./routes/patient");
+const errorHandler = require("./middleware/errorHandler"); 
 const patientCreateRoutes = require("./routes/patientCreate");
-const slotRoutes = require("./routes/slot");
-const appointmentRoutes = require("./routes/appointment");
+const slotRoutes = require("./routes/slot"); 
 const retellWebhookRoutes = require("./routes/retellWebhook");
-const vapiWebhookRoutes = require("./routes/vapiWebhook");
-const redoxWebhookRoutes = require("./routes/redoxWebhook");
-const retellAgentRoutes = require("./routes/retellAgent");
-const documentReferenceRoutes = require("./routes/documentReference");
+const vapiWebhookRoutes = require("./routes/vapiWebhook"); 
+const retellAgentRoutes = require("./routes/retellAgent"); 
 const oauthRoutes = require("./routes/oauth");
 const callbackScheduler = require("./services/callbackScheduler");
 const launchpadRoutes = require("./routes/launchpad");
@@ -29,9 +25,7 @@ const schedulingRoutes = require("./routes/schedulingAgent");
 const patientIntakeRoutes = require("./routes/patientIntakeAgent");
 const hammingRoutes = require("./routes/hamming");
 const timezoneRoutes = require("./routes/timezone");
-const membersRoutes = require("./routes/members");
-const intakeRoutes = require("./routes/intakeForm");
-const faxRoutes = require("./routes/phelix");
+const membersRoutes = require("./routes/members");  
 const callsRoutes = require("./routes/callAnalytics");
 const listAgentRoutes = require("./routes/listAgent"); 
 
@@ -85,7 +79,7 @@ const swaggerOptions = {
       title: "Flow AI API",
       version: "1.0.0",
       description:
-        "Redox FHIR services with simplified request/response format",
+        "Services with simplified request/response format",
       contact: {
         name: "API Support",
         email: "support@example.com",
@@ -140,16 +134,12 @@ app.get("/health", (req, res) => {
   });
 });
 
-// API Routes
-app.use("/api/v1/patient", patientRoutes);
+// API Routes 
 app.use("/api/v1/patient", patientCreateRoutes);
-app.use("/api/v1/slot", slotRoutes);
-app.use("/api/v1/appointment", appointmentRoutes);
+app.use("/api/v1/slot", slotRoutes); 
 app.use("/api/v1/retell", retellWebhookRoutes);
 app.use("/api/v1/retell/agent", retellAgentRoutes);
-app.use("/api/v1/vapi", vapiWebhookRoutes);
-app.use("/api/v1/redox", redoxWebhookRoutes);
-app.use("/api/v1/document-reference", documentReferenceRoutes);
+app.use("/api/v1/vapi", vapiWebhookRoutes);  
 app.use("/auth", authRoutes);
 app.use("/api/v1/launchpad", launchpadRoutes);
 app.use("/api/v1/sheet", sheetRoutes);
@@ -158,9 +148,7 @@ app.use("/api/v1/scheduling-agent", schedulingRoutes);
 app.use("/api/v1/patient-intake-agent", patientIntakeRoutes);
 app.use("/api/v1/hamming", hammingRoutes);
 app.use("/api/v1/timezones", timezoneRoutes);
-app.use("/api/v1/members", membersRoutes);
-app.use("/api/v1/intake", intakeRoutes);
-app.use("/api/v1/fax", faxRoutes);
+app.use("/api/v1/members", membersRoutes);  
 app.use("/api/v1/callAnalytics", callsRoutes);
 app.use("/api/v1/list-agent", listAgentRoutes); 
 
@@ -193,9 +181,7 @@ app.use("*", (req, res) => {
       "/api/v1/appointment/search",
       "/api/v1/retell/webhook",
       "/api/v1/retell/function-call",
-      "/api/v1/vapi/webhook",
-      "/api/v1/redox/webhook/scheduling",
-      "/api/v1/redox/test/trigger-scheduling-call",
+      "/api/v1/vapi/webhook", 
       "/api/v1/fax",
       "/api/v1/callAnalytics",
       "/api/v1/list-agent", 

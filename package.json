@@ -1,7 +1,7 @@
 {
-  "name": "redox-api-wrapper",
+  "name": "api-wrapper",
   "version": "1.0.0",
-  "description": "A Node.js Express wrapper for Redox FHIR APIs with simplified request/response format",
+  "description": "A Node.js Express APIs with simplified request/response format",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -10,8 +10,7 @@
     "test:watch": "jest --watch",
     "postman": "node scripts/generate-postman.js"
   },
-  "keywords": [
-    "redox",
+  "keywords": [ 
     "fhir",
     "healthcare",
     "api",

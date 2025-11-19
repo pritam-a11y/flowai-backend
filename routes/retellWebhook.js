@@ -1,8 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/auth");
-const RedoxTransformer = require("../utils/redoxTransformer");
-const RedoxAPIService = require("../services/redoxApiService");
+const authMiddleware = require("../middleware/auth"); 
 const AuthService = require("../services/authService");
 const logger = require("../utils/logger");
 const db = require("../db/connection");
@@ -17,8 +15,10 @@ const {
 } = require("../config/providers");
 const { findOrgIdByAgentId } = require("../helpers/retellAgentList");
 const { generateIntakeFormPDF } = require("../services/intakeFormGenerator");
+const { v4: uuidv4 } = require("uuid");
 
 const authService = new AuthService();
+const MAX_SLOT_CAPACITY = 3;
 
 // Initialize Resend with API key
 const resend = new Resend("re_DXtS219b_C9LEPwDvBsy2ZMmEKZGh8yYx");
@@ -81,19 +81,6 @@ router.post("/webhook", async (req, res, next) => {
     const accessToken = await authService.getAccessToken();
 
     // Search for patient by phone number
-    const patientSearchParams =
-      RedoxTransformer.createPatientSearchParams(from_number);
-    const patientResponse = await RedoxAPIService.makeRequest(
-      "POST",
-      "/Patient/_search",
-      null,
-      patientSearchParams,
-      accessToken
-    );
-
-    // Transform patient response
-    const patients =
-      RedoxTransformer.transformPatientSearchResponse(patientResponse);
 
     let appointments = [];
     let patientData = null;
@@ -104,23 +91,7 @@ router.post("/webhook", async (req, res, next) => {
         accessToken: accessToken,
       };
 
-      // Search for appointments using patient ID
-      const appointmentSearchParams =
-        RedoxTransformer.createAppointmentSearchParams(patients[0].patientId);
-      const appointmentResponse = await RedoxAPIService.makeRequest(
-        "POST",
-        "/Appointment/_search",
-        null,
-        appointmentSearchParams,
-        accessToken
-      );
-
-      // Transform appointment response
-      appointments =
-        RedoxTransformer.transformAppointmentSearchResponse(
-          appointmentResponse
-        );
-    }
+     }
 
     // Prepare response for Retell inbound call webhook format (all values must be strings)
     const dynamicVariables = {
@@ -425,20 +396,7 @@ router.post("/function-call", async (req, res, next) => {
           originalLocation: location,
           overriddenLocation: overriddenLocation,
           statEnabled: stat,
-        });
-
-        const slotSearchParams = RedoxTransformer.createSlotSearchParams(
-          overriddenLocation,
-          serviceType,
-          startTime
-        );
-        const slotResponse = await RedoxAPIService.makeRequest(
-          "POST",
-          "/Slot/_search",
-          null,
-          slotSearchParams,
-          accessToken
-        );
+        }); 
 
         // If stat is enabled, fetch existing appointments to count bookings
         if (stat) {
@@ -451,59 +409,52 @@ router.post("/function-call", async (req, res, next) => {
           const searchEndDate = new Date(searchStartDate);
           searchEndDate.setDate(searchEndDate.getDate() + 30);
 
-          // Fetch existing appointments to count bookings
-          const appointmentParams = {
-            date: `ge${searchStartDate}`,
-            _sort: "date",
-            _count: "100",
-          };
+          logger.info("Searching slots inventory for available capacity.", { from: searchStartDate.toISOString(), to: endDate.toISOString() });
+            
+           // Query
+           // Slots Check  ---
+           const availableSlotsQuery = `
+           SELECT slot_datetime, available_slots
+           FROM public.slots
+           WHERE slot_datetime >= $1 AND available_slots > 0
+           ORDER BY slot_datetime;
+       `;
+         
+       const slotsResult = await db.query(availableSlotsQuery, [searchStartDate.toISOString()]);
 
-          const appointmentResponse = await RedoxAPIService.makeRequest(
-            "POST",
-            "/Appointment/_search",
-            null,
-            appointmentParams,
-            accessToken
-          );
-
-          // Extract appointments with timing info
-          let existingAppointments = [];
-          if (appointmentResponse && appointmentResponse.entry) {
-            existingAppointments = appointmentResponse.entry
-              .filter(
-                (e) => e.resource && e.resource.resourceType === "Appointment"
-              )
-              .map((e) => ({
-                id: e.resource.id,
-                start: e.resource.start,
-                end: e.resource.end,
-                status: e.resource.status,
-              }));
-          }
-
-          // Use the enhanced transformer with stat support
-          result = await RedoxTransformer.transformSlotSearchResponseWithStat(
-            slotResponse,
-            stat,
-            existingAppointments
-          );
-
-          logger.info(
-            `STAT mode: Found ${result.length} available slots with capacity`
-          );
-        } else {
-          // Normal mode - only show free slots
-          result = RedoxTransformer.transformSlotSearchResponse(slotResponse);
-        }
-        break;
+       if (slotsResult.rows.length === 0) { 
+           result = {
+               success: true,
+               status: 200,
+               message: `No available slots found starting from ${startTime}.`,
+               availableSlots: [],
+           };
+           break;
+       }
+       
+       // Transform rows into a clear list of slots
+       const slotsList = slotsResult.rows.map(row => ({
+           timeSlot: row.slot_datetime,
+           availableCount: row.available_slots,
+           maxCapacity: MAX_SLOT_CAPACITY
+       }));
+       
+       // --- result ---
+       result = {
+           success: true,
+           status: 200,
+           message: `Found ${slotsList.length} available slots starting from ${startTime}.`,
+           availableSlots: slotsList,
+       };
+      }
+       break; 
 
       case "book_appointment":
         logger.info("Processing book_appointment function call");
 
         // Extract appointment creation parameters from args
         const {
-          patientId,
-          slotId,
+          patientId, 
           appointmentType,
           startTime: apptStart,
           endTime,
@@ -511,7 +462,7 @@ router.post("/function-call", async (req, res, next) => {
           stat: bookStat = false,
         } = args;
 
-        // Only patientId is required according to Redox (for participant reference)
+        // Only patientId is required (for participant reference)
         if (!patientId) {
           return res.status(400).json({
             success: false,
@@ -521,80 +472,91 @@ router.post("/function-call", async (req, res, next) => {
 
         // If stat mode is enabled, check current booking count before booking
         if (bookStat && apptStart && endTime) {
-          logger.info(
-            "STAT mode enabled for booking - checking current capacity"
-          );
-
-          // Fetch existing appointments for this time slot
-          const appointmentParams = {
-            date: apptStart,
-            _count: "10",
-          };
-
-          const appointmentResponse = await RedoxAPIService.makeRequest(
-            "POST",
-            "/Appointment/_search",
-            null,
-            appointmentParams,
-            accessToken
-          );
-
-          // Count bookings for this exact time slot
-          let bookingCount = 0;
-          if (appointmentResponse && appointmentResponse.entry) {
-            bookingCount = appointmentResponse.entry.filter(
-              (e) =>
-                e.resource &&
-                e.resource.resourceType === "Appointment" &&
-                e.resource.start === apptStart &&
-                e.resource.end === endTime
-            ).length;
-          }
-
-          // Check if we've reached capacity (3 bookings)
-          if (bookingCount >= 3) {
-            logger.warn(`STAT booking rejected - slot at capacity`, {
-              timeSlot: `${apptStart} - ${endTime}`,
-              currentBookings: bookingCount,
-              maxCapacity: 3,
-            });
-
-            return res.json({
-              success: false,
-              error: `This time slot has reached maximum capacity (3 bookings). Please select a different time.`,
-              capacity: {
-                current: bookingCount,
-                maximum: 3,
-              },
-            });
-          }
-
-          logger.info(`STAT booking allowed - slot has capacity`, {
-            timeSlot: `${apptStart} - ${endTime}`,
-            currentBookings: bookingCount,
-            availableCapacity: 3 - bookingCount,
+          logger.error("Missing required fields for booking.", { args });
+          return res.status(400).json({ 
+              success: false, 
+              error: "Missing required field: patientId, startTime (apptStart), or endTime" 
           });
-        }
+      }
+     
+      logger.info("Checking patient_details for existing appointment.", { patientId });
 
-        const appointmentBundle = RedoxTransformer.createAppointmentBundle(
-          patientId,
-          appointmentType,
-          apptStart,
-          endTime,
-          status
-        );
+      const patientCheckQueryBook = `
+          SELECT appointment_id 
+          FROM public.patient_details 
+          WHERE patient_id = $1 AND appointment_status = 'booked'
+          LIMIT 1;
+      `;
+      const patientCheckResultBook = await db.query(patientCheckQueryBook, [patientId]);
 
-        const createResponse = await RedoxAPIService.makeRequest(
-          "POST",
-          "/Appointment/$appointment-create",
-          appointmentBundle,
-          null,
-          accessToken
-        );
+      if (patientCheckResultBook.rows.length > 0) {
+          const error = new Error("You have already booked an appointment. Only one slot per patient is allowed.");
+          error.status = 403; error.code = "already_booked"; throw error;
+      }
+      
+      // --- Single Slot Capacity Check (For Booking) ---
+      logger.info("Checking single slot inventory capacity for booking.", { apptStart });
 
-        result =
-          RedoxTransformer.transformAppointmentCreateResponse(createResponse);
-        break;
+      const capacityQueryBook = `
+          SELECT available_slots
+          FROM public.slots
+          WHERE slot_datetime = $1;
+      `;
+      const capacityResultBook = await db.query(capacityQueryBook, [apptStart]);
+
+      if (capacityResultBook.rows.length === 0) {
+          const error = new Error("The requested slot date and time is not available in the inventory.");
+          error.status = 404; error.code = "slot_not_found"; throw error;
+      }
+
+      const availableSlotsBook = capacityResultBook.rows[0].available_slots;
+
+      if (availableSlotsBook <= 0) {
+          const error = new Error(`This time slot has reached maximum capacity. Available: ${availableSlotsBook}`);
+          error.status = 429; error.code = "slot_full"; throw error;
+      }
+      
+      // --- Generate new ID
+      const newAppointmentId = uuidv4(); 
+      logger.info("Starting updates. Generated Appointment ID.", { newAppointmentId });
+      
+      // --- Reduce Slot Inventory ---
+      const newAvailableSlots = availableSlotsBook - 1;
+      
+      const updateSlotQuery = `
+          UPDATE public.slots 
+          SET available_slots = $2 
+          WHERE slot_datetime = $1 
+          RETURNING available_slots;
+      `;
+      await db.query(updateSlotQuery, [apptStart, newAvailableSlots]);
+      
+      logger.info(`Slot inventory reduced. Remaining: ${newAvailableSlots}`, { apptStart });
+
+      // --- Update Patient Details ---
+      const updatePatientQuery = `
+          UPDATE public.patient_details 
+          SET appointment_status = $2, 
+              appointment_id = $3, 
+              appointment_type = $4 
+          WHERE patient_id = $1;
+      `;
+      await db.query(updatePatientQuery, [patientId, status, newAppointmentId, appointmentType]); 
+      
+      logger.info("Patient details updated successfully.", { patientId, newAppointmentId, appointmentType });
+
+      // --- Success Result ---
+      result = {
+          success: true,
+          statusCode: 201,
+          appointment: { 
+              patientId, 
+              appointmentId: newAppointmentId, 
+              time: apptStart,
+              type: appointmentType 
+          },
+      };
+      break;  
 
       case "update_appointment":
         logger.info("Processing update_appointment function call");
@@ -617,27 +579,41 @@ router.post("/function-call", async (req, res, next) => {
               "Missing required fields for appointment update: appointmentId, patientId",
           });
         }
+        logger.info("Processing update_appointment function call");
+                        
+        // --- Execute Update ---
+        logger.info("Executing DB update for appointment.", { appointmentId, updatePatientId, updateStart, updateEnd, updateStatus });
 
-        const updateBundle = RedoxTransformer.createAppointmentUpdateBundle(
-          appointmentId,
-          updatePatientId,
-          updateType,
-          updateStart,
-          updateEnd,
-          updateStatus
-        );
+        // query targeting the specific appointment ID and patient ID.
+        const updateApptQuery = `
+            UPDATE public.patient_details
+            SET 
+                appointment_status = $4, 
+                appointment_start = $2,
+                appointment_end = $3
+            WHERE appointment_id = $1 AND patient_id = $5;
+        `;
+        
+        // update
+        await db.query(updateApptQuery, [appointmentId, updateStart, updateEnd, updateStatus, updatePatientId]); 
+        
+        logger.info("Appointment details updated successfully.", { appointmentId });
 
-        const updateResponse = await RedoxAPIService.makeRequest(
-          "POST",
-          "/Appointment/$appointment-update",
-          updateBundle,
-          null,
-          accessToken
-        );
-
-        result =
-          RedoxTransformer.transformAppointmentCreateResponse(updateResponse);
-        break;
+        // --- Success Result ---
+        result = {
+            success: true,
+            status: 200,
+            message: `Appointment ${appointmentId} updated successfully to start at ${updateStart}.`,
+            appointment: { 
+                appointmentId, 
+                patientId: updatePatientId, 
+                status: updateStatus,
+                startTime: updateStart,
+                endTime: updateEnd,
+            },
+        };
+        
+        break; 
 
       case "create_patient":
         logger.info("Processing create_patient function call");
@@ -680,29 +656,14 @@ router.post("/function-call", async (req, res, next) => {
           insuranceMemberId: insurance_member_id,
         };
 
-        const patientBundle = RedoxTransformer.createPatientBundle(patientData);
-
-        const patientCreateResponse = await RedoxAPIService.makeRequest(
-          "POST",
-          "/Patient/$patient-create",
-          patientBundle,
-          null,
-          accessToken
-        );
-
-        // Transform the response to extract patient ID
-        const createResult =
-          RedoxTransformer.transformAppointmentCreateResponse(
-            patientCreateResponse
-          );
-
+        
         // Return the patient ID as the result
-        result = {
-          success: createResult.success,
-          patientId: createResult.generatedId || null,
-          statusCode: createResult.statusCode,
-          error: createResult.error || null,
-        };
+        // result = {
+        //   success: createResult.success,
+        //   patientId: createResult.generatedId || null,
+        //   statusCode: createResult.statusCode,
+        //   error: createResult.error || null,
+        // };
         break;
 
       case "find_patient": {
@@ -728,23 +689,7 @@ router.post("/function-call", async (req, res, next) => {
         }
 
         // Create search parameters with optional zipcode and phone
-        const searchParams =
-          RedoxTransformer.createPatientSearchByDobNameParams(
-            birth_date,
-            given,
-            family,
-            phone,
-            zipcode
-          );
-
-        // Execute patient search through Redox API
-        const searchResponse = await RedoxAPIService.makeRequest(
-          "POST",
-          "/Patient/_search",
-          null,
-          searchParams,
-          accessToken
-        );
+        
 
         // Check if patient found
         if (
@@ -767,63 +712,25 @@ router.post("/function-call", async (req, res, next) => {
           break;
         }
 
-        // Get all patient IDs from the search response
-        const patientEntries = searchResponse.entry.filter(
-          (entry) => entry.resource && entry.resource.resourceType === "Patient"
-        );
+      
+ 
 
-        // Fetch appointments for all patients
-        const appointmentResponsesMap = {};
-
-        for (const patientEntry of patientEntries) {
-          const patientId = patientEntry.resource?.id;
-
-          if (patientId) {
-            try {
-              const appointmentSearchParams =
-                RedoxTransformer.createAppointmentSearchParams(patientId);
-              const appointmentResponse = await RedoxAPIService.makeRequest(
-                "POST",
-                "/Appointment/_search",
-                null,
-                appointmentSearchParams,
-                accessToken
-              );
-              appointmentResponsesMap[patientId] = appointmentResponse;
-            } catch (appointmentError) {
-              logger.warn("Failed to fetch appointments for patient", {
-                error: appointmentError.message,
-                patientId,
-              });
-              // Continue even if appointment fetch fails for one patient
-              appointmentResponsesMap[patientId] = null;
-            }
-          }
-        }
-
-        // Transform all patients with their appointment data
-        const patientsData =
-          RedoxTransformer.transformAllPatientsWithAppointments(
-            searchResponse,
-            appointmentResponsesMap
-          );
-
-        logger.info("Patient search by DOB and name completed", {
-          totalMatches: patientsData.length,
-          birth_date,
-          given,
-          family,
-          zipcode: zipcode || null,
-          phone: phone || null,
-        });
+        // logger.info("Patient search by DOB and name completed", {
+        //   totalMatches: patientsData.length,
+        //   birth_date,
+        //   given,
+        //   family,
+        //   zipcode: zipcode || null,
+        //   phone: phone || null,
+        // });
 
         // Return the patient data
-        result = {
-          success: true,
-          patient_found: patientsData.length > 0,
-          total_matches: patientsData.length,
-          patients: patientsData,
-        };
+        // result = {
+        //   success: true,
+        //   patient_found: patientsData.length > 0,
+        //   total_matches: patientsData.length,
+        //   patients: patientsData,
+        // };
         break;
       }
 
@@ -1028,9 +935,7 @@ router.post("/function-call", async (req, res, next) => {
           symptom_text,
           address,
           serviceType,
-          startTime,
-          RedoxAPIService,
-          RedoxTransformer,
+          startTime,  
           accessToken
         );
 
@@ -1972,92 +1877,11 @@ router.post("/call/update", async (req, res, next) => {
 
                 // Fetch patient details from Redox for PDF header
                 let patientDemographics = null;
-                try {
-                  const patientResponse = await RedoxAPIService.makeRequest(
-                    "GET",
-                    `/Patient/${patientId}`,
-                    null,
-                    null,
-                    accessToken
-                  );
-
-                  if (patientResponse && patientResponse.id) {
-                    // Transform patient data for PDF header
-                    const name = patientResponse.name?.[0];
-                    const fullName = name
-                      ? `${name.family || ""}, ${name.given?.[0] || ""}`.trim()
-                      : "";
-
-                    const phoneContact = patientResponse.telecom?.find(
-                      (contact) => contact.system === "phone"
-                    );
-                    const phone = phoneContact?.value || "";
-
-                    const address = patientResponse.address?.[0];
-                    const fullAddress = address
-                      ? `${address.line?.[0] || ""}, ${address.city || ""}, ${address.state || ""}-${address.postalCode || ""}`.trim()
-                      : "";
-
-                    // Extract insurance info
-                    const insuranceContact = patientResponse.contact?.find(
-                      (contact) => contact.relationship?.[0]?.coding?.[0]?.code === "I"
-                    );
-                    const insuranceName = insuranceContact?.name?.text || "";
-
-                    const insuranceMemberIdIdentifier = patientResponse.identifier?.find(
-                      (identifier) =>
-                        identifier.system === "urn:redox:flow-ai:insurance" ||
-                        identifier.type?.coding?.[0]?.code === "MB"
-                    );
-                    const insuranceMemberId = insuranceMemberIdIdentifier?.value || "";
-
-                    // Get encounter date from dynamic variables
-                    const encounterDate =
-                      call.retell_llm_dynamic_variables?.appointment_start ||
-                      call.collected_dynamic_variables?.appointment_start ||
-                      "";
-
-                    patientDemographics = {
-                      name: fullName,
-                      birthDate: patientResponse.birthDate || "",
-                      gender: patientResponse.gender
-                        ? patientResponse.gender.charAt(0).toUpperCase() + patientResponse.gender.slice(1)
-                        : "",
-                      phone: phone,
-                      insuranceName: insuranceName,
-                      insuranceMemberId: insuranceMemberId,
-                      address: fullAddress,
-                      encounterDate: encounterDate,
-                    };
-
-                    logger.info("Patient demographics fetched for PDF", {
-                      call_id: call.call_id,
-                      patient_id: patientId,
-                      has_demographics: true,
-                    });
-                  }
-                } catch (patientFetchError) {
-                  logger.warn("Failed to fetch patient demographics for PDF", {
-                    call_id: call.call_id,
-                    patient_id: patientId,
-                    error: patientFetchError.message,
-                  });
-                  // Continue without demographics
-                }
-
+               
                 // Generate PDF from transcript using ChatGPT with patient demographics
                 const pdfBase64 = await generateIntakeFormPDF(call.transcript, patientDemographics);
 
-                // Create PDF document bundle
-                documentBundle = RedoxTransformer.createDocumentReferencePDFBundle(
-                  patientId,
-                  pdfBase64,
-                  {
-                    callId: call.call_id,
-                    agentId: call.agent_id,
-                    callTimestamp: new Date(call.start_timestamp).toISOString(),
-                  }
-                );
+                
 
                 documentType = "pdf";
 
@@ -2079,15 +1903,7 @@ router.post("/call/update", async (req, res, next) => {
                   .replace(/\r/g, "\n")
                   .trim();
 
-                documentBundle = RedoxTransformer.createDocumentReferenceBundle(
-                  patientId,
-                  formattedIntakeDetails,
-                  {
-                    callId: call.call_id,
-                    agentId: call.agent_id,
-                    callTimestamp: new Date(call.start_timestamp).toISOString(),
-                  }
-                );
+               
               }
             } else {
               // No transcript available, use text approach
@@ -2101,15 +1917,7 @@ router.post("/call/update", async (req, res, next) => {
                 .replace(/\r/g, "\n")
                 .trim();
 
-              documentBundle = RedoxTransformer.createDocumentReferenceBundle(
-                patientId,
-                formattedIntakeDetails,
-                {
-                  callId: call.call_id,
-                  agentId: call.agent_id,
-                  callTimestamp: new Date(call.start_timestamp).toISOString(),
-                }
-              );
+              
             }
 
             logger.info("=== RETELL DOCUMENT CREATION ===", {
@@ -2120,19 +1928,7 @@ router.post("/call/update", async (req, res, next) => {
               bundle_entries: documentBundle.entry?.length,
             });
 
-            const documentResponse = await RedoxAPIService.makeRequest(
-              "POST",
-              "/DocumentReference/$documentreference-create",
-              documentBundle,
-              null,
-              accessToken
-            );
-
-            const documentResult =
-              RedoxTransformer.transformAppointmentCreateResponse(
-                documentResponse
-              );
-
+            
             logger.info("DocumentReference created for patient intake", {
               call_id: call.call_id,
               patient_id: patientId,
@@ -2201,32 +1997,6 @@ router.post("/call/update", async (req, res, next) => {
                 (await authService.getAccessToken());
 
               const transferMessage = `Patient requested callback from human agent at ${scheduledCallbackTime}`;
-
-              const documentBundle =
-                RedoxTransformer.createDocumentReferenceBundle(
-                  patientId,
-                  transferMessage,
-                  {
-                    callId: call.call_id,
-                    agentId: call.agent_id,
-                    callTimestamp: new Date(call.start_timestamp).toISOString(),
-                    transferAttempted: true,
-                    scheduledCallbackTime: scheduledCallbackTime,
-                  }
-                );
-
-              const documentResponse = await RedoxAPIService.makeRequest(
-                "POST",
-                "/DocumentReference/$documentreference-create",
-                documentBundle,
-                null,
-                accessToken
-              );
-
-              const documentResult =
-                RedoxTransformer.transformAppointmentCreateResponse(
-                  documentResponse
-                );
 
               logger.info("DocumentReference created for transfer attempt", {
                 call_id: call.call_id,
@@ -2605,58 +2375,15 @@ router.post("/trigger-intake-call", authMiddleware, async (req, res, next) => {
 
     // Get access token
     const accessToken = await authService.getAccessToken();
+ 
 
-    // Get patient details from Redox
-    logger.info("Fetching patient details from Redox", { patientId });
-
-    const patientResponse = await RedoxAPIService.makeRequest(
-      "GET",
-      `/Patient/${patientId}`,
-      null,
-      null,
-      accessToken
-    );
-
-    if (!patientResponse || !patientResponse.id) {
-      logger.error("Patient not found in Redox", { patientId });
-      return res.status(404).json({
-        success: false,
-        error: "Patient not found",
-      });
-    }
-
-    // Transform patient data
-    const patientData = RedoxTransformer.transformPatientSearchResponse({
-      entry: [{ resource: patientResponse }],
-    })[0];
-
-    if (!patientData.phone) {
-      logger.error("Cannot trigger intake call - no phone number found", {
-        patientId,
-        patientName: patientData.fullName,
-      });
-      return res.status(400).json({
-        success: false,
-        error: "Patient phone number is required for outbound call",
-      });
-    }
+   // Transform patient data
+ 
 
     // Search for appointments
     let appointments = [];
     try {
-      const appointmentSearchParams =
-        RedoxTransformer.createAppointmentSearchParams(patientId);
-      const appointmentResponse = await RedoxAPIService.makeRequest(
-        "POST",
-        "/Appointment/_search",
-        null,
-        appointmentSearchParams,
-        accessToken
-      );
-      appointments =
-        RedoxTransformer.transformAppointmentSearchResponse(
-          appointmentResponse
-        );
+      
     } catch (appointmentError) {
       logger.warn("Failed to fetch appointments for intake call", {
         error: appointmentError.message,

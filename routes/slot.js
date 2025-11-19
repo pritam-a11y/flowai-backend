@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../middleware/auth');
-const RedoxTransformer = require('../utils/redoxTransformer');
-const RedoxAPIService = require('../services/redoxApiService');
+const authMiddleware = require('../middleware/auth'); 
 const logger = require('../utils/logger');
 
 /**
@@ -51,18 +49,6 @@ router.post('/search', authMiddleware, async (req, res, next) => {
       serviceType: serviceType ? 'provided' : 'optional',
       startTime: startTime ? 'provided' : 'optional'
     });
-
-    const searchParams = RedoxTransformer.createSlotSearchParams(location, serviceType, startTime);
-    const redoxResponse = await RedoxAPIService.makeRequest(
-      'POST',
-      '/Slot/_search',
-      null,
-      searchParams,
-      req.accessToken
-    );
-
-    // Transform the response to return simplified slot objects
-    const slots = RedoxTransformer.transformSlotSearchResponse(redoxResponse);
 
     logger.info('Slot search completed successfully', { slotsFound: slots.length });
     res.json({

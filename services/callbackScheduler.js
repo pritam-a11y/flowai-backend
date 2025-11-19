@@ -1,8 +1,6 @@
 const db = require("../db/connection");
 const logger = require("../utils/logger");
-const retellService = require("./retellService");
-const RedoxAPIService = require("./redoxApiService");
-const RedoxTransformer = require("../utils/redoxTransformer");
+const retellService = require("./retellService"); 
 const AuthService = require("./authService");
 
 const authService = new AuthService();
@@ -118,43 +116,11 @@ class CallbackScheduler {
     try {
       // Get access token
       const accessToken = await authService.getAccessToken();
-
-      // Fetch patient details from Redox
-      const patientResponse = await RedoxAPIService.makeRequest(
-        "GET",
-        `/Patient/${patient_id}`,
-        null,
-        null,
-        accessToken
-      );
-
-      if (!patientResponse || !patientResponse.id) {
-        throw new Error(`Patient not found: ${patient_id}`);
-      }
-
-      // Transform patient data
-      const patientData = RedoxTransformer.transformPatientSearchResponse({
-        entry: [{ resource: patientResponse }],
-      })[0];
-
-      if (!patientData.phone) {
-        throw new Error(`Patient phone number not found for patient: ${patient_id}`);
-      }
-
+  
       // Search for appointments
       let appointments = [];
       try {
-        const appointmentSearchParams =
-          RedoxTransformer.createAppointmentSearchParams(patient_id);
-        const appointmentResponse = await RedoxAPIService.makeRequest(
-          "POST",
-          "/Appointment/_search",
-          null,
-          appointmentSearchParams,
-          accessToken
-        );
-        appointments =
-          RedoxTransformer.transformAppointmentSearchResponse(appointmentResponse);
+         
       } catch (appointmentError) {
         logger.warn("Failed to fetch appointments for callback", {
           error: appointmentError.message,

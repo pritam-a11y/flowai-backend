@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../middleware/auth');
-const RedoxTransformer = require('../utils/redoxTransformer');
-const RedoxAPIService = require('../services/redoxApiService');
+const authMiddleware = require('../middleware/auth'); 
 const logger = require('../utils/logger');
 
 /**
@@ -150,19 +148,7 @@ router.post('/update', authMiddleware, async (req, res, next) => {
       medicalRecordNumber
     };
 
-    const patientBundle = RedoxTransformer.createPatientUpdateBundle(patientData);
-    
-    const redoxResponse = await RedoxAPIService.makeRequest(
-      'POST',
-      '/Patient/$patient-update',
-      patientBundle,
-      null,
-      req.accessToken
-    );
-
-    // Transform the response to return simplified status
-    const result = RedoxTransformer.transformAppointmentCreateResponse(redoxResponse);
-
+   
     logger.info('Patient update completed', { 
       patientId: patientId,
       statusCode: result.statusCode, 
@@ -322,19 +308,7 @@ router.post('/create', authMiddleware, async (req, res, next) => {
       medicalRecordNumber
     };
 
-    const patientBundle = RedoxTransformer.createPatientBundle(patientData);
-    
-    const redoxResponse = await RedoxAPIService.makeRequest(
-      'POST',
-      '/Patient/$patient-create',
-      patientBundle,
-      null,
-      req.accessToken
-    );
-
-    // Transform the response to return simplified status
-    const result = RedoxTransformer.transformAppointmentCreateResponse(redoxResponse);
-
+     
     logger.info('Patient creation completed', { statusCode: result.statusCode, success: result.success });
     
     res.status(result.statusCode).json({

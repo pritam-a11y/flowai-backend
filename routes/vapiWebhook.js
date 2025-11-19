@@ -1,7 +1,5 @@
 const express = require("express");
-const router = express.Router();
-const RedoxTransformer = require("../utils/redoxTransformer");
-const RedoxAPIService = require("../services/redoxApiService");
+const router = express.Router(); 
 const AuthService = require("../services/authService");
 const logger = require("../utils/logger");
 const LocationSorter = require("../utils/locationSorter");
@@ -160,20 +158,8 @@ router.post("/webhook", async (req, res, next) => {
               statEnabled: stat,
             });
 
-            const slotSearchParams = RedoxTransformer.createSlotSearchParams(
-              overriddenLocation,
-              serviceType,
-              startTime,
-            );
-            const slotResponse = await RedoxAPIService.makeRequest(
-              "POST",
-              "/Slot/_search",
-              null,
-              slotSearchParams,
-              accessToken,
-            );
-
-            // If stat is enabled, fetch existing appointments to count bookings
+          
+            // // If stat is enabled, fetch existing appointments to count bookings
             if (stat) {
               logger.info("STAT mode enabled - fetching existing appointments for capacity tracking");
 
@@ -189,13 +175,7 @@ router.post("/webhook", async (req, res, next) => {
                 '_count': '100'
               };
 
-              const appointmentResponse = await RedoxAPIService.makeRequest(
-                'POST',
-                '/Appointment/_search',
-                null,
-                appointmentParams,
-                accessToken
-              );
+          
 
               // Extract appointments with timing info
               let existingAppointments = [];
@@ -210,17 +190,11 @@ router.post("/webhook", async (req, res, next) => {
                   }));
               }
 
-              // Use the enhanced transformer with stat support
-              result = await RedoxTransformer.transformSlotSearchResponseWithStat(
-                slotResponse,
-                stat,
-                existingAppointments
-              );
+              
 
               logger.info(`STAT mode: Found ${result.length} available slots with capacity`);
             } else {
-              // Normal mode - only show free slots
-              result = RedoxTransformer.transformSlotSearchResponse(slotResponse);
+              // Normal mode - only show free slots 
             }
             break;
 
@@ -237,8 +211,7 @@ router.post("/webhook", async (req, res, next) => {
               status,
               stat: bookStat = false,
             } = parameters;
-
-            // Only patientId is required according to Redox (for participant reference)
+ 
             if (!patientId) {
               result = {
                 success: false,
@@ -257,13 +230,7 @@ router.post("/webhook", async (req, res, next) => {
                 '_count': '10'
               };
 
-              const appointmentResponse = await RedoxAPIService.makeRequest(
-                'POST',
-                '/Appointment/_search',
-                null,
-                appointmentParams,
-                accessToken
-              );
+              
 
               // Count bookings for this exact time slot
               let bookingCount = 0;
@@ -302,25 +269,7 @@ router.post("/webhook", async (req, res, next) => {
               });
             }
 
-            const appointmentBundle = RedoxTransformer.createAppointmentBundle(
-              patientId,
-              appointmentType,
-              apptStart,
-              endTime,
-              status,
-            );
-
-            const createResponse = await RedoxAPIService.makeRequest(
-              "POST",
-              "/Appointment/$appointment-create",
-              appointmentBundle,
-              null,
-              accessToken,
-            );
-
-            result =
-              RedoxTransformer.transformAppointmentCreateResponse(createResponse);
-            break;
+                    break;
 
           case "update_appointment":
             logger.info("Processing update_appointment function call");
@@ -345,26 +294,7 @@ router.post("/webhook", async (req, res, next) => {
               break;
             }
 
-            const updateBundle = RedoxTransformer.createAppointmentUpdateBundle(
-              appointmentId,
-              updatePatientId,
-              updateType,
-              updateStart,
-              updateEnd,
-              updateStatus,
-            );
-
-            const updateResponse = await RedoxAPIService.makeRequest(
-              "POST",
-              "/Appointment/$appointment-update",
-              updateBundle,
-              null,
-              accessToken,
-            );
-
-            result =
-              RedoxTransformer.transformAppointmentCreateResponse(updateResponse);
-            break;
+              break;
 
           case "create_patient":
             logger.info("Processing create_patient function call");
@@ -408,22 +338,7 @@ router.post("/webhook", async (req, res, next) => {
               insuranceMemberId: insurance_member_id,
             };
 
-            const patientBundle = RedoxTransformer.createPatientBundle(patientData);
-
-            const patientCreateResponse = await RedoxAPIService.makeRequest(
-              "POST",
-              "/Patient/$patient-create",
-              patientBundle,
-              null,
-              accessToken,
-            );
-
-            // Transform the response to extract patient ID
-            const createResult =
-              RedoxTransformer.transformAppointmentCreateResponse(
-                patientCreateResponse,
-              );
-
+           
             // Return the patient ID as the result
             result = {
               success: createResult.success,
@@ -454,23 +369,7 @@ router.post("/webhook", async (req, res, next) => {
               break;
             }
 
-            // Create search parameters
-            const searchParams =
-              RedoxTransformer.createPatientSearchByDobNameParams(
-                birth_date,
-                given,
-                family,
-              );
-
-            // Execute patient search through Redox API
-            const searchResponse = await RedoxAPIService.makeRequest(
-              "POST",
-              "/Patient/_search",
-              null,
-              searchParams,
-              accessToken,
-            );
-
+            
             // Check if patient found
             if (
               !searchResponse ||
@@ -501,38 +400,7 @@ router.post("/webhook", async (req, res, next) => {
             // Fetch appointments for all patients
             const appointmentResponsesMap = {};
 
-            for (const patientEntry of patientEntries) {
-              const patientId = patientEntry.resource?.id;
-
-              if (patientId) {
-                try {
-                  const appointmentSearchParams =
-                    RedoxTransformer.createAppointmentSearchParams(patientId);
-                  const appointmentResponse = await RedoxAPIService.makeRequest(
-                    "POST",
-                    "/Appointment/_search",
-                    null,
-                    appointmentSearchParams,
-                    accessToken,
-                  );
-                  appointmentResponsesMap[patientId] = appointmentResponse;
-                } catch (appointmentError) {
-                  logger.warn("Failed to fetch appointments for patient", {
-                    error: appointmentError.message,
-                    patientId,
-                  });
-                  // Continue even if appointment fetch fails for one patient
-                  appointmentResponsesMap[patientId] = null;
-                }
-              }
-            }
-
-            // Transform all patients with their appointment data
-            const patientsData =
-              RedoxTransformer.transformAllPatientsWithAppointments(
-                searchResponse,
-                appointmentResponsesMap,
-              );
+            
 
             logger.info("Patient search by DOB and name completed", {
               totalMatches: patientsData.length,
