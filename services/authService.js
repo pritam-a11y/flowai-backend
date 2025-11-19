@@ -28,25 +28,25 @@ class AuthService {
       // Enhanced logging for auth token refresh
       logger.info('=== AUTH TOKEN REFRESH REQUEST START ===', {
         method: 'POST',
-        // url: REDOX_CONFIG.loginURL,
-        // clientId: REDOX_CONFIG.clientId ? `${REDOX_CONFIG.clientId.substring(0, 8)}...` : 'none',
-        // hasSecret: !!REDOX_CONFIG.clientSecret,
+        url: REDOX_CONFIG.loginURL,
+        clientId: REDOX_CONFIG.clientId ? `${REDOX_CONFIG.clientId.substring(0, 8)}...` : 'none',
+        hasSecret: !!REDOX_CONFIG.clientSecret,
         timestamp: new Date().toISOString()
       });
-      // const requestBody = {
-      //   apiKey: REDOX_CONFIG.clientId,
-      //   secret: REDOX_CONFIG.clientSecret
-      // };
+      const requestBody = {
+        apiKey: REDOX_CONFIG.clientId,
+        secret: REDOX_CONFIG.clientSecret
+      };
 
       // Log request body (with masked secret)
-      // logger.info('Auth token refresh request body:', {
-      //   requestBody: {
-      //     apiKey: REDOX_CONFIG.clientId,
-      //     secret: REDOX_CONFIG.clientSecret ? `${REDOX_CONFIG.clientSecret.substring(0, 8)}...` : 'none'
-      //   }
-      // });
+      logger.info('Auth token refresh request body:', {
+        requestBody: {
+          apiKey: REDOX_CONFIG.clientId,
+          secret: REDOX_CONFIG.clientSecret ? `${REDOX_CONFIG.clientSecret.substring(0, 8)}...` : 'none'
+        }
+      });
 
-      // const response = await axios.post(REDOX_CONFIG.loginURL, requestBody);
+       const response = await axios.post(REDOX_CONFIG.loginURL, requestBody);
 
       // Enhanced success logging
       logger.info('=== AUTH TOKEN REFRESH RESPONSE SUCCESS ===', {
