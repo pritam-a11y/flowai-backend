@@ -1,3 +1,5 @@
+const axios = require('axios');
+const REDOX_CONFIG = require('../config/redox');
 const logger = require('../utils/logger');
 
 class AuthService {
@@ -46,7 +48,7 @@ class AuthService {
         }
       });
 
-       const response = await axios.post(REDOX_CONFIG.loginURL, requestBody);
+      const response = await axios.post(REDOX_CONFIG.loginURL, requestBody);
 
       // Enhanced success logging
       logger.info('=== AUTH TOKEN REFRESH RESPONSE SUCCESS ===', {
@@ -93,7 +95,7 @@ class AuthService {
         statusText: error.response?.statusText,
         error: error.response?.data?.message || error.message,
         errorData: error.response?.data,
-        // requestUrl: REDOX_CONFIG.loginURL,
+        requestUrl: REDOX_CONFIG.loginURL,
         timestamp: new Date().toISOString()
       });
       
