@@ -389,8 +389,8 @@ router.post("/function-call", async (req, res, next) => {
         // Extract slot search parameters from args
         const { location, serviceType, startTime, stat = false } = args;
 
-        // Override location to Orlando Neuro Clinic
-        const overriddenLocation = "Orlando Neuro Clinic";
+        // Override location to RES General Hospital
+        const overriddenLocation = "RES General Hospital";
 
         logger.info("Overriding location for check_availability", {
           originalLocation: location,
@@ -414,11 +414,11 @@ router.post("/function-call", async (req, res, next) => {
            // Query
            // Slots Check  ---
            const availableSlotsQuery = `
-           SELECT slot_datetime, available_slots
+           SELECT start_time, available_slots, slot_id, end_time, day_of_week, service_type, status
            FROM public.slots
-           WHERE slot_datetime >= $1 AND available_slots > 0
-           ORDER BY slot_datetime;
-       `;
+           WHERE start_time >= $1 AND available_slots > 0
+           ORDER BY start_time;
+                `;
          
        const slotsResult = await db.query(availableSlotsQuery, [searchStartDate.toISOString()]);
 
@@ -433,9 +433,15 @@ router.post("/function-call", async (req, res, next) => {
        }
        
        // Transform rows into a clear list of slots
-       const slotsList = slotsResult.rows.map(row => ({
-           timeSlot: row.slot_datetime,
-           availableCount: row.available_slots,
+       const slotsList = slotsResult.rows.map(row => ({  
+        slotId: row.slot_id, 
+        timeSlot: row.start_time,  
+        startTime: row.start_time,     
+        endTime: row.end_time,
+        dayOfWeek: row.day_of_week, 
+        serviceType: row.service_type, 
+        status: row.status, 
+        availableCount: row.available_slots,
            maxCapacity: MAX_SLOT_CAPACITY
        }));
        
@@ -482,16 +488,18 @@ router.post("/function-call", async (req, res, next) => {
       logger.info("Checking patient_details for existing appointment.", { patientId });
 
       const patientCheckQueryBook = `
-          SELECT appointment_id 
-          FROM public.patient_details 
-          WHERE patient_id = $1 AND appointment_status = 'booked'
-          LIMIT 1;
+      SELECT appointment_id 
+      FROM public.patient_details 
+      WHERE patient_id = $1 AND appointment_status = 'booked'
+      LIMIT 1;
       `;
       const patientCheckResultBook = await db.query(patientCheckQueryBook, [patientId]);
 
-      if (patientCheckResultBook.rows.length > 0) {
-          const error = new Error("You have already booked an appointment. Only one slot per patient is allowed.");
-          error.status = 403; error.code = "already_booked"; throw error;
+      if (patientCheckResultBook.rows.length > 0) { 
+          return res.status(400).json({
+            success: false,
+            error:"You have already booked an appointment",
+          });
       }
       
       // --- Single Slot Capacity Check (For Booking) ---
@@ -500,20 +508,24 @@ router.post("/function-call", async (req, res, next) => {
       const capacityQueryBook = `
           SELECT available_slots
           FROM public.slots
-          WHERE slot_datetime = $1;
+          WHERE start_time = $1;
       `;
       const capacityResultBook = await db.query(capacityQueryBook, [apptStart]);
 
       if (capacityResultBook.rows.length === 0) {
-          const error = new Error("The requested slot date and time is not available in the inventory.");
-          error.status = 404; error.code = "slot_not_found"; throw error;
+           return res.status(404).json({
+            success: false,
+            error:"Slot not found!",
+          });
       }
 
       const availableSlotsBook = capacityResultBook.rows[0].available_slots;
 
       if (availableSlotsBook <= 0) {
-          const error = new Error(`This time slot has reached maximum capacity. Available: ${availableSlotsBook}`);
-          error.status = 429; error.code = "slot_full"; throw error;
+           return res.status(404).json({
+            success: false,
+            error:"Slot not found!",
+          });
       }
       
       // --- Generate new ID
@@ -524,10 +536,10 @@ router.post("/function-call", async (req, res, next) => {
       const newAvailableSlots = availableSlotsBook - 1;
       
       const updateSlotQuery = `
-          UPDATE public.slots 
-          SET available_slots = $2 
-          WHERE slot_datetime = $1 
-          RETURNING available_slots;
+      UPDATE public.slots 
+      SET available_slots = $2 
+      WHERE start_time = $1 
+      RETURNING available_slots;
       `;
       await db.query(updateSlotQuery, [apptStart, newAvailableSlots]);
       
@@ -535,11 +547,11 @@ router.post("/function-call", async (req, res, next) => {
 
       // --- Update Patient Details ---
       const updatePatientQuery = `
-          UPDATE public.patient_details 
-          SET appointment_status = $2, 
-              appointment_id = $3, 
-              appointment_type = $4 
-          WHERE patient_id = $1;
+      UPDATE public.patient_details 
+      SET appointment_status = $2, 
+          appointment_id = $3, 
+          appointment_type = $4
+      WHERE patient_id = $1;
       `;
       await db.query(updatePatientQuery, [patientId, status, newAppointmentId, appointmentType]); 
       
