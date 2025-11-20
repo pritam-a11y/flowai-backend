@@ -17,8 +17,7 @@ const { findOrgIdByAgentId } = require("../helpers/retellAgentList");
 const { generateIntakeFormPDF } = require("../services/intakeFormGenerator");
 const { v4: uuidv4 } = require("uuid");
 
-const authService = new AuthService();
-const MAX_SLOT_CAPACITY = 3;
+const authService = new AuthService(); 
 
 // Initialize Resend with API key
 const resend = new Resend("re_DXtS219b_C9LEPwDvBsy2ZMmEKZGh8yYx");
@@ -387,7 +386,7 @@ router.post("/function-call", async (req, res, next) => {
         logger.info("Processing check_availability function call");
 
         // Extract slot search parameters from args
-        const { location, serviceType, startTime, stat = false } = args;
+        const { location, serviceType, startTime, stat = true } = args;
 
         // Override location to RES General Hospital
         const overriddenLocation = "RES General Hospital";
@@ -441,8 +440,7 @@ router.post("/function-call", async (req, res, next) => {
         dayOfWeek: row.day_of_week, 
         serviceType: row.service_type, 
         status: row.status, 
-        availableCount: row.available_slots,
-           maxCapacity: MAX_SLOT_CAPACITY
+        availableCount: row.available_slots, 
        }));
        
        // --- result ---
