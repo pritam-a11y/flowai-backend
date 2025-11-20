@@ -404,7 +404,13 @@ router.post("/function-call", async (req, res, next) => {
           );
 
           // Get date range for appointment search
-          const searchStartDate = startTime || new Date().toISOString();
+          let searchStartDate;
+          if (startTime) {
+               searchStartDate = new Date(startTime);
+          } else {
+               searchStartDate = new Date();
+          }
+          
           const searchEndDate = new Date(searchStartDate);
           searchEndDate.setDate(searchEndDate.getDate() + 30);
 
