@@ -414,7 +414,7 @@ router.post("/function-call", async (req, res, next) => {
           const searchEndDate = new Date(searchStartDate);
           searchEndDate.setDate(searchEndDate.getDate() + 30);
 
-          logger.info("Searching slots inventory for available capacity.", { from: searchStartDate.toISOString(), to: endDate.toISOString() });
+          logger.info("Searching slots inventory for available capacity.", { from: searchStartDate.toISOString(), to: searchEndDate.toISOString() });
             
            // Query
            // Slots Check  ---
