@@ -468,7 +468,7 @@ router.post("/function-call", async (req, res, next) => {
           appointmentType,
           startTime: apptStart,
           endTime,
-          status,
+          status = 'booked',
           stat: bookStat = false,
         } = args;
 
