@@ -3,13 +3,16 @@ const logger = require("../utils/logger");
 const retellService = require("./retellService"); 
 const AuthService = require("./authService");
 
+
+const CRON_CALLBACK_INTERVAL_MS = parseInt(process.env.CRON_CALLBACK_INTERVAL); // Default to 1 minute
+
 const authService = new AuthService();
 
 class CallbackScheduler {
   constructor() {
     this.intervalId = null;
     this.isProcessing = false;
-    this.intervalMs = 1 * 60 * 1000; // 1 minute
+    this.intervalMs = CRON_CALLBACK_INTERVAL_MS // 1 minute
   }
 
   /**

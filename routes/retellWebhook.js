@@ -457,6 +457,15 @@ router.post("/function-call", async (req, res, next) => {
            availableSlots: slotsList,
        };
       }
+      else {  
+        logger.info("STAT mode disabled - skipping capacity check.");
+        result = {
+            success: true,
+            status: 200,
+            message: "Capacity check skipped.",
+            availableSlots: [],  
+        };
+   }
        break; 
 
       case "book_appointment":
@@ -481,7 +490,7 @@ router.post("/function-call", async (req, res, next) => {
         }
 
         // If stat mode is enabled, check current booking count before booking
-        if (bookStat && apptStart && endTime) {
+        if (bookStat && (!apptStart || !endTime)) {
           logger.error("Missing required fields for booking.", { args });
           return res.status(400).json({ 
               success: false, 
@@ -630,125 +639,6 @@ router.post("/function-call", async (req, res, next) => {
         };
         
         break; 
-
-      case "create_patient":
-        logger.info("Processing create_patient function call");
-
-        // Extract patient creation parameters from args
-        const {
-          first_name,
-          last_name,
-          phone: patientPhone,
-          email: patientEmail,
-          dob,
-          address: patientAddress,
-          city: patientCity,
-          state: patientState,
-          zip_code,
-          insurance_name,
-          insurance_member_id,
-        } = args;
-
-        // Validate required fields
-        if (!first_name || !last_name) {
-          return res.status(400).json({
-            success: false,
-            error:
-              "Missing required fields for patient creation: first_name, last_name",
-          });
-        }
-
-        const patientData = {
-          firstName: first_name,
-          lastName: last_name,
-          phone: patientPhone,
-          email: patientEmail,
-          birthDate: dob,
-          address: patientAddress,
-          city: patientCity,
-          state: patientState,
-          zipCode: zip_code,
-          insuranceName: insurance_name,
-          insuranceMemberId: insurance_member_id,
-        };
-
-        
-        // Return the patient ID as the result
-        // result = {
-        //   success: createResult.success,
-        //   patientId: createResult.generatedId || null,
-        //   statusCode: createResult.statusCode,
-        //   error: createResult.error || null,
-        // };
-        break;
-
-      case "find_patient": {
-        logger.info("Processing find_patient function call");
-
-        // Extract patient search parameters from args
-        const { birth_date, given, family, zipcode, phone } = args;
-
-        // Validate required fields
-        if (!birth_date || !given || !family) {
-          logger.warn("find_patient failed: missing required fields", {
-            birth_date,
-            given,
-            family,
-            zipcode,
-            phone,
-          });
-          return res.status(400).json({
-            success: false,
-            error:
-              "Missing required fields: birth_date, given, and family are required",
-          });
-        }
-
-        // Create search parameters with optional zipcode and phone
-        
-
-        // Check if patient found
-        if (
-          !searchResponse ||
-          !searchResponse.entry ||
-          searchResponse.entry.length === 0
-        ) {
-          logger.info("No patient found", {
-            birth_date,
-            given,
-            family,
-          });
-
-          result = {
-            success: true,
-            patient_found: false,
-            total_matches: 0,
-            patients: [],
-          };
-          break;
-        }
-
-      
- 
-
-        // logger.info("Patient search by DOB and name completed", {
-        //   totalMatches: patientsData.length,
-        //   birth_date,
-        //   given,
-        //   family,
-        //   zipcode: zipcode || null,
-        //   phone: phone || null,
-        // });
-
-        // Return the patient data
-        // result = {
-        //   success: true,
-        //   patient_found: patientsData.length > 0,
-        //   total_matches: patientsData.length,
-        //   patients: patientsData,
-        // };
-        break;
-      }
 
       case "sort_locations": {
         logger.info("Processing sort_locations function call");
@@ -1115,7 +1005,7 @@ router.post("/function-call", async (req, res, next) => {
             error: "Failed to verify insurance.",
             details: error.message,
           });
-        }
+        } 
       }
       
       case "check_insurance_eligibility": {
