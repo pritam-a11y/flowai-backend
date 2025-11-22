@@ -420,10 +420,14 @@ router.post("/function-call", async (req, res, next) => {
            // Query
            // Slots Check  ---
            const availableSlotsQuery = `
-                        SELECT slot_id, start_time, end_time, day_of_week, service_type, status
-                        FROM slots
-                        WHERE start_time > $1 AND status = 'available'
-                        ORDER BY start_time;
+           SELECT slot_id, start_time, end_time, day_of_week, service_type, status
+           FROM slots
+           WHERE 
+           start_time >= $1 
+           AND status = 'available'
+           AND service_type = $2 
+           AND location = $3  
+           ORDER BY start_time
        `;
          
        const slotsResult = await db.query(availableSlotsQuery, [searchStartDate.toISOString()]);

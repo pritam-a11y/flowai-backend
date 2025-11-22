@@ -64,21 +64,18 @@ class CallbackScheduler {
 
     try {
       const now = new Date();
-      const windowEnd = new Date(now.getTime() + this.intervalMs);
-
+     
       logger.info("Processing scheduled callbacks", {
-        windowStart: now.toISOString(),
-        windowEnd: windowEnd.toISOString(),
+        windowStart: now.toISOString(), 
       });
 
       // Query for pending callbacks within the time window
       const query = `
-        SELECT callback_id, patient_id, agent_callback_number, scheduled_time
-        FROM scheduled_callbacks
-        WHERE status = 'pending'
-          AND scheduled_time >= $1
-          AND scheduled_time < $2
-        ORDER BY scheduled_time ASC
+      SELECT callback_id, patient_id, agent_callback_number, scheduled_time, callback_reason
+      FROM scheduled_callbacks
+      WHERE status = 'pending'
+      AND scheduled_time <= $1 
+      ORDER BY scheduled_time ASC
       `;
 
       const result = await db.query(query, [now, windowEnd]);
