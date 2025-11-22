@@ -2,6 +2,10 @@ const { v4: uuidv4 } = require("uuid");
 const db = require('../db/connection');  
 const logger = require('../utils/logger');  
 const csv = require('csv-stringify');
+const moment = require('moment-timezone');
+const CallbackService = require("../services/callbackServices");
+
+const callbackService = new CallbackService();
 
 /**
  * Helper function to format the current local date as YYYY-MM-DD.
@@ -97,7 +101,7 @@ async function exportPatientData() {
 async function importPatientData(records) {
     logger.info(`Starting patient data import for ${records.length} records...`);
     
-    let importedPatients = 0;
+    let importedPatients = 0; 
 
     for (const record of records) {
         // Use the existing patient_id or generate a new UUID
@@ -163,6 +167,23 @@ async function importPatientData(records) {
                 createdAtTimestamp, // $19 - Explicitly set time of import
             ]);
             importedPatients++;
+
+              // Calculate the scheduled time (using the current time as the "failed at" time)
+              const scheduledCallbackTime = callbackService.calculateScheduledTime(createdAtTimestamp);
+            
+              // Schedule the callback
+              const agentCallbackNumber = process.env.DEFAULT_AGENT_CALLBACK_NUMBER || null;
+              const callbackReason = "Patient Data Imported (Outreach Required)";
+              
+              const callbackId = await callbackService.scheduleCallback(
+                  patientId,
+                  agentCallbackNumber,
+                  scheduledCallbackTime,
+                  callbackReason
+              );
+            
+              logger.info(`Successfully imported ${callbackId}.`);
+
         } catch (error) {
             logger.error(`Failed to upsert patient ${patientId}: ${error.message}`);
         }

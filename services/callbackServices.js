@@ -45,29 +45,29 @@ class CallbackService {
      */
     async scheduleCallback(patientId, agentCallbackNumber, scheduledTime, reason, status = 'pending') {
        
-        // Generate the unique ID for the callback
+ // Generate the unique ID for the callback
          const callbackId = uuidv4(); 
-         const createdAt = new Date().toISOString();  
         
-        logger.info("Scheduling new callback entry", {callbackId, patientId, scheduledTime, reason, createdAt });
+        logger.info("Scheduling new callback entry", {callbackId, patientId, scheduledTime, reason });
       
 
         //  INSERT into scheduled_callbacks
         const insertQuery = `
         INSERT INTO scheduled_callbacks 
-                (callback_id, patient_id, agent_callback_number, schedule_time, callback_reason, status, created_at) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7);
+            (callback_id, patient_id, agent_callback_number, schedule_time, callback_reason, status) 
+        VALUES ($1, $2, $3, $4, $5, $6);
     `;
 
-      // UPDATE call_count in patients table
-  const updateCountQuery = `
-            UPDATE patients 
-            SET call_count = COALESCE(call_count, 0) + 1 
-            WHERE patient_id = $1;
-        `;
+
+// UPDATE call_count in patients table
+const updateCountQuery = `
+    UPDATE patients 
+    SET call_count = COALESCE(call_count, 0) + 1 
+    WHERE patient_id = $1;
+`;
         try {
           // Execute the insertion first
-        await db.query(insertQuery, [callbackId, patientId, agentCallbackNumber, scheduledTime, reason, status, createdAt]);
+        await db.query(insertQuery, [callbackId, patientId, agentCallbackNumber, scheduledTime, reason, status]);
 
         // Execute the call count update 
         await db.query(updateCountQuery, [patientId]);

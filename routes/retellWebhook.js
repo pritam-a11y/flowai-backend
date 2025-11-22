@@ -14,8 +14,7 @@ const {
   getDefaultProviderConfig,
 } = require("../config/providers");
 const { findOrgIdByAgentId } = require("../helpers/retellAgentList");
-const { generateIntakeFormPDF } = require("../services/intakeFormGenerator");
-const { v4: uuidv4 } = require("uuid");
+const { generateIntakeFormPDF } = require("../services/intakeFormGenerator"); 
 const CallbackService = require("../services/callbackServices");
 
 const callbackService = new CallbackService();
