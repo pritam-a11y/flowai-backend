@@ -78,7 +78,7 @@ class CallbackScheduler {
       ORDER BY scheduled_time ASC
       `;
 
-      const result = await db.query(query, [now, windowEnd]);
+       const result = await db.query(query, [now.toISOString()]);
 
       if (result.rows.length === 0) {
         logger.info("No callbacks to process in this window");
