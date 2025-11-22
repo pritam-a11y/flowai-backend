@@ -16,7 +16,7 @@ class PatientService {
                     zip_code, address_street, address_city, 
                     insurance_name, insurance_id, 
                     appointment_type, appointment_date, appointment_time, appointment_status
-                FROM public.patients 
+                FROM patients 
                 WHERE patient_id = $1 
                 LIMIT 1;
             `;

@@ -55,7 +55,7 @@ class CallbackService {
 
 // UPDATE call_count in patients table
 const updateCountQuery = `
-    UPDATE public.patients 
+    UPDATE patients 
     SET call_count = COALESCE(call_count, 0) + 1 
     WHERE patient_id = $1;
 `;

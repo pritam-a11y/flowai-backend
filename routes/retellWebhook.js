@@ -421,8 +421,8 @@ router.post("/function-call", async (req, res, next) => {
            // Query
            // Slots Check  ---
            const availableSlotsQuery = `
-           SELECT slot_id, start_time, end_time, day_of_week, service_type, status
-                        FROM public.slots
+                        SELECT slot_id, start_time, end_time, day_of_week, service_type, status
+                        FROM slots
                         WHERE start_time > $1 AND status = 'available'
                         ORDER BY start_time;
        `;
@@ -478,27 +478,16 @@ router.post("/function-call", async (req, res, next) => {
           patientId, 
           appointmentType,
           startTime: apptStart,
-          endTime,
-          slotId,
-          status = 'booked',
-          location: appointmentLocation = overriddenLocation,
+          endTime, 
+          status = 'booked', 
           stat: bookStat = false,
         } = args;
 
-        // Only patientId is required (for participant reference)
-        if (!patientId) {
+        // Only patientId is required 
+        if (!patientId || !apptStart || !endTime) {
           return res.status(400).json({
-            success: false,
-            error: "Missing required field for appointment booking: patientId",
-          });
-        }
-
-        // If stat mode is enabled, check current booking count before booking
-        if (!apptStart || !slotId || !endTime) {
-          logger.error("Missing required fields for booking.", { args });
-          return res.status(400).json({ 
-              success: false, 
-              error: "Missing required field: patientId, startTime (apptStart), or endTime" 
+              success: false,
+              error: "Missing required fields for appointment booking: patientId, startTime, or endTime",
           });
       }
      
@@ -507,7 +496,7 @@ router.post("/function-call", async (req, res, next) => {
        
        const callCountQuery = `
        SELECT COALESCE(call_count, 0) AS call_count
-       FROM public.patients 
+       FROM patients 
        WHERE patient_id = $1;
    `;
    const callCountResult = await db.query(callCountQuery, [patientId]);
@@ -526,7 +515,7 @@ router.post("/function-call", async (req, res, next) => {
 
       const patientCheckQueryBook = `
       SELECT patient_id 
-      FROM public.patients 
+      FROM patients 
       WHERE patient_id = $1 AND appointment_status = 'booked'
       LIMIT 1;
   `;
@@ -538,56 +527,39 @@ router.post("/function-call", async (req, res, next) => {
             error:"You have already booked an appointment",
           });
       }
-      
-      // --- Single Slot Capacity Check (For Booking) ---
-      logger.info("Verifying slot existence and availability in public.slots.", { slotId });
-
-      const slotExistenceQuery = `
-      SELECT slot_id
-      FROM public.slots
-      WHERE slot_id = $1 AND status = 'available';
-      `;
-      const slotExistenceResult = await db.query(slotExistenceQuery, [slotId]);
-
-      if (slotExistenceResult.rows.length === 0) {
-        logger.error(`Slot not found!: ${slotId}`);
-           return res.status(404).json({
-            success: false,
-            error:"Slot not found!",
-          });
-      }
        
-      // --- Execution (Update Slot Status & Update Patient Record) ---       
+      // --- Execution (Update Slot Status & Update Patient Record)/ Slot Booking ---       
       // Consume Slot (Update status to 'booked')
               
       const updateSlotStatusQuery = `
-                    UPDATE public.slots 
-                    SET status = $2 
-                    WHERE slot_id = $1 AND status = 'available'
-                    RETURNING slot_id;
+      UPDATE slots 
+      SET status = $2 
+      WHERE start_time = $1 AND status = 'available'
+      RETURNING slot_id;
       `;
-      await db.query(updateSlotStatusQuery, [slotId, 'booked']);
+      const slotBookingResult = await db.query(updateSlotStatusQuery, [apptStart, 'booked']);
        
-
-      if (updateResult.rows.length === 0) {
-        
-        logger.error(`Slot not found!: ${slotId}`);
+      if (slotBookingResult.rows.length === 0) {
+        logger.error(`Slot not found or already booked for startTime: ${apptStart}`);
         return res.status(404).json({
           success: false,
-          error:"Slot not found!",
+          error:"Slot not found or already booked at the specified time.",
         });
    }
 
-      logger.info(`Slot status updated to 'booked'. SlotId: ${slotId}`);
+   const slotId = slotBookingResult.rows[0].slot_id;
+   logger.info(`Slot status updated to 'booked'. SlotId: ${slotId} start time :${apptStart}`);
 
  // Prepare Patient Update Data: Format date and time from ISO string for patient table.
  const appointmentDateTime = new Date(apptStart);
- const appointmentDate = appointmentDateTime.toISOString().split('T')[0]; // YYYY-MM-DD
- const appointmentTime = appointmentDateTime.toISOString().split('T')[1].substring(0, 8); // HH:MM:SS
+ const appointmentDate = appointmentDateTime.toISOString().split('T')[0] || call.call_analysis?.custom_analysis_data?.appointment_date; // YYYY-MM-DD
+ const appointmentTime = appointmentDateTime.toISOString().split('T')[1].substring(0, 8) || call.call_analysis?.custom_analysis_data?.appointment_time; // HH:MM:SS
 
+ const appointment_location = call.call_analysis?.custom_analysis_data?.appointment_location;
+ 
       // --- Update Patient Details ---
       const updatePatientQuery = `
-      UPDATE public.patients 
+      UPDATE patients 
       SET appointment_status = $2, 
           appointment_type = $3,
           appointment_date = $4,
@@ -596,7 +568,7 @@ router.post("/function-call", async (req, res, next) => {
       WHERE patient_id = $1
       RETURNING patient_id;
       `;
-      await db.query(updatePatientQuery, [patientId, status, appointmentType, appointmentDate, appointmentTime, appointmentLocation]); 
+      await db.query(updatePatientQuery, [patientId, status, appointmentType, appointmentDate, appointmentTime, appointment_location]); 
                
       logger.info("Patient details updated successfully with new appointment.", { patientId, appointmentType, appointmentDate, appointmentTime });
 
@@ -610,7 +582,7 @@ router.post("/function-call", async (req, res, next) => {
             date: appointmentDate,
             time: appointmentTime,
             type: appointmentType,
-            location: appointmentLocation
+            location: appointment_location
           },
       };
       break;  
@@ -624,9 +596,8 @@ router.post("/function-call", async (req, res, next) => {
           appointmentType: updateType,
           startTime: updateStart,
           endTime: updateEnd,
-          status: updateStatus,
           location: updateLocation,
-          slotId: currentSlotId
+          status: updateStatus,  
         } = args;
 
         // Only appointmentId and patientId are required for update
@@ -645,7 +616,7 @@ router.post("/function-call", async (req, res, next) => {
        
        const callCountUpdateQuery = `
        SELECT COALESCE(call_count, 0) AS call_count
-       FROM public.patients 
+       FROM patients 
        WHERE patient_id = $1;
    `;
    const callCountUpdateResult = await db.query(callCountUpdateQuery, [patientId]);
@@ -660,21 +631,6 @@ router.post("/function-call", async (req, res, next) => {
        });
    }
 
-        // Cancellation/Reschedule Slot Update ---
-        if (currentSlotId && updateStatus === 'cancelled') {
-          // If the user cancels, we must free up the slot in the public.slots table.
-          logger.info("Cancellation detected. Freeing up slot in public.slots.", { currentSlotId });
-          
-          const freeSlotQuery = `
-          UPDATE public.slots 
-          SET status = 'available' 
-          WHERE slot_id = $1 
-            AND status = 'booked'
-            AND start_time > NOW();
-          `;
-          await db.query(freeSlotQuery, [currentSlotId]);
-      }
-
        // --- Data Preparation for Patient Table Update ---
        let updateAppointmentDate = null;
        let updateAppointmentTime = null;
@@ -686,7 +642,7 @@ router.post("/function-call", async (req, res, next) => {
            updateAppointmentTime = updateAppointmentDateTime.toISOString().split('T')[1].substring(0, 8);
        }
       // ---  Dynamic Query Builder ---
-                // Dynamically build the SET clause based on provided fields for the public.patients table.
+                // Dynamically build the SET clause based on provided fields for the patients table.
                 const setClauses = [];
                 const queryParams = [updatePatientId];
                 let paramCount = 2; 
@@ -722,7 +678,7 @@ router.post("/function-call", async (req, res, next) => {
                 
         // Update the patient's record using patient_id.
         const updateApptQuery = `
-        UPDATE public.patients
+        UPDATE patients
         SET ${setClauses.join(', ')}
         WHERE patient_id = $1
         RETURNING patient_id;
@@ -743,6 +699,7 @@ router.post("/function-call", async (req, res, next) => {
                 date: updateAppointmentDate,
                 time: updateAppointmentTime,
                 endTime: updateEnd,
+                type: updateType
             },
         };
         break; 
