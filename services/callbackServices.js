@@ -1,6 +1,7 @@
 const db = require("../db/connection");
 const logger = require("../utils/logger");
-const moment = require('moment-timezone'); 
+const moment = require('moment-timezone');
+const { v4: uuidv4 } = require('uuid');  
  
 const BUSINESS_HOUR_START = parseInt(process.env.BUSINESS_HOUR_START) || 9;
 const BUSINESS_HOUR_END = parseInt(process.env.BUSINESS_HOUR_END) || 17;
@@ -43,15 +44,20 @@ class CallbackService {
      * Inserts a new callback entry into the scheduled_callbacks table.
      */
     async scheduleCallback(patientId, agentCallbackNumber, scheduledTime, reason, status = 'pending') {
-        logger.info("Scheduling new callback entry", { patientId, scheduledTime, reason });
+       
+ // Generate the unique ID for the callback
+         const callbackId = uuidv4(); 
+        
+        logger.info("Scheduling new callback entry", {callbackId, patientId, scheduledTime, reason });
       
+
         //  INSERT into scheduled_callbacks
-    const insertQuery = `
-    INSERT INTO scheduled_callbacks 
-        (patient_id, agent_callback_number, schedule_time, callback_reason, status) 
-    VALUES ($1, $2, $3, $4, $5) 
-    RETURNING callback_id;
-`;
+        const insertQuery = `
+        INSERT INTO scheduled_callbacks 
+            (callback_id, patient_id, agent_callback_number, schedule_time, callback_reason, status) 
+        VALUES ($1, $2, $3, $4, $5, $6);
+    `;
+
 
 // UPDATE call_count in patients table
 const updateCountQuery = `
@@ -61,8 +67,7 @@ const updateCountQuery = `
 `;
         try {
           // Execute the insertion first
-        const result = await db.query(insertQuery, [patientId, agentCallbackNumber, scheduledTime, reason, status]);
-        const callbackId = result.rows[0].callback_id;
+        await db.query(insertQuery, [callbackId, patientId, agentCallbackNumber, scheduledTime, reason, status]);
 
         // Execute the call count update 
         await db.query(updateCountQuery, [patientId]);
