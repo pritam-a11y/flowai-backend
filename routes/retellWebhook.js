@@ -14,9 +14,10 @@ const {
   getDefaultProviderConfig,
 } = require("../config/providers");
 const { findOrgIdByAgentId } = require("../helpers/retellAgentList");
-const { generateIntakeFormPDF } = require("../services/intakeFormGenerator");
-const { v4: uuidv4 } = require("uuid");
+const { generateIntakeFormPDF } = require("../services/intakeFormGenerator"); 
+const CallbackService = require("../services/callbackServices");
 
+const callbackService = new CallbackService();
 const authService = new AuthService(); 
 
 // Initialize Resend with API key
@@ -419,14 +420,15 @@ router.post("/function-call", async (req, res, next) => {
            // Query
            // Slots Check  ---
            const availableSlotsQuery = `
-           SELECT start_time, available_slots, slot_id, end_time, day_of_week, service_type, status
-           FROM public.slots
-           WHERE start_time >= $1 AND available_slots > 0
-           ORDER BY start_time;
-                `;
+                        SELECT slot_id, start_time, end_time, day_of_week, service_type, status
+                        FROM slots
+                        WHERE start_time > $1 AND status = 'available'
+                        ORDER BY start_time;
+       `;
          
        const slotsResult = await db.query(availableSlotsQuery, [searchStartDate.toISOString()]);
 
+        // --- Handle No Slots Found ---
        if (slotsResult.rows.length === 0) { 
            result = {
                success: true,
@@ -439,8 +441,7 @@ router.post("/function-call", async (req, res, next) => {
        
        // Transform rows into a clear list of slots
        const slotsList = slotsResult.rows.map(row => ({  
-        slotId: row.slot_id, 
-        timeSlot: row.start_time,  
+        slotId: row.slot_id,  
         startTime: row.start_time,     
         endTime: row.end_time,
         dayOfWeek: row.day_of_week, 
@@ -457,6 +458,15 @@ router.post("/function-call", async (req, res, next) => {
            availableSlots: slotsList,
        };
       }
+      else {  
+        logger.info("STAT mode disabled - skipping capacity check.");
+        result = {
+            success: true,
+            status: 200,
+            message: "Capacity check skipped.",
+            availableSlots: [],  
+        };
+   }
        break; 
 
       case "book_appointment":
@@ -467,36 +477,47 @@ router.post("/function-call", async (req, res, next) => {
           patientId, 
           appointmentType,
           startTime: apptStart,
-          endTime,
-          status = 'booked',
+          endTime, 
+          status = 'booked', 
           stat: bookStat = false,
         } = args;
 
-        // Only patientId is required (for participant reference)
-        if (!patientId) {
+        // Only patientId is required 
+        if (!patientId || !apptStart || !endTime) {
           return res.status(400).json({
-            success: false,
-            error: "Missing required field for appointment booking: patientId",
-          });
-        }
-
-        // If stat mode is enabled, check current booking count before booking
-        if (bookStat && apptStart && endTime) {
-          logger.error("Missing required fields for booking.", { args });
-          return res.status(400).json({ 
-              success: false, 
-              error: "Missing required field: patientId, startTime (apptStart), or endTime" 
+              success: false,
+              error: "Missing required fields for appointment booking: patientId, startTime, or endTime",
           });
       }
      
+        // Check if the patient has reached the max interaction limit (10).
+       logger.info("Checking patient's call_count limit (max 10).", { patientId });
+       
+       const callCountQuery = `
+       SELECT COALESCE(call_count, 0) AS call_count
+       FROM patients 
+       WHERE patient_id = $1;
+   `;
+   const callCountResult = await db.query(callCountQuery, [patientId]);
+   const currentCallCount = callCountResult.rows.length > 0 
+       ? parseInt(callCountResult.rows[0].call_count) 
+       : 0;
+
+   if (currentCallCount >= 10) {
+       return res.status(400).json({
+           success: false,
+           error: "Patient has reached the maximum interaction limit (10) and cannot book an appointment at this time.",
+       });
+   }
+   
       logger.info("Checking patient_details for existing appointment.", { patientId });
 
       const patientCheckQueryBook = `
-      SELECT appointment_id 
-      FROM public.patient_details 
+      SELECT patient_id 
+      FROM patients 
       WHERE patient_id = $1 AND appointment_status = 'booked'
       LIMIT 1;
-      `;
+  `;
       const patientCheckResultBook = await db.query(patientCheckQueryBook, [patientId]);
 
       if (patientCheckResultBook.rows.length > 0) { 
@@ -505,71 +526,62 @@ router.post("/function-call", async (req, res, next) => {
             error:"You have already booked an appointment",
           });
       }
-      
-      // --- Single Slot Capacity Check (For Booking) ---
-      logger.info("Checking single slot inventory capacity for booking.", { apptStart });
-
-      const capacityQueryBook = `
-          SELECT available_slots
-          FROM public.slots
-          WHERE start_time = $1;
+       
+      // --- Execution (Update Slot Status & Update Patient Record)/ Slot Booking ---       
+      // Consume Slot (Update status to 'booked')
+              
+      const updateSlotStatusQuery = `
+      UPDATE slots 
+      SET status = $2 
+      WHERE start_time = $1 AND status = 'available'
+      RETURNING slot_id;
       `;
-      const capacityResultBook = await db.query(capacityQueryBook, [apptStart]);
+      const slotBookingResult = await db.query(updateSlotStatusQuery, [apptStart, 'booked']);
+       
+      if (slotBookingResult.rows.length === 0) {
+        logger.error(`Slot not found or already booked for startTime: ${apptStart}`);
+        return res.status(404).json({
+          success: false,
+          error:"Slot not found or already booked at the specified time.",
+        });
+   }
 
-      if (capacityResultBook.rows.length === 0) {
-           return res.status(404).json({
-            success: false,
-            error:"Slot not found!",
-          });
-      }
+   const slotId = slotBookingResult.rows[0].slot_id;
+   logger.info(`Slot status updated to 'booked'. SlotId: ${slotId} start time :${apptStart}`);
 
-      const availableSlotsBook = capacityResultBook.rows[0].available_slots;
+ // Prepare Patient Update Data: Format date and time from ISO string for patient table.
+ const appointmentDateTime = new Date(apptStart);
+ const appointmentDate = appointmentDateTime.toISOString().split('T')[0] || call.call_analysis?.custom_analysis_data?.appointment_date; // YYYY-MM-DD
+ const appointmentTime = appointmentDateTime.toISOString().split('T')[1].substring(0, 8) || call.call_analysis?.custom_analysis_data?.appointment_time; // HH:MM:SS
 
-      if (availableSlotsBook <= 0) {
-           return res.status(404).json({
-            success: false,
-            error:"Slot not found!",
-          });
-      }
-      
-      // --- Generate new ID
-      const newAppointmentId = uuidv4(); 
-      logger.info("Starting updates. Generated Appointment ID.", { newAppointmentId });
-      
-      // --- Reduce Slot Inventory ---
-      const newAvailableSlots = availableSlotsBook - 1;
-      
-      const updateSlotQuery = `
-      UPDATE public.slots 
-      SET available_slots = $2 
-      WHERE start_time = $1 
-      RETURNING available_slots;
-      `;
-      await db.query(updateSlotQuery, [apptStart, newAvailableSlots]);
-      
-      logger.info(`Slot inventory reduced. Remaining: ${newAvailableSlots}`, { apptStart });
-
+ const appointment_location = call.call_analysis?.custom_analysis_data?.appointment_location;
+ 
       // --- Update Patient Details ---
       const updatePatientQuery = `
-      UPDATE public.patient_details 
+      UPDATE patients 
       SET appointment_status = $2, 
-          appointment_id = $3, 
-          appointment_type = $4
-      WHERE patient_id = $1;
+          appointment_type = $3,
+          appointment_date = $4,
+          appointment_time = $5,
+          appointment_location = $6
+      WHERE patient_id = $1
+      RETURNING patient_id;
       `;
-      await db.query(updatePatientQuery, [patientId, status, newAppointmentId, appointmentType]); 
-      
-      logger.info("Patient details updated successfully.", { patientId, newAppointmentId, appointmentType });
+      await db.query(updatePatientQuery, [patientId, status, appointmentType, appointmentDate, appointmentTime, appointment_location]); 
+               
+      logger.info("Patient details updated successfully with new appointment.", { patientId, appointmentType, appointmentDate, appointmentTime });
 
       // --- Success Result ---
       result = {
           success: true,
           statusCode: 201,
           appointment: { 
-              patientId, 
-              appointmentId: newAppointmentId, 
-              time: apptStart,
-              type: appointmentType 
+            patientId, 
+            slotId: slotId, 
+            date: appointmentDate,
+            time: appointmentTime,
+            type: appointmentType,
+            location: appointment_location
           },
       };
       break;  
@@ -578,177 +590,118 @@ router.post("/function-call", async (req, res, next) => {
         logger.info("Processing update_appointment function call");
 
         // Extract appointment update parameters from args
-        const {
-          appointmentId,
+        const { 
           patientId: updatePatientId,
           appointmentType: updateType,
           startTime: updateStart,
           endTime: updateEnd,
-          status: updateStatus,
+          location: updateLocation,
+          status: updateStatus,  
         } = args;
 
         // Only appointmentId and patientId are required for update
-        if (!appointmentId || !updatePatientId) {
+        if (!updatePatientId) {
           return res.status(400).json({
             success: false,
             error:
               "Missing required fields for appointment update: appointmentId, patientId",
           });
-        }
-        logger.info("Processing update_appointment function call");
-                        
-        // --- Execute Update ---
-        logger.info("Executing DB update for appointment.", { appointmentId, updatePatientId, updateStart, updateEnd, updateStatus });
+        }      
 
-        // query targeting the specific appointment ID and patient ID.
+        logger.info("Processing update_appointment function call");
+             
+         // Check if the patient has reached the max interaction limit (10).
+       logger.info("Checking patient's call_count limit (max 10).", { patientId });
+       
+       const callCountUpdateQuery = `
+       SELECT COALESCE(call_count, 0) AS call_count
+       FROM patients 
+       WHERE patient_id = $1;
+   `;
+   const callCountUpdateResult = await db.query(callCountUpdateQuery, [patientId]);
+   const currentCallUpdateCount = callCountUpdateResult.rows.length > 0 
+       ? parseInt(callCountUpdateResult.rows[0].call_count) 
+       : 0;
+
+   if (currentCallUpdateCount >= 10) {
+       return res.status(400).json({
+           success: false,
+           error: "Patient has reached the maximum interaction limit (10) and cannot book an appointment at this time.",
+       });
+   }
+
+       // --- Data Preparation for Patient Table Update ---
+       let updateAppointmentDate = null;
+       let updateAppointmentTime = null;
+       
+       if (updateStart) {
+           // Split the ISO string into date and time parts for the patient table.
+           const updateAppointmentDateTime = new Date(updateStart);
+           updateAppointmentDate = updateAppointmentDateTime.toISOString().split('T')[0];
+           updateAppointmentTime = updateAppointmentDateTime.toISOString().split('T')[1].substring(0, 8);
+       }
+      // ---  Dynamic Query Builder ---
+                // Dynamically build the SET clause based on provided fields for the patients table.
+                const setClauses = [];
+                const queryParams = [updatePatientId];
+                let paramCount = 2; 
+
+                if (updateStatus) {
+                    setClauses.push(`appointment_status = $${paramCount++}`);
+                    queryParams.push(updateStatus);
+                }
+                if (updateType) {
+                    setClauses.push(`appointment_type = $${paramCount++}`);
+                    queryParams.push(updateType);
+                }
+                if (updateLocation) {
+                    setClauses.push(`appointment_location = $${paramCount++}`);
+                    queryParams.push(updateLocation);
+                }
+                if (updateAppointmentDate) {
+                    // Update date and time if a new start time is provided.
+                    setClauses.push(`appointment_date = $${paramCount++}`);
+                    queryParams.push(updateAppointmentDate);
+                    
+                    setClauses.push(`appointment_time = $${paramCount++}`);
+                    queryParams.push(updateAppointmentTime);
+                }
+                
+                if (setClauses.length === 0) {
+                  logger.error("No valid fields provided for appointment update.");
+                    return res.status(400).json({
+                        success: false,
+                        error: "No valid fields provided for appointment update.",
+                    });
+                }
+                
+        // Update the patient's record using patient_id.
         const updateApptQuery = `
-            UPDATE public.patient_details
-            SET 
-                appointment_status = $4, 
-                appointment_start = $2,
-                appointment_end = $3
-            WHERE appointment_id = $1 AND patient_id = $5;
-        `;
-        
-        // update
-        await db.query(updateApptQuery, [appointmentId, updateStart, updateEnd, updateStatus, updatePatientId]); 
-        
-        logger.info("Appointment details updated successfully.", { appointmentId });
+        UPDATE patients
+        SET ${setClauses.join(', ')}
+        WHERE patient_id = $1
+        RETURNING patient_id;
+    `;
+    
+    await db.query(updateApptQuery, queryParams); 
+    
+    logger.info("Patient appointment details updated successfully.", { patientId: updatePatientId, updateStatus });
 
         // --- Success Result ---
         result = {
             success: true,
             status: 200,
-            message: `Appointment ${appointmentId} updated successfully to start at ${updateStart}.`,
-            appointment: { 
-                appointmentId, 
+            message: `Appointment ${updatePatientId} updated successfully to start at ${updateStart}.`,
+            appointment: {  
                 patientId: updatePatientId, 
                 status: updateStatus,
-                startTime: updateStart,
+                date: updateAppointmentDate,
+                time: updateAppointmentTime,
                 endTime: updateEnd,
+                type: updateType
             },
         };
-        
         break; 
-
-      case "create_patient":
-        logger.info("Processing create_patient function call");
-
-        // Extract patient creation parameters from args
-        const {
-          first_name,
-          last_name,
-          phone: patientPhone,
-          email: patientEmail,
-          dob,
-          address: patientAddress,
-          city: patientCity,
-          state: patientState,
-          zip_code,
-          insurance_name,
-          insurance_member_id,
-        } = args;
-
-        // Validate required fields
-        if (!first_name || !last_name) {
-          return res.status(400).json({
-            success: false,
-            error:
-              "Missing required fields for patient creation: first_name, last_name",
-          });
-        }
-
-        const patientData = {
-          firstName: first_name,
-          lastName: last_name,
-          phone: patientPhone,
-          email: patientEmail,
-          birthDate: dob,
-          address: patientAddress,
-          city: patientCity,
-          state: patientState,
-          zipCode: zip_code,
-          insuranceName: insurance_name,
-          insuranceMemberId: insurance_member_id,
-        };
-
-        
-        // Return the patient ID as the result
-        // result = {
-        //   success: createResult.success,
-        //   patientId: createResult.generatedId || null,
-        //   statusCode: createResult.statusCode,
-        //   error: createResult.error || null,
-        // };
-        break;
-
-      case "find_patient": {
-        logger.info("Processing find_patient function call");
-
-        // Extract patient search parameters from args
-        const { birth_date, given, family, zipcode, phone } = args;
-
-        // Validate required fields
-        if (!birth_date || !given || !family) {
-          logger.warn("find_patient failed: missing required fields", {
-            birth_date,
-            given,
-            family,
-            zipcode,
-            phone,
-          });
-          return res.status(400).json({
-            success: false,
-            error:
-              "Missing required fields: birth_date, given, and family are required",
-          });
-        }
-
-        // Create search parameters with optional zipcode and phone
-        
-
-        // Check if patient found
-        if (
-          !searchResponse ||
-          !searchResponse.entry ||
-          searchResponse.entry.length === 0
-        ) {
-          logger.info("No patient found", {
-            birth_date,
-            given,
-            family,
-          });
-
-          result = {
-            success: true,
-            patient_found: false,
-            total_matches: 0,
-            patients: [],
-          };
-          break;
-        }
-
-      
- 
-
-        // logger.info("Patient search by DOB and name completed", {
-        //   totalMatches: patientsData.length,
-        //   birth_date,
-        //   given,
-        //   family,
-        //   zipcode: zipcode || null,
-        //   phone: phone || null,
-        // });
-
-        // Return the patient data
-        // result = {
-        //   success: true,
-        //   patient_found: patientsData.length > 0,
-        //   total_matches: patientsData.length,
-        //   patients: patientsData,
-        // };
-        break;
-      }
 
       case "sort_locations": {
         logger.info("Processing sort_locations function call");
@@ -1115,7 +1068,7 @@ router.post("/function-call", async (req, res, next) => {
             error: "Failed to verify insurance.",
             details: error.message,
           });
-        }
+        } 
       }
       
       case "check_insurance_eligibility": {
@@ -1373,8 +1326,8 @@ router.post("/call/update", async (req, res, next) => {
     try {
       // ----calling retell for agent id and db to check orgId
       if (event === "call_analyzed") {
-        const orgId = await findOrgIdByAgentId(call.agent_id);
-
+        const orgId = await findOrgIdByAgentId(call.agent_id);    
+       
         // --- Data Extraction ---
         const data = {
           // Dates and IDs
@@ -1896,9 +1849,7 @@ router.post("/call/update", async (req, res, next) => {
                
                 // Generate PDF from transcript using ChatGPT with patient demographics
                 const pdfBase64 = await generateIntakeFormPDF(call.transcript, patientDemographics);
-
                 
-
                 documentType = "pdf";
 
                 logger.info("PDF intake form generated successfully", {
@@ -2033,27 +1984,22 @@ router.post("/call/update", async (req, res, next) => {
           } else {
             // is_transfer_attempted is false, store in scheduled_callbacks table
             try {
-              const insertCallbackQuery = `
-                INSERT INTO scheduled_callbacks (
-                  patient_id,
-                  agent_callback_number,
-                  scheduled_time,
-                  status
-                ) VALUES ($1, $2, $3, 'pending')
-              `;
-
-              await db.query(insertCallbackQuery, [
-                patientId,
-                agentCallbackNumber,
-                scheduledCallbackTime,
-              ]);
+              //  
+              const callbackId = await callbackService.scheduleCallback(
+                 patientId,
+                 agentCallbackNumber,
+                 scheduledCallbackTime,
+                 "User Requested Callback"  
+                 );
 
               logger.info("Scheduled callback stored in database", {
                 call_id: call.call_id,
                 patient_id: patientId,
                 agent_callback_number: agentCallbackNumber,
                 scheduled_time: scheduledCallbackTime,
+                callback_id: callbackId,
               });
+       
             } catch (dbError) {
               logger.error("Error storing scheduled callback", {
                 call_id: call.call_id,

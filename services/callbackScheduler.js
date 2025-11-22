@@ -2,6 +2,11 @@ const db = require("../db/connection");
 const logger = require("../utils/logger");
 const retellService = require("./retellService"); 
 const AuthService = require("./authService");
+const PatientService = require("../services/PatientService");  
+
+const CRON_CALLBACK_INTERVAL_MS = parseInt(process.env.CRON_CALLBACK_INTERVAL); // Default to 1 minute
+
+const patientService = new PatientService();
 
 const authService = new AuthService();
 
@@ -9,7 +14,7 @@ class CallbackScheduler {
   constructor() {
     this.intervalId = null;
     this.isProcessing = false;
-    this.intervalMs = 1 * 60 * 1000; // 1 minute
+    this.intervalMs = CRON_CALLBACK_INTERVAL_MS // 1 minute
   }
 
   /**
@@ -68,7 +73,7 @@ class CallbackScheduler {
 
       // Query for pending callbacks within the time window
       const query = `
-        SELECT id, patient_id, agent_callback_number, scheduled_time
+        SELECT callback_id, patient_id, agent_callback_number, scheduled_time
         FROM scheduled_callbacks
         WHERE status = 'pending'
           AND scheduled_time >= $1
@@ -104,33 +109,27 @@ class CallbackScheduler {
    * @param {Object} callback - The callback record from database
    */
   async processSingleCallback(callback) {
-    const { id, patient_id, agent_callback_number, scheduled_time } = callback;
+    const { callback_id, patient_id, agent_callback_number, scheduled_time } = callback;
 
     logger.info("Processing callback", {
-      callbackId: id,
+      callbackId: callback_id,
       patientId: patient_id,
       agentCallbackNumber: agent_callback_number,
       scheduledTime: scheduled_time,
     });
 
     try {
-      // Get access token
-      const accessToken = await authService.getAccessToken();
+         // Get access token
+       const accessToken = await authService.getAccessToken();
   
-      // Search for appointments
-      let appointments = [];
-      try {
-         
-      } catch (appointmentError) {
-        logger.warn("Failed to fetch appointments for callback", {
-          error: appointmentError.message,
+       const patientData = await patientService.getPatientData(patient_id);
+
+      if (!patientData || !patientData.phone) { 
+        logger.error("Patient data or phone number not found.", { 
           patientId: patient_id,
         });
-      }
-
-      // Get the most recent appointment
-      const appointment = appointments.length > 0 ? appointments[0] : null;
-
+   }
+     
       // Prepare dynamic variables for the callback
       const dynamicVariables = {
         // Call context
@@ -149,12 +148,11 @@ class CallbackScheduler {
         insurance_type: patientData.insuranceType || "",
         patient_insurance_member_id: patientData.insuranceMemberId || "",
 
-        // Appointment details if available
-        patient_appointment_id: appointment?.appointmentId || "",
-        patient_appointment_type: appointment?.appointmentType || "",
-        appointment_start: appointment?.startTime || "",
-        patient_appointment_status: appointment?.status || "",
-        appointment_description: appointment?.description || "",
+        // Appointment details if available 
+        patient_appointment_type: patientData?.appointmentType || "",
+        appointment_date: patientData.appointmentDate || "",
+        appointment_time: patientData.appointmentTime || "",
+        patient_appointment_status: patientData?.status || "", 
       };
 
       // Create callback call from agent_callback_number to patient's registered phone
@@ -169,19 +167,19 @@ class CallbackScheduler {
         `UPDATE scheduled_callbacks 
          SET status = 'completed', 
              processed_at = CURRENT_TIMESTAMP 
-         WHERE id = $1`,
-        [id]
+         WHERE callback_id = $1`,
+        [callback_id]
       );
 
       logger.info("Callback processed successfully", {
-        callbackId: id,
+        callbackId: callback_id,
         patientId: patient_id,
         retellCallId: callResponse.call_id,
         retellCallStatus: callResponse.status,
       });
     } catch (error) {
       logger.error("Error processing callback", {
-        callbackId: id,
+        callbackId: callback_id,
         patientId: patient_id,
         error: error.message,
       });
@@ -192,8 +190,8 @@ class CallbackScheduler {
          SET status = 'failed', 
              processed_at = CURRENT_TIMESTAMP,
              error_message = $2
-         WHERE id = $1`,
-        [id, error.message]
+         WHERE callback_id = $1`,
+        [callback_id, error.message]
       );
     }
   }
