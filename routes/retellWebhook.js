@@ -397,9 +397,7 @@ router.post("/function-call", async (req, res, next) => {
           overriddenLocation: overriddenLocation,
           statEnabled: stat,
         }); 
-
-        // If stat is enabled, fetch existing appointments to count bookings
-        if (stat) {
+ 
           logger.info(
             "STAT mode enabled - fetching existing appointments for capacity tracking"
           );
@@ -451,8 +449,7 @@ router.post("/function-call", async (req, res, next) => {
         endTime: row.end_time,
         dayOfWeek: row.day_of_week, 
         serviceType: row.service_type, 
-        status: row.status, 
-        availableCount: row.available_slots, 
+        status: row.status,   
        }));
        
        // --- result ---
@@ -461,17 +458,8 @@ router.post("/function-call", async (req, res, next) => {
            status: 200,
            message: `Found ${slotsList.length} available slots starting from ${startTime}.`,
            availableSlots: slotsList,
-       };
-      }
-      else {  
-        logger.info("STAT mode disabled - skipping capacity check.");
-        result = {
-            success: true,
-            status: 200,
-            message: "Capacity check skipped.",
-            availableSlots: [],  
-        };
-   }
+       }; 
+       
        break; 
 
       case "book_appointment":
