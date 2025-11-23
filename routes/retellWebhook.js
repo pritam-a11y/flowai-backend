@@ -485,9 +485,11 @@ router.post("/function-call", async (req, res, next) => {
         // Check if the patient has reached the max interaction limit (10).
        logger.info("Checking patient's call_count limit (max 10).", { patientId });
        
+       // we have to change it from patient_details to patients 
+       // for now its for testing table patient_details
        const callCountQuery = `
        SELECT COALESCE(call_count, 0) AS call_count
-       FROM patient_details 
+       FROM patient_details           
        WHERE patient_id = $1;
    `;
    const callCountResult = await db.query(callCountQuery, [patientId]);
