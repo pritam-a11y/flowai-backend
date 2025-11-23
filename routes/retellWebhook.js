@@ -485,9 +485,11 @@ router.post("/function-call", async (req, res, next) => {
         // Check if the patient has reached the max interaction limit (10).
        logger.info("Checking patient's call_count limit (max 10).", { patientId });
        
+       // we have to change it from patient_details to patients 
+       // for now its for testing table patient_details
        const callCountQuery = `
        SELECT COALESCE(call_count, 0) AS call_count
-       FROM patients 
+       FROM patient_details           
        WHERE patient_id = $1;
    `;
    const callCountResult = await db.query(callCountQuery, [patientId]);
@@ -506,7 +508,7 @@ router.post("/function-call", async (req, res, next) => {
 
       const patientCheckQueryBook = `
       SELECT patient_id 
-      FROM patients 
+      FROM patient_details 
       WHERE patient_id = $1 AND appointment_status = 'booked'
       LIMIT 1;
   `;
@@ -550,7 +552,7 @@ router.post("/function-call", async (req, res, next) => {
  
       // --- Update Patient Details ---
       const updatePatientQuery = `
-      UPDATE patients 
+      UPDATE patient_details 
       SET appointment_status = $2, 
           appointment_type = $3,
           appointment_date = $4,
@@ -607,7 +609,7 @@ router.post("/function-call", async (req, res, next) => {
        
        const callCountUpdateQuery = `
        SELECT COALESCE(call_count, 0) AS call_count
-       FROM patients 
+       FROM patient_details 
        WHERE patient_id = $1;
    `;
    const callCountUpdateResult = await db.query(callCountUpdateQuery, [patientId]);
@@ -669,7 +671,7 @@ router.post("/function-call", async (req, res, next) => {
                 
         // Update the patient's record using patient_id.
         const updateApptQuery = `
-        UPDATE patients
+        UPDATE patient_details
         SET ${setClauses.join(', ')}
         WHERE patient_id = $1
         RETURNING patient_id;
