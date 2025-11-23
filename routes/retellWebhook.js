@@ -422,9 +422,7 @@ router.post("/function-call", async (req, res, next) => {
         WHERE 
             start_time >= $1
             AND start_time <= $2
-            AND status = 'available'
-            AND ($3::text IS NULL OR service_type = $3)
-            AND ($4::text IS NULL OR location = $4)
+            AND status = 'available' 
         ORDER BY start_time
        `;
          
@@ -434,7 +432,7 @@ router.post("/function-call", async (req, res, next) => {
         serviceType || null,
         overriddenLocation
          ]);
-         
+
         // --- Handle No Slots Found ---
        if (slotsResult.rows.length === 0) { 
            result = {
