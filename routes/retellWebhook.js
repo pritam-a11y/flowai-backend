@@ -421,13 +421,14 @@ router.post("/function-call", async (req, res, next) => {
            FROM slots
            WHERE 
                start_time >= $1 
+               AND start_time <= $2
                AND LOWER(status) = 'available'
            ORDER BY start_time
        `;
          
        const slotsResult = await db.query(availableSlotsQuery, [
         searchStartDate.toISOString(),
-        // searchEndDate.toISOString(), 
+        searchEndDate.toISOString(), 
          ]);
 
         // --- Handle No Slots Found ---
@@ -509,7 +510,7 @@ router.post("/function-call", async (req, res, next) => {
       const patientCheckQueryBook = `
       SELECT patient_id 
       FROM patient_details 
-      WHERE patient_id = $1 AND appointment_status = 'booked'
+      WHERE patient_id = $1 AND LOWER(appointment_status) = 'booked'
       LIMIT 1;
   `;
       const patientCheckResultBook = await db.query(patientCheckQueryBook, [patientId]);

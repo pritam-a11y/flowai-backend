@@ -27,9 +27,7 @@ const hammingRoutes = require("./routes/hamming");
 const timezoneRoutes = require("./routes/timezone");
 const membersRoutes = require("./routes/members");  
 const callsRoutes = require("./routes/callAnalytics");
-const listAgentRoutes = require("./routes/listAgent"); 
-const patientCsvImportExportRoutes = require("./routes/patientCsvImportExport"); 
-const slotsCsvImportRoutes = require("./routes/slotsCsvImport"); 
+const listAgentRoutes = require("./routes/listAgent");  
 
 const app = express();
 
@@ -152,9 +150,7 @@ app.use("/api/v1/hamming", hammingRoutes);
 app.use("/api/v1/timezones", timezoneRoutes);
 app.use("/api/v1/members", membersRoutes);  
 app.use("/api/v1/callAnalytics", callsRoutes);
-app.use("/api/v1/list-agent", listAgentRoutes); 
-app.use("/api/v1/patient-data", patientCsvImportExportRoutes); 
-app.use("/api/v1/slots-data", slotsCsvImportRoutes); 
+app.use("/api/v1/list-agent", listAgentRoutes);  
 
 // OAuth Routes (no prefix as per standard OAuth conventions)
 app.use("/oauth", oauthRoutes);
@@ -188,9 +184,7 @@ app.use("*", (req, res) => {
       "/api/v1/vapi/webhook", 
       "/api/v1/fax",
       "/api/v1/callAnalytics",
-      "/api/v1/list-agent", 
-      "/api/v1/patient-data", 
-      "/api/v1/slots-data"
+      "/api/v1/list-agent",  
     ],
   });
 });
