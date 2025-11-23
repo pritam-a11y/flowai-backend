@@ -421,7 +421,7 @@ router.post("/function-call", async (req, res, next) => {
            FROM slots
            WHERE 
                start_time >= $1 
-               AND status = 'available'
+               AND LOWER(status) = 'available'
            ORDER BY start_time
        `;
          
@@ -525,7 +525,7 @@ router.post("/function-call", async (req, res, next) => {
       const updateSlotStatusQuery = `
       UPDATE slots 
       SET status = $2 
-      WHERE start_time = $1 AND status = 'available'
+      WHERE start_time = $1 AND LOWER(status) = 'available'
       RETURNING slot_id;
       `;
       const slotBookingResult = await db.query(updateSlotStatusQuery, [apptStart, 'booked']);
