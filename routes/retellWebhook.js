@@ -403,34 +403,38 @@ router.post("/function-call", async (req, res, next) => {
           );
 
           // Get date range for appointment search
-          let searchStartDate;
-          if (startTime) {
-               searchStartDate = new Date(startTime);
-          } else {
-               searchStartDate = new Date();
-          }
+          const searchStartDate = startTime ? new Date(startTime) : new Date();
           
           const searchEndDate = new Date(searchStartDate);
           searchEndDate.setDate(searchEndDate.getDate() + 30);
 
-          logger.info("Searching slots inventory for available capacity.", { from: searchStartDate.toISOString(), to: searchEndDate.toISOString() });
-            
+          logger.info("Searching slots inventory for available capacity.", {
+            from: searchStartDate.toISOString(),
+            to: searchEndDate.toISOString(),
+            serviceType,
+            location: overriddenLocation
+        });
            // Query
            // Slots Check  ---
            const availableSlotsQuery = `
            SELECT slot_id, start_time, end_time, day_of_week, service_type, status
-                  FROM slots
-                  WHERE 
-                     start_time >= $1 
-                     AND status = 'available'
-                     AND service_type = $2
-                  ORDER BY start_time
+        FROM slots
+        WHERE 
+            start_time >= $1
+            AND start_time <= $2
+            AND status = 'available'
+            AND ($3::text IS NULL OR service_type = $3)
+            AND ($4::text IS NULL OR location = $4)
+        ORDER BY start_time
        `;
          
        const slotsResult = await db.query(availableSlotsQuery, [
-          searchStartDate.toISOString(), 
-          serviceType, 
+        searchStartDate.toISOString(),
+        searchEndDate.toISOString(),
+        serviceType || null,
+        overriddenLocation
          ]);
+         
         // --- Handle No Slots Found ---
        if (slotsResult.rows.length === 0) { 
            result = {
@@ -459,7 +463,7 @@ router.post("/function-call", async (req, res, next) => {
            message: `Found ${slotsList.length} available slots starting from ${startTime}.`,
            availableSlots: slotsList,
        }; 
-       
+
        break; 
 
       case "book_appointment":
