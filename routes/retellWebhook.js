@@ -418,19 +418,17 @@ router.post("/function-call", async (req, res, next) => {
            // Slots Check  ---
            const availableSlotsQuery = `
            SELECT slot_id, start_time, end_time, day_of_week, service_type, status
-        FROM slots
-        WHERE 
-            start_time >= $1
-            AND start_time <= $2
-            AND status = 'available' 
-        ORDER BY start_time
+           FROM slots
+           WHERE 
+               start_time >= $1
+               AND start_time <= $2
+               AND status = 'available'
+           ORDER BY start_time
        `;
          
        const slotsResult = await db.query(availableSlotsQuery, [
         searchStartDate.toISOString(),
-        searchEndDate.toISOString(),
-        serviceType || null,
-        overriddenLocation
+        searchEndDate.toISOString(), 
          ]);
 
         // --- Handle No Slots Found ---
