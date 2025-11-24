@@ -567,7 +567,7 @@ router.post("/function-call", async (req, res, next) => {
       `;
       await db.query(updatePatientQuery, [patientId, status, appointmentType, appointmentDate, appointmentTime, appointment_location]); 
                
-      logger.info("Patient details updated successfully with new appointment.", { patientId, appointmentType, appointmentDate, appointmentTime });
+      logger.info("Patient details updated successfully with new appointment.", { patientId, appointmentType, appointmentDate, appointmentTime, appointment_location });
 
       // --- Store Mapping callId and patientId TEMP in memory ---
          if (call.call_id && patientId) {
