@@ -1,7 +1,7 @@
 const db = require("../db/connection");
 const logger = require("../utils/logger");
 
-async function updatePatientAppointmentLocation(call) {
+async function updatePatientAppointmentLocation(call, callIdToPatientIdMap) {
     
     const callId = call?.call_id;
     const patient_data = call?.call_analysis?.custom_analysis_data;

@@ -1427,7 +1427,7 @@ router.post("/call/update", async (req, res, next) => {
         logger.info(`Starting data processing for call: ${call.call_id}`);
     
        try {
-             await updatePatientAppointmentLocation(call);
+             await updatePatientAppointmentLocation(call, callIdToPatientIdMap);
              logger.info(`Finished processing call ${call.call_id}. Location update attempt complete.`);
         } catch (error) {   
                 logger.fatal(`FATAL ERROR processing call ${call.call_id}: ${error.message}`);
