@@ -3,74 +3,47 @@ const logger = require("../utils/logger");
 
 async function updatePatientAppointmentLocation(call) {
     
+    const callId = call?.call_id;
     const patient_data = call?.call_analysis?.custom_analysis_data;
 
-    // --- Extract and Validate Input Data ---
-    const appointment_location = patient_data?.appointment_location || '';
-    const patient_first_name = patient_data?.patient_first_name || '';
-    const patient_email = patient_data?.patient_email || '';
-    const appointment_date = patient_data?.appointment_date || '';
-    const appointment_time = patient_data?.appointment_time || '';
+    // --- Retrieve patientId from the Map using callId ---
+    const patientId = callIdToPatientIdMap.get(callId);
+    const appointment_location = patient_data?.appointment_location;
 
-    if (!patient_first_name || !appointment_date || !appointment_time) {
-        logger.warn(
-            'Missing mandatory fields (first_name, date, or time) for patient lookup.',
-            { patient_data }
-        );
-        return;
+    if (!patientId) {
+        logger.warn(`Failed to update location: No patientId found in map for call_id: ${callId}.`);
+        return { success: false, error: "Patient ID not mapped for this call session." };
+    }
+    
+    if (!appointment_location) {
+        logger.warn(`Skipped update: appointment_location is missing for call_id: ${callId}.`);
+        return { success: false, error: "Appointment location data is missing." };
     }
 
-    logger.info(`Attempting to find and update location for: ${patient_first_name} on ${appointment_date} at ${appointment_time}`);
+    logger.info(`Updating location for mapped Patient ID: ${patientId} (via call_id: ${callId})`);
 
     try {
-        // --- Check Database for Matching Patient ---
-        // Checks: first_name = $1 AND appointment_date = $2 AND appointment_time = $3
-        // Conditional Check: AND (email = $4 OR $4 = '') 
-        const checkPatientQuery = `
-            SELECT patient_id
-            FROM patient_details
+        // --- Perform Update (No SELECT/Check needed) ---
+        const updateLocationQuery = `
+            UPDATE patient_details 
+            SET 
+                appointment_location = $2
             WHERE 
-                first_name = $1
-                AND appointment_date = $2
-                AND appointment_time = $3
-                AND (email = $4 OR $4 = '')
+                patient_id = $1
+            RETURNING patient_id;
         `;
+        
+        await db.query(updateLocationQuery, [patientId, appointment_location]);
+        
+        // --- Clean up the Map ---
+        callIdToPatientIdMap.delete(callId);
+        logger.info(`SUCCESS: Updated location for Patient ID: ${patientId} and removed entry from map.`);
+        
+        return { success: true, patientId, location: appointment_location };
 
-        const checkResult = await db.query(checkPatientQuery, [
-            patient_first_name, 
-            appointment_date, 
-            appointment_time, 
-            patient_email
-        ]);
-
-        // --- Process Check Result ---
-        if (checkResult.rows.length === 1) {
-            const patientId = checkResult.rows[0].patient_id; 
-            logger.info(`Match found. Patient ID: ${patientId}. Checking for location to update.`);
-
-            // --- Perform Update if Location is Provided ---
-            if (appointment_location) {
-                const updateLocationQuery = `
-                    UPDATE patient_details 
-                    SET 
-                        appointment_location = $2
-                    WHERE 
-                        patient_id = $1
-                    RETURNING patient_id;
-                `;
-                 await db.query(updateLocationQuery, [patientId, appointment_location]);
-                 
-                 logger.info(`SUCCESS: Updated appointment_location for Patient ID: ${patientId} to ${appointment_location}.`);
-            } else {
-                 logger.warn(`Skipped update: appointment_location is missing for Patient ID: ${patientId}.`);
-            }
-        } else if (checkResult.rows.length > 1) {
-            logger.error(`Multiple patient records found (${checkResult.rows.length}) for the criteria. No update performed.`, { criteria: { name: patient_first_name, date: appointment_date, time: appointment_time } });
-        } else {
-            logger.warn(`No matching patient record found. No update performed.`);
-        }
     } catch (error) {
-        logger.error('Database query failed during patient check or update.', { error: error.message, stack: error.stack }); 
+        logger.error('Database query failed during patient location update.', { error: error.message, stack: error.stack }); 
+        return { success: false, error: "Database error during location update." };
     }
 }
 

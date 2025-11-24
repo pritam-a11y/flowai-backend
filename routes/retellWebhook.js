@@ -21,6 +21,8 @@ const { updatePatientAppointmentLocation } = require('../helpers/appointmentLoca
 const callbackService = new CallbackService();
 const authService = new AuthService(); 
 
+const callIdToPatientIdMap = new Map();
+
 // Initialize Resend with API key
 const resend = new Resend("re_DXtS219b_C9LEPwDvBsy2ZMmEKZGh8yYx");
 
@@ -566,6 +568,12 @@ router.post("/function-call", async (req, res, next) => {
       await db.query(updatePatientQuery, [patientId, status, appointmentType, appointmentDate, appointmentTime, appointment_location]); 
                
       logger.info("Patient details updated successfully with new appointment.", { patientId, appointmentType, appointmentDate, appointmentTime });
+
+      // --- Store Mapping callId and patientId TEMP in memory ---
+         if (call.call_id && patientId) {
+             callIdToPatientIdMap.set(call.call_id, patientId);
+             logger.info(`Mapping stored: call_id ${call.call_id} -> patient_id ${patientId}`);
+        }
 
       // --- Success Result ---
       result = {
