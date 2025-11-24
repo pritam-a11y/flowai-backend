@@ -16,6 +16,7 @@ const {
 const { findOrgIdByAgentId } = require("../helpers/retellAgentList");
 const { generateIntakeFormPDF } = require("../services/intakeFormGenerator"); 
 const CallbackService = require("../services/callbackServices");
+const { updatePatientAppointmentLocation } = require('../helpers/appointmentLocationUpdate');
 
 const callbackService = new CallbackService();
 const authService = new AuthService(); 
@@ -1413,6 +1414,17 @@ router.post("/call/update", async (req, res, next) => {
           call_id: data.call_id,
           agent_id: data.agent_id,
         });
+
+        // ----- Patient Appointment location Update after call ----
+        logger.info(`Starting data processing for call: ${call.call_id}`);
+    
+       try {
+             await updatePatientAppointmentLocation(call);
+             logger.info(`Finished processing call ${call.call_id}. Location update attempt complete.`);
+        } catch (error) {   
+                logger.fatal(`FATAL ERROR processing call ${call.call_id}: ${error.message}`);
+        }
+
 
         //-----Hamming-------------
 
