@@ -418,21 +418,20 @@ router.post("/function-call", async (req, res, next) => {
         // Override location to RES General Hospital
         const overriddenLocation = "RES General Hospital";
 
+        const normalizedCategory = category ? category.toLowerCase() : null
+
         logger.info("Overriding location for check_availability", {
           originalLocation: location,
           overriddenLocation: overriddenLocation,
           statEnabled: stat,
-          appointmentCategory: category,
+          appointmentCategory: normalizedCategory,
         });
 
-        logger.info(
-          "STAT mode enabled - fetching existing appointments for capacity tracking"
-        );
-
+       
         // Get date range for appointment search 
         let searchStartDate;
 
-        if (category === "group two") {
+        if (normalizedCategory === "group two") {
           // Group 2 startTime already has +4 days applied from the caller.
           logger.info(
             "Category is Group 2 (payor_group_two). Start time will be used as provided (assumed +4 days)."
@@ -479,8 +478,7 @@ router.post("/function-call", async (req, res, next) => {
           result = {
             success: true,
             status: 200,
-            message: `No available slots found starting from ${startTime}.`,
-            availableSlots: [],
+            message: `No available slots found for ${normalizedCategory ? normalizedCategory : 'Group 1/Default'} starting from ${searchStartDate.toISOString()}.`,  availableSlots: [],
           };
           break;
         }
