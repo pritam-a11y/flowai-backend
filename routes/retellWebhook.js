@@ -478,7 +478,8 @@ router.post("/function-call", async (req, res, next) => {
           result = {
             success: true,
             status: 200,
-            message: `No available slots found for ${normalizedCategory ? normalizedCategory : 'Group 1/Default'} starting from ${searchStartDate.toISOString()}.`,  availableSlots: [],
+            message: `No available slots found for ${normalizedCategory ? normalizedCategory : 'Group 1/Default'} starting from ${searchStartDate.toISOString()}.`,
+            availableSlots: [],
           };
           break;
         }
@@ -530,11 +531,11 @@ router.post("/function-call", async (req, res, next) => {
           patientId,
         });
 
-        // we have to change it from patient_details to patients
-        // for now its for testing table patient_details
+        // we have to change it from patients to patients
+        // for now its for testing table patients
         const callCountQuery = `
        SELECT COALESCE(call_count, 0) AS call_count
-       FROM patient_details           
+       FROM patients           
        WHERE patient_id = $1;
    `;
         const callCountResult = await db.query(callCountQuery, [patientId]);
@@ -551,13 +552,13 @@ router.post("/function-call", async (req, res, next) => {
           });
         }
 
-        logger.info("Checking patient_details for existing appointment.", {
+        logger.info("Checking patients for existing appointment.", {
           patientId,
         });
 
         const patientCheckQueryBook = `
       SELECT patient_id 
-      FROM patient_details 
+      FROM patients 
       WHERE patient_id = $1 AND LOWER(appointment_status) = 'booked'
       LIMIT 1;
   `;
@@ -615,7 +616,7 @@ router.post("/function-call", async (req, res, next) => {
 
         // --- Update Patient Details ---
         const updatePatientQuery = `
-      UPDATE patient_details 
+      UPDATE patients 
       SET appointment_status = $2, 
           appointment_type = $3,
           appointment_date = $4,
@@ -684,7 +685,7 @@ router.post("/function-call", async (req, res, next) => {
 
         const callCountUpdateQuery = `
        SELECT COALESCE(call_count, 0) AS call_count
-       FROM patient_details 
+       FROM patients 
        WHERE patient_id = $1;
    `;
         const callCountUpdateResult = await db.query(callCountUpdateQuery, [
@@ -755,7 +756,7 @@ router.post("/function-call", async (req, res, next) => {
 
         // Update the patient's record using patient_id.
         const updateApptQuery = `
-        UPDATE patient_details
+        UPDATE patients
         SET ${setClauses.join(", ")}
         WHERE patient_id = $1
         RETURNING patient_id;
@@ -2090,34 +2091,62 @@ router.post("/call/update", async (req, res, next) => {
                   patient_id: patientId,
                   error: docError.message,
                 }
-              );
+              );  
             }
           } else {
-            // is_transfer_attempted is false, store in scheduled_callbacks table
-            try {
-              //
-              const callbackId = await callbackService.scheduleCallback(
-                patientId,
-                agentCallbackNumber,
-                scheduledCallbackTime,
-                "User Requested Callback"
-              );
 
-              logger.info("Scheduled callback stored in database", {
-                call_id: call.call_id,
-                patient_id: patientId,
-                agent_callback_number: agentCallbackNumber,
-                scheduled_time: scheduledCallbackTime,
-                callback_id: callbackId,
-              });
-            } catch (dbError) {
-              logger.error("Error storing scheduled callback", {
-                call_id: call.call_id,
-                patient_id: patientId,
-                error: dbError.message,
-              });
+            const isCallSuccessful = call.call_analysis?.call_successful === true;
+            const totalDurationSeconds = call.call_cost?.total_duration_seconds || 0;
+        
+            // Condition for Unanswered Callback (Unanswered = Not Successful AND No Duration)
+            const isUnanswered = !isCallSuccessful && totalDurationSeconds === 0;
+            const callId = call.call_id; 
+        
+            // --- Handle Call Status (Unanswered/Success) ---
+            try {
+                if (isUnanswered) {
+                    logger.warn("Call determined as UNANSWERED. Triggering retry logic.", { callId, patientId }); 
+                    await callbackService.handleUnansweredCallback(callId, patientId);
+        
+                } else if (isCallSuccessful) {
+                    logger.info("Call successful. Marking callback as completed.", { callId, patientId }); 
+                    await callbackService.markCallbackCompleted(callId);
+                }
+            } catch (statusError) {
+                logger.error("Error processing call status (retry/completion logic)", {
+                    call_id: callId,
+                    patient_id: patientId,
+                    error: statusError.message,
+                });
+                // Continue processing to see if a new callback needs scheduling
             }
-          }
+            
+            // --- Handle New Callback Scheduling --- 
+            if (patientId && agentCallbackNumber && scheduledCallbackTime) {
+                try {
+                    const callbackId = await callbackService.scheduleCallback(
+                        patientId,
+                        agentCallbackNumber,
+                        scheduledCallbackTime,
+                        "User Requested Callback"
+                    );
+        
+                    logger.info("Scheduled callback stored in database", {
+                        call_id: call.call_id,
+                        patient_id: patientId,
+                        agent_callback_number: agentCallbackNumber,
+                        scheduled_time: scheduledCallbackTime,
+                        callback_id: callbackId,
+                    });
+                } catch (dbError) {
+                    logger.error("Error storing newly requested callback", {
+                        call_id: call.call_id,
+                        patient_id: patientId,
+                        error: dbError.message,
+                    });
+                }
+            }
+        }
         }
       }
 
