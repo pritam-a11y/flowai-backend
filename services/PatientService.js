@@ -61,7 +61,7 @@ class PatientService {
     async updateCallStats(patientId, newCallCount, newCallConfigJson) {
         logger.info("Updating patient call stats", { patientId, newCallCount });
         const query = `
-             UPDATE patients
+             UPDATE patients_details
              SET 
                  call_count = $2,
                  call_config = $3,

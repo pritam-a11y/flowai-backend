@@ -535,7 +535,7 @@ router.post("/function-call", async (req, res, next) => {
         // for now its for testing table patients
         const callCountQuery = `
        SELECT COALESCE(call_count, 0) AS call_count
-       FROM patients           
+       FROM patients_details          
        WHERE patient_id = $1;
    `;
         const callCountResult = await db.query(callCountQuery, [patientId]);
@@ -558,7 +558,7 @@ router.post("/function-call", async (req, res, next) => {
 
         const patientCheckQueryBook = `
       SELECT patient_id 
-      FROM patients 
+      FROM patients_details 
       WHERE patient_id = $1 AND LOWER(appointment_status) = 'booked'
       LIMIT 1;
   `;
@@ -685,7 +685,7 @@ router.post("/function-call", async (req, res, next) => {
 
         const callCountUpdateQuery = `
        SELECT COALESCE(call_count, 0) AS call_count
-       FROM patients 
+       FROM patients_details 
        WHERE patient_id = $1;
    `;
         const callCountUpdateResult = await db.query(callCountUpdateQuery, [
