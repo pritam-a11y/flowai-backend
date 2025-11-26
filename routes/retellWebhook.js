@@ -15,13 +15,13 @@ const {
 } = require("../config/providers");
 const { findOrgIdByAgentId } = require("../helpers/retellAgentList");
 const { generateIntakeFormPDF } = require("../services/intakeFormGenerator");
-const CallbackService = require("../services/callbackServices"); 
-const { updatePatientAppointmentLocation } = require('../helpers/appointmentLocationUpdate');
+const CallbackService = require("../services/callbackServices");
+const {
+  updatePatientAppointmentLocation,
+} = require("../helpers/appointmentLocationUpdate");
 
 const callbackService = new CallbackService();
 const authService = new AuthService();
-
-const callIdToPatientIdMap = new Map();
 
 // Initialize Resend with API key
 const resend = new Resend("re_DXtS219b_C9LEPwDvBsy2ZMmEKZGh8yYx");
@@ -638,15 +638,6 @@ router.post("/function-call", async (req, res, next) => {
           "Patient details updated successfully with new appointment.",
           { patientId, appointmentType, appointmentDate, appointmentTime }
         );
-      await db.query(updatePatientQuery, [patientId, status, appointmentType, appointmentDate, appointmentTime, appointment_location]); 
-               
-      logger.info("Patient details updated successfully with new appointment.", { patientId, appointmentType, appointmentDate, appointmentTime, appointment_location });
-
-      // --- Store Mapping callId and patientId TEMP in memory ---
-         if (call.call_id && patientId) {
-             callIdToPatientIdMap.set(call.call_id, patientId);
-             logger.info(`Mapping stored: call_id ${call.call_id} -> patient_id ${patientId}`);
-        }
 
         // --- Success Result ---
         result = {
@@ -1541,17 +1532,6 @@ router.post("/call/update", async (req, res, next) => {
             `FATAL ERROR processing call ${call.call_id}: ${error.message}`
           );
         }
-
-        // ----- Patient Appointment location Update after call ----
-        logger.info(`Starting data processing for call: ${call.call_id}`);
-    
-       try {
-             await updatePatientAppointmentLocation(call, callIdToPatientIdMap);
-             logger.info(`Finished processing call ${call.call_id}. Location update attempt complete.`);
-        } catch (error) {   
-                logger.fatal(`FATAL ERROR processing call ${call.call_id}: ${error.message}`);
-        }
-
 
         //-----Hamming-------------
 
