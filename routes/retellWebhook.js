@@ -429,15 +429,10 @@ router.post("/function-call", async (req, res, next) => {
           "STAT mode enabled - fetching existing appointments for capacity tracking"
         );
 
-        // Get date range for appointment search
-        // const searchStartDate = startTime ? new Date(startTime) : new Date();
-
-        // const searchEndDate = new Date(searchStartDate);
-        // searchEndDate.setDate(searchEndDate.getDate() + 30);
-        // --- New Logic for determining searchStartDate based on category ---
+        // Get date range for appointment search 
         let searchStartDate;
 
-        if (category === "payor_group_two") {
+        if (category === "group two") {
           // Group 2 startTime already has +4 days applied from the caller.
           logger.info(
             "Category is Group 2 (payor_group_two). Start time will be used as provided (assumed +4 days)."
