@@ -616,8 +616,8 @@ router.post("/function-call", async (req, res, next) => {
 
         // --- Update Patient Details ---
         const updatePatientQuery = `
-      UPDATE patients 
-      SET appointment_status = $2, 
+      UPDATE patient_details
+      SET appointment_status = $2,
           appointment_type = $3,
           appointment_date = $4,
           appointment_time = $5,
@@ -756,7 +756,7 @@ router.post("/function-call", async (req, res, next) => {
 
         // Update the patient's record using patient_id.
         const updateApptQuery = `
-        UPDATE patients
+        UPDATE patient_details
         SET ${setClauses.join(", ")}
         WHERE patient_id = $1
         RETURNING patient_id;
