@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/auth");
+// const authMiddleware = require("../middleware/auth"); // Removed - Redox no longer in use
 const AuthService = require("../services/authService");
 const logger = require("../utils/logger");
 const db = require("../db/connection");
@@ -464,7 +464,7 @@ router.post("/function-call", async (req, res, next) => {
 
         if (serviceType) {
           availableSlotsQuery = `
-             SELECT slot_id, start_time, end_time, day_of_week, service_type, status
+             SELECT slot_id, start_time, end_time, day_of_week, service_type, location, status
              FROM slots
              WHERE
                  start_time >= $1
@@ -480,7 +480,7 @@ router.post("/function-call", async (req, res, next) => {
           ];
         } else {
           availableSlotsQuery = `
-             SELECT slot_id, start_time, end_time, day_of_week, service_type, status
+             SELECT slot_id, start_time, end_time, day_of_week, service_type, location, status
              FROM slots
              WHERE
                  start_time >= $1
@@ -514,6 +514,7 @@ router.post("/function-call", async (req, res, next) => {
           endTime: row.end_time,
           dayOfWeek: row.day_of_week,
           serviceType: row.service_type,
+          location: row.location,
           status: row.status,
         }));
 
@@ -533,19 +534,20 @@ router.post("/function-call", async (req, res, next) => {
         // Extract appointment creation parameters from args
         const {
           patientId,
-          appointmentType,
-          startTime: apptStart,
-          endTime,
+          slotId,  // New: accept slot_id
+          appointmentType,  // For backward compatibility
+          startTime: apptStart,  // For backward compatibility
+          endTime,  // For backward compatibility
           status = "booked",
           stat: bookStat = false,
         } = args;
 
-        // Only patientId is required
-        if (!patientId || !apptStart || !endTime) {
+        // Check if we have either slotId OR the old required fields
+        if (!patientId || (!slotId && (!apptStart || !endTime))) {
           return res.status(400).json({
             success: false,
             error:
-              "Missing required fields for appointment booking: patientId, startTime, or endTime",
+              "Missing required fields: patientId and either slotId or (startTime and endTime)",
           });
         }
 
@@ -597,45 +599,80 @@ router.post("/function-call", async (req, res, next) => {
         }
 
         // --- Execution (Update Slot Status & Update Patient Record)/ Slot Booking ---
-        // Consume Slot (Update status to 'booked')
 
-        const updateSlotStatusQuery = `
-      UPDATE slots 
-      SET status = $2 
-      WHERE start_time = $1 AND LOWER(status) = 'available'
-      RETURNING slot_id;
-      `;
-        const slotBookingResult = await db.query(updateSlotStatusQuery, [
-          apptStart,
-          "booked",
-        ]);
+        let slotDetails;
+        let bookedSlotId;
 
-        if (slotBookingResult.rows.length === 0) {
-          logger.error(
-            `Slot not found or already booked for startTime: ${apptStart}`
-          );
-          return res.status(404).json({
-            success: false,
-            error: "Slot not found or already booked at the specified time.",
-          });
+        if (slotId) {
+          // NEW METHOD: Book using slot_id
+          logger.info(`Booking appointment using slot_id: ${slotId}`);
+
+          // First, get slot details
+          const slotQuery = `
+            SELECT slot_id, start_time, end_time, service_type, location, status
+            FROM slots
+            WHERE slot_id = $1 AND LOWER(status) = 'available'
+            FOR UPDATE;
+          `;
+          const slotResult = await db.query(slotQuery, [slotId]);
+
+          if (slotResult.rows.length === 0) {
+            logger.error(`Slot not found or already booked for slotId: ${slotId}`);
+            return res.status(404).json({
+              success: false,
+              error: "Slot not found or already booked.",
+            });
+          }
+
+          slotDetails = slotResult.rows[0];
+          bookedSlotId = slotId;
+
+          // Update slot status to booked
+          const updateSlotQuery = `
+            UPDATE slots
+            SET status = 'booked'
+            WHERE slot_id = $1
+            RETURNING slot_id;
+          `;
+          await db.query(updateSlotQuery, [slotId]);
+
+          logger.info(`Slot ${slotId} marked as booked`);
+
+        } else {
+          // OLD METHOD: Book using start_time (backward compatibility)
+          logger.info(`Booking appointment using startTime: ${apptStart}`);
+
+          const updateSlotStatusQuery = `
+            UPDATE slots
+            SET status = $2
+            WHERE start_time = $1 AND LOWER(status) = 'available'
+            RETURNING slot_id, start_time, end_time, service_type, location;
+          `;
+          const slotBookingResult = await db.query(updateSlotStatusQuery, [
+            apptStart,
+            "booked",
+          ]);
+
+          if (slotBookingResult.rows.length === 0) {
+            logger.error(`Slot not found or already booked for startTime: ${apptStart}`);
+            return res.status(404).json({
+              success: false,
+              error: "Slot not found or already booked at the specified time.",
+            });
+          }
+
+          slotDetails = slotBookingResult.rows[0];
+          bookedSlotId = slotDetails.slot_id;
+
+          logger.info(`Slot status updated to 'booked'. SlotId: ${bookedSlotId}`);
         }
 
-        const slotId = slotBookingResult.rows[0].slot_id;
-        logger.info(
-          `Slot status updated to 'booked'. SlotId: ${slotId} start time :${apptStart}`
-        );
-
-        // Prepare Patient Update Data: Format date and time from ISO string for patient table.
-        const appointmentDateTime = new Date(apptStart);
-        const appointmentDate =
-          appointmentDateTime.toISOString().split("T")[0] ||
-          call.call_analysis?.custom_analysis_data?.appointment_date; // YYYY-MM-DD
-        const appointmentTime =
-          appointmentDateTime.toISOString().split("T")[1].substring(0, 8) ||
-          call.call_analysis?.custom_analysis_data?.appointment_time; // HH:MM:SS
-
-        const appointment_location =
-          call.call_analysis?.custom_analysis_data?.appointment_location;
+        // Extract appointment details from the slot
+        const appointmentDateTime = new Date(slotDetails.start_time);
+        const appointmentDate = appointmentDateTime.toISOString().split("T")[0];
+        const appointmentTime = appointmentDateTime.toISOString().split("T")[1].substring(0, 8);
+        const appointment_location = slotDetails.location;
+        const appointment_type = slotDetails.service_type;
 
         // --- Update Patient Details ---
         const updatePatientQuery = `
@@ -654,7 +691,7 @@ router.post("/function-call", async (req, res, next) => {
         await db.query(updatePatientQuery, [
           patientId,
           status,
-          appointmentType,
+          appointment_type,  // Now from slot details
           appointmentDate,
           appointmentTime,
           appointment_location,
@@ -662,19 +699,20 @@ router.post("/function-call", async (req, res, next) => {
 
         logger.info(
           "Patient details updated successfully with new appointment.",
-          { patientId, appointmentType, appointmentDate, appointmentTime }
+          { patientId, appointmentType: appointment_type, appointmentDate, appointmentTime }
         );
 
         // --- Success Result ---
         result = {
           success: true,
           statusCode: 201,
+          message: "Appointment booked successfully",
           appointment: {
             patientId,
-            slotId: slotId,
+            slotId: bookedSlotId,
             date: appointmentDate,
             time: appointmentTime,
-            type: appointmentType,
+            type: appointment_type,
             location: appointment_location,
           },
         };
@@ -2503,7 +2541,7 @@ function renderAppointmentConfirmationHTML(d) {
 </html>`;
 }
 
-router.post("/trigger-intake-call", authMiddleware, async (req, res, next) => {
+router.post("/trigger-intake-call", async (req, res, next) => {
   try {
     const retellService = require("../services/retellService");
     const { patientId } = req.body;
@@ -2616,7 +2654,7 @@ router.post("/trigger-intake-call", authMiddleware, async (req, res, next) => {
  *                   format: date-time
  *                   description: Next scheduled cleanup time (midnight PST)
  */
-router.get("/call-storage/stats", authMiddleware, (req, res) => {
+router.get("/call-storage/stats", (req, res) => {
   const stats = callIdStorage.getStats();
   res.json({
     success: true,
@@ -2658,7 +2696,7 @@ router.get("/call-storage/stats", authMiddleware, (req, res) => {
  *                       type: number
  *                       description: Number of callbacks scheduled in next 1 minute
  */
-router.get("/callbacks/stats", authMiddleware, async (req, res, next) => {
+router.get("/callbacks/stats", async (req, res, next) => {
   try {
     const callbackScheduler = require("../services/callbackScheduler");
     const stats = await callbackScheduler.getStats();
@@ -2703,7 +2741,7 @@ router.get("/callbacks/stats", authMiddleware, async (req, res, next) => {
  *                       type: number
  *                       description: Interval in minutes between processing runs
  */
-router.get("/callbacks/scheduler/status", authMiddleware, (req, res) => {
+router.get("/callbacks/scheduler/status", (req, res) => {
   const callbackScheduler = require("../services/callbackScheduler");
   const status = callbackScheduler.getStatus();
   res.json({
@@ -2773,7 +2811,7 @@ router.get("/callbacks/scheduler/status", authMiddleware, (req, res) => {
  *                       error_message:
  *                         type: string
  */
-router.get("/callbacks/list", authMiddleware, async (req, res, next) => {
+router.get("/callbacks/list", async (req, res, next) => {
   try {
     const { status, patient_id, limit = 100 } = req.query;
 
