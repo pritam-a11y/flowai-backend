@@ -416,14 +416,12 @@ router.post("/function-call", async (req, res, next) => {
           category,
         } = args;
 
-        // Override location to RES General Hospital
-        const overriddenLocation = "RES General Hospital";
-
         const normalizedCategory = category ? category.toLowerCase() : null
 
-        logger.info("Overriding location for check_availability", {
-          originalLocation: location,
-          overriddenLocation: overriddenLocation,
+        logger.info("Processing check_availability", {
+          location: location,
+          serviceType: serviceType,
+          startTime: startTime,
           statEnabled: stat,
           appointmentCategory: normalizedCategory,
         });
@@ -454,7 +452,7 @@ router.post("/function-call", async (req, res, next) => {
           from: searchStartDate.toISOString(),
           to: searchEndDate.toISOString(),
           serviceType,
-          location: overriddenLocation,
+          location: location,
         });
 
         // Query
@@ -462,7 +460,31 @@ router.post("/function-call", async (req, res, next) => {
         let availableSlotsQuery;
         let slotQueryParams;
 
-        if (serviceType) {
+        // Build query based on what filters are provided
+        if (serviceType && location) {
+          // Both service type and location provided
+          availableSlotsQuery = `
+             SELECT slot_id, start_time, end_time,
+                    TO_CHAR(start_time AT TIME ZONE 'America/New_York', 'Day') as day_of_week,
+                    service_type, location, status
+             FROM slots
+             WHERE
+                 start_time >= $1
+                 AND start_time <= $2
+                 AND LOWER(status) = 'available'
+                 AND LOWER(service_type) = LOWER($3)
+                 AND LOWER(location) = LOWER($4)
+             ORDER BY start_time
+             LIMIT 10
+         `;
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEndDate.toISOString(),
+            serviceType,
+            location
+          ];
+        } else if (serviceType) {
+          // Only service type provided
           availableSlotsQuery = `
              SELECT slot_id, start_time, end_time,
                     TO_CHAR(start_time AT TIME ZONE 'America/New_York', 'Day') as day_of_week,
@@ -481,7 +503,28 @@ router.post("/function-call", async (req, res, next) => {
             searchEndDate.toISOString(),
             serviceType
           ];
+        } else if (location) {
+          // Only location provided
+          availableSlotsQuery = `
+             SELECT slot_id, start_time, end_time,
+                    TO_CHAR(start_time AT TIME ZONE 'America/New_York', 'Day') as day_of_week,
+                    service_type, location, status
+             FROM slots
+             WHERE
+                 start_time >= $1
+                 AND start_time <= $2
+                 AND LOWER(status) = 'available'
+                 AND LOWER(location) = LOWER($3)
+             ORDER BY start_time
+             LIMIT 10
+         `;
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEndDate.toISOString(),
+            location
+          ];
         } else {
+          // Neither service type nor location provided
           availableSlotsQuery = `
              SELECT slot_id, start_time, end_time,
                     TO_CHAR(start_time AT TIME ZONE 'America/New_York', 'Day') as day_of_week,
