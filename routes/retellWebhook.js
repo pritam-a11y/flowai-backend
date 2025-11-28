@@ -588,11 +588,22 @@ router.post("/function-call", async (req, res, next) => {
           break;
         }
 
+        // Helper function to convert UTC to EST ISO string
+        // If client assumes times are EST, we need to adjust the timestamp
+        const utcToEstISO = (utcTime) => {
+          // Parse the UTC time
+          const date = new Date(utcTime);
+          // Subtract 5 hours to convert from UTC to EST
+          // (This makes the ISO string "appear" as EST when interpreted literally)
+          date.setHours(date.getHours() - 5);
+          return date.toISOString();
+        };
+
         // Transform rows and filter for spread
         const allSlots = slotsResult.rows.map((row) => ({
           slotId: row.slot_id,
-          startTime: row.start_time,
-          endTime: row.end_time,
+          startTime: utcToEstISO(row.start_time),
+          endTime: utcToEstISO(row.end_time),
           dayOfWeek: row.day_of_week ? row.day_of_week.trim() : null,
           serviceType: row.service_type,
           location: row.location,
