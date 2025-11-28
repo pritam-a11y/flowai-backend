@@ -464,7 +464,9 @@ router.post("/function-call", async (req, res, next) => {
 
         if (serviceType) {
           availableSlotsQuery = `
-             SELECT slot_id, start_time, end_time, day_of_week, service_type, location, status
+             SELECT slot_id, start_time, end_time,
+                    TO_CHAR(start_time AT TIME ZONE 'America/New_York', 'Day') as day_of_week,
+                    service_type, location, status
              FROM slots
              WHERE
                  start_time >= $1
@@ -481,7 +483,9 @@ router.post("/function-call", async (req, res, next) => {
           ];
         } else {
           availableSlotsQuery = `
-             SELECT slot_id, start_time, end_time, day_of_week, service_type, location, status
+             SELECT slot_id, start_time, end_time,
+                    TO_CHAR(start_time AT TIME ZONE 'America/New_York', 'Day') as day_of_week,
+                    service_type, location, status
              FROM slots
              WHERE
                  start_time >= $1
@@ -514,7 +518,7 @@ router.post("/function-call", async (req, res, next) => {
           slotId: row.slot_id,
           startTime: row.start_time,
           endTime: row.end_time,
-          dayOfWeek: row.day_of_week,
+          dayOfWeek: row.day_of_week ? row.day_of_week.trim() : null,
           serviceType: row.service_type,
           location: row.location,
           status: row.status,
