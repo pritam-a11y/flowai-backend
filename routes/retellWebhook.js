@@ -528,7 +528,7 @@ router.post("/function-call", async (req, res, next) => {
         result = {
           success: true,
           status: 200,
-          message: `Found ${slotsList.length} available slots (showing first 20) starting from ${startTime}.`,
+          message: `Found ${slotsList.length} available slots starting from ${startTime}.`,
           availableSlots: slotsList,
         };
 
