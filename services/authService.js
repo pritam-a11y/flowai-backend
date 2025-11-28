@@ -1,106 +1,27 @@
-const axios = require('axios');
-const REDOX_CONFIG = require('../config/redox');
+// Dummy auth service for precision backend
+// Redox is not used in this backend
 const logger = require('../utils/logger');
 
 class AuthService {
   constructor() {
-    this.accessToken = null;
-    this.tokenExpiry = null;
+    // No authentication needed for precision backend
   }
 
   async getAccessToken(providedToken = null) {
-    logger.debug('Getting access token', { hasProvidedToken: !!providedToken });
-    
-    if (providedToken && providedToken.trim() !== '') {
-      logger.debug('Using provided token');
-      return providedToken;
-    }
-
-    if (this.accessToken && this.tokenExpiry > Date.now()) {
-      logger.debug('Using cached token');
-      return this.accessToken;
-    }
-
-    logger.info('Refreshing access token');
-    return await this.refreshToken();
+    logger.debug('Dummy auth service - no token needed');
+    // Return dummy token for compatibility
+    return 'dummy-token-precision-backend';
   }
 
   async refreshToken() {
-    try {
-      // Enhanced logging for auth token refresh
-      logger.info('=== AUTH TOKEN REFRESH REQUEST START ===', {
-        method: 'POST',
-        url: REDOX_CONFIG.loginURL,
-        clientId: REDOX_CONFIG.clientId ? `${REDOX_CONFIG.clientId.substring(0, 8)}...` : 'none',
-        hasSecret: !!REDOX_CONFIG.clientSecret,
-        timestamp: new Date().toISOString()
-      });
-      const requestBody = {
-        apiKey: REDOX_CONFIG.clientId,
-        secret: REDOX_CONFIG.clientSecret
-      };
+    logger.debug('Dummy auth service - no refresh needed');
+    // Return dummy token for compatibility
+    return 'dummy-token-precision-backend';
+  }
 
-      // Log request body (with masked secret)
-      logger.info('Auth token refresh request body:', {
-        requestBody: {
-          apiKey: REDOX_CONFIG.clientId,
-          secret: REDOX_CONFIG.clientSecret ? `${REDOX_CONFIG.clientSecret.substring(0, 8)}...` : 'none'
-        }
-      });
-
-      const response = await axios.post(REDOX_CONFIG.loginURL, requestBody);
-
-      // Enhanced success logging
-      logger.info('=== AUTH TOKEN REFRESH RESPONSE SUCCESS ===', {
-        status: response.status,
-        statusText: response.statusText,
-        expiresIn: response.data.expiresIn,
-        hasAccessToken: !!response.data.accessToken,
-        tokenPreview: response.data.accessToken ? `${response.data.accessToken.substring(0, 20)}...` : 'none',
-        responseHeaders: response.headers,
-        timestamp: new Date().toISOString()
-      });
-
-      // Log response body (with masked token)
-      logger.info('Auth token refresh response body:', {
-        responseBody: {
-          ...response.data,
-          accessToken: response.data.accessToken ? `${response.data.accessToken.substring(0, 20)}...` : 'none'
-        }
-      });
-
-      this.accessToken = response.data.accessToken;
-      
-      // Handle token expiry
-      if (response.data.expires) {
-        this.tokenExpiry = new Date(response.data.expires).getTime();
-      } else if (response.data.expiresIn) {
-        this.tokenExpiry = Date.now() + (response.data.expiresIn * 1000);
-      } else {
-        // Default to 1 hour if no expiry info
-        this.tokenExpiry = Date.now() + (3600 * 1000);
-      }
-      
-      logger.info('Access token cached successfully', {
-        expires: response.data.expires,
-        expiresIn: response.data.expiresIn,
-        calculatedExpiry: new Date(this.tokenExpiry).toISOString()
-      });
-      
-      return this.accessToken;
-    } catch (error) {
-      // Enhanced error logging
-      logger.error('=== AUTH TOKEN REFRESH RESPONSE ERROR ===', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        error: error.response?.data?.message || error.message,
-        errorData: error.response?.data,
-        requestUrl: REDOX_CONFIG.loginURL,
-        timestamp: new Date().toISOString()
-      });
-      
-      throw new Error(`Authentication failed: ${error.response?.data?.message || error.message}`);
-    }
+  async validateToken(token) {
+    // Always return true for precision backend
+    return true;
   }
 }
 

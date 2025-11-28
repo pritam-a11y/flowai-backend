@@ -1,7 +1,12 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const JWT_CONFIG = require("../config/jwt");
+// Hardcoded JWT config since auth is not used in precision backend
+const JWT_CONFIG = {
+  secret: process.env.JWT_SECRET || "precision-backend-temporary-secret-key-2024",
+  expiresIn: "24h",
+  refreshExpiresIn: "7d"
+};
 const db = require("../db/connection");
 const logger = require("../utils/logger");
 

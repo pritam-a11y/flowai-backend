@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/auth"); 
+// const authMiddleware = require("../middleware/auth"); // Removed - Redox no longer in use
 const AuthService = require("../services/authService");
 const logger = require("../utils/logger");
 const db = require("../db/connection");
@@ -15,11 +15,14 @@ const {
 } = require("../config/providers");
 const { findOrgIdByAgentId } = require("../helpers/retellAgentList");
 const { generateIntakeFormPDF } = require("../services/intakeFormGenerator");
-const { v4: uuidv4 } = require("uuid");
 const CallbackService = require("../services/callbackServices");
+const PatientService = require("../services/PatientService");
+const {
+  updatePatientAppointmentLocation,
+} = require("../helpers/appointmentLocationUpdate");
 
 const callbackService = new CallbackService();
-const authService = new AuthService(); 
+const authService = new AuthService();
 
 // Initialize Resend with API key
 const resend = new Resend("re_DXtS219b_C9LEPwDvBsy2ZMmEKZGh8yYx");
@@ -91,8 +94,7 @@ router.post("/webhook", async (req, res, next) => {
         ...patients[0],
         accessToken: accessToken,
       };
-
-     }
+    }
 
     // Prepare response for Retell inbound call webhook format (all values must be strings)
     const dynamicVariables = {
@@ -225,7 +227,8 @@ router.post("/webhook", async (req, res, next) => {
 
 // Helper function to extract prior authorization information
 const extractPriorAuth = (benefitsInfo) => {
-  if (!benefitsInfo) return { required: false, status: "unknown", message: null };
+  if (!benefitsInfo)
+    return { required: false, status: "unknown", message: null };
 
   // Look through all benefit information entries
   for (const benefit of benefitsInfo) {
@@ -233,28 +236,40 @@ const extractPriorAuth = (benefitsInfo) => {
     if (benefit.authOrCertIndicator) {
       return {
         required: benefit.authOrCertIndicator === "Y",
-        status: benefit.authOrCertIndicator === "Y" ? "required" :
-                benefit.authOrCertIndicator === "N" ? "not_required" : "unknown",
-        message: benefit.authOrCertIndicator === "U" ?
-                 "Unable to determine - check with payer" : null
+        status:
+          benefit.authOrCertIndicator === "Y"
+            ? "required"
+            : benefit.authOrCertIndicator === "N"
+            ? "not_required"
+            : "unknown",
+        message:
+          benefit.authOrCertIndicator === "U"
+            ? "Unable to determine - check with payer"
+            : null,
       };
     }
 
     // Fallback: Search description fields for prior auth keywords
-    const descriptions = benefit.additionalInformation?.map(ai => ai.description.toLowerCase()) || [];
+    const descriptions =
+      benefit.additionalInformation?.map((ai) =>
+        ai.description.toLowerCase()
+      ) || [];
     for (const desc of descriptions) {
-      if (desc.includes('prior auth') ||
-          desc.includes('preauth') ||
-          desc.includes('precert') ||
-          desc.includes('pre-authorization') ||
-          desc.includes('authorization required')) {
+      if (
+        desc.includes("prior auth") ||
+        desc.includes("preauth") ||
+        desc.includes("precert") ||
+        desc.includes("pre-authorization") ||
+        desc.includes("authorization required")
+      ) {
         return {
           required: true,
           status: "likely_required",
-          message: benefit.additionalInformation.find(ai =>
-            ai.description.toLowerCase().includes('auth') ||
-            ai.description.toLowerCase().includes('cert')
-          )?.description
+          message: benefit.additionalInformation.find(
+            (ai) =>
+              ai.description.toLowerCase().includes("auth") ||
+              ai.description.toLowerCase().includes("cert")
+          )?.description,
         };
       }
     }
@@ -264,7 +279,7 @@ const extractPriorAuth = (benefitsInfo) => {
   return {
     required: false,
     status: "not_required",
-    message: "No prior authorization required"
+    message: "No prior authorization required",
   };
 };
 
@@ -280,37 +295,42 @@ const extractCopayAmounts = (benefitsInfo) => {
     specialist: { codes: ["98"], keywords: ["specialist"] },
     urgentCare: { codes: ["UC", "86"], keywords: ["urgent care"] },
     emergency: { codes: ["86"], keywords: ["emergency"] },
-    hospitalInpatient: { codes: ["48"], keywords: ["hospital", "inpatient", "semi private room"] },
-    hospitalOutpatient: { codes: ["50"], keywords: ["outpatient"] }
+    hospitalInpatient: {
+      codes: ["48"],
+      keywords: ["hospital", "inpatient", "semi private room"],
+    },
+    hospitalOutpatient: { codes: ["50"], keywords: ["outpatient"] },
   };
 
   for (const [serviceType, config] of Object.entries(serviceTypes)) {
     // Find in-network copay (code "B" with inPlanNetworkIndicatorCode "Y")
-    const copayBenefit = benefitsInfo.find(b =>
-      b.code === "B" &&
-      b.inPlanNetworkIndicatorCode === "Y" &&
-      b.serviceTypeCodes?.some(stc => config.codes.includes(stc)) &&
-      b.additionalInformation?.some(ai =>
-        config.keywords.some(keyword =>
-          ai.description.toLowerCase().includes(keyword)
+    const copayBenefit = benefitsInfo.find(
+      (b) =>
+        b.code === "B" &&
+        b.inPlanNetworkIndicatorCode === "Y" &&
+        b.serviceTypeCodes?.some((stc) => config.codes.includes(stc)) &&
+        b.additionalInformation?.some((ai) =>
+          config.keywords.some((keyword) =>
+            ai.description.toLowerCase().includes(keyword)
+          )
         )
-      )
     );
 
     if (copayBenefit) {
       copays[serviceType] = parseFloat(copayBenefit.benefitAmount) || 0;
     } else {
       // Check for co-insurance instead
-      const coinsuranceBenefit = benefitsInfo.find(b =>
-        b.code === "A" &&
-        b.inPlanNetworkIndicatorCode === "Y" &&
-        b.serviceTypeCodes?.some(stc => config.codes.includes(stc))
+      const coinsuranceBenefit = benefitsInfo.find(
+        (b) =>
+          b.code === "A" &&
+          b.inPlanNetworkIndicatorCode === "Y" &&
+          b.serviceTypeCodes?.some((stc) => config.codes.includes(stc))
       );
 
       if (coinsuranceBenefit) {
         copays[serviceType] = {
           type: "coinsurance",
-          percent: parseFloat(coinsuranceBenefit.benefitPercent) || 0
+          percent: parseFloat(coinsuranceBenefit.benefitPercent) || 0,
         };
       }
     }
@@ -388,216 +408,459 @@ router.post("/function-call", async (req, res, next) => {
         logger.info("Processing check_availability function call");
 
         // Extract slot search parameters from args
-        const { location, serviceType, startTime, stat = true } = args;
+        const {
+          location,
+          serviceType,
+          startTime,
+          stat = true,
+          category,
+        } = args;
 
-        // Override location to RES General Hospital
-        const overriddenLocation = "RES General Hospital";
+        const normalizedCategory = category ? category.toLowerCase() : null
 
-        logger.info("Overriding location for check_availability", {
-          originalLocation: location,
-          overriddenLocation: overriddenLocation,
+        logger.info("Processing check_availability", {
+          location: location,
+          serviceType: serviceType,
+          startTime: startTime,
           statEnabled: stat,
-        }); 
+          appointmentCategory: normalizedCategory,
+        });
 
-        // If stat is enabled, fetch existing appointments to count bookings
-        if (stat) {
+       
+        // Get date range for appointment search 
+        let searchStartDate;
+
+        if (normalizedCategory === "group two") {
+          // Group 2 startTime already has +4 days applied from the caller.
           logger.info(
-            "STAT mode enabled - fetching existing appointments for capacity tracking"
+            "Category is Group 2 (payor_group_two). Start time will be used as provided (assumed +4 days)."
           );
+          searchStartDate = startTime ? new Date(startTime) : new Date();
+        } else {
+          // Group 1 or no category: Use the provided startTime (or current date) directly.
+          logger.info(
+            "Category is Group 1 (payor_group_one) or undefined. Start time will be used as provided."
+          );
+          searchStartDate = startTime ? new Date(startTime) : new Date();
+        }
+        // -------------------------------------------------------------------
 
-          // Get date range for appointment search
-          let searchStartDate;
-          if (startTime) {
-               searchStartDate = new Date(startTime);
-          } else {
-               searchStartDate = new Date();
-          }
-          
-          const searchEndDate = new Date(searchStartDate);
-          searchEndDate.setDate(searchEndDate.getDate() + 30);
+        const searchEndDate = new Date(searchStartDate);
+        searchEndDate.setDate(searchEndDate.getDate() + 30);
 
-          logger.info("Searching slots inventory for available capacity.", { from: searchStartDate.toISOString(), to: searchEndDate.toISOString() });
-            
-           // Query
-           // Slots Check  ---
-           const availableSlotsQuery = `
-                        SELECT slot_id, start_time, end_time, day_of_week, service_type, status
-                        FROM slots
-                        WHERE start_time > $1 AND status = 'available'
-                        ORDER BY start_time;
-       `;
-         
-       const slotsResult = await db.query(availableSlotsQuery, [searchStartDate.toISOString()]);
+        logger.info("Searching slots inventory for available capacity.", {
+          from: searchStartDate.toISOString(),
+          to: searchEndDate.toISOString(),
+          serviceType,
+          location: location,
+        });
+
+        // Query
+        // Slots Check  ---
+        let availableSlotsQuery;
+        let slotQueryParams;
+
+        // Build query based on what filters are provided
+        if (serviceType && location) {
+          // Both service type and location provided
+          availableSlotsQuery = `
+             SELECT slot_id, start_time, end_time,
+                    TRIM(TO_CHAR(start_time, 'Day')) as day_of_week,
+                    service_type, location, status
+             FROM slots
+             WHERE
+                 start_time >= $1
+                 AND start_time <= $2
+                 AND LOWER(status) = 'available'
+                 AND LOWER(service_type) = LOWER($3)
+                 AND LOWER(location) = LOWER($4)
+             ORDER BY start_time
+             LIMIT 10
+         `;
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEndDate.toISOString(),
+            serviceType,
+            location
+          ];
+        } else if (serviceType) {
+          // Only service type provided
+          availableSlotsQuery = `
+             SELECT slot_id, start_time, end_time,
+                    TRIM(TO_CHAR(start_time, 'Day')) as day_of_week,
+                    service_type, location, status
+             FROM slots
+             WHERE
+                 start_time >= $1
+                 AND start_time <= $2
+                 AND LOWER(status) = 'available'
+                 AND LOWER(service_type) = LOWER($3)
+             ORDER BY start_time
+             LIMIT 10
+         `;
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEndDate.toISOString(),
+            serviceType
+          ];
+        } else if (location) {
+          // Only location provided
+          availableSlotsQuery = `
+             SELECT slot_id, start_time, end_time,
+                    TRIM(TO_CHAR(start_time, 'Day')) as day_of_week,
+                    service_type, location, status
+             FROM slots
+             WHERE
+                 start_time >= $1
+                 AND start_time <= $2
+                 AND LOWER(status) = 'available'
+                 AND LOWER(location) = LOWER($3)
+             ORDER BY start_time
+             LIMIT 10
+         `;
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEndDate.toISOString(),
+            location
+          ];
+        } else {
+          // Neither service type nor location provided
+          availableSlotsQuery = `
+             SELECT slot_id, start_time, end_time,
+                    TRIM(TO_CHAR(start_time, 'Day')) as day_of_week,
+                    service_type, location, status
+             FROM slots
+             WHERE
+                 start_time >= $1
+                 AND start_time <= $2
+                 AND LOWER(status) = 'available'
+             ORDER BY start_time
+             LIMIT 10
+         `;
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEndDate.toISOString()
+          ];
+        }
+
+        // Modify query to fetch 7 days of data
+        const searchEnd7Days = new Date(searchStartDate);
+        searchEnd7Days.setDate(searchEnd7Days.getDate() + 7);
+
+        // Update the query parameters to use 7 days instead of 30
+        if (serviceType && location) {
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEnd7Days.toISOString(),
+            serviceType,
+            location
+          ];
+        } else if (serviceType) {
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEnd7Days.toISOString(),
+            serviceType
+          ];
+        } else if (location) {
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEnd7Days.toISOString(),
+            location
+          ];
+        } else {
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEnd7Days.toISOString()
+          ];
+        }
+
+        // Remove LIMIT from query and fetch all slots for 7 days
+        let unlimitedQuery = availableSlotsQuery.replace('LIMIT 10', '');
+        const slotsResult = await db.query(unlimitedQuery, slotQueryParams);
 
         // --- Handle No Slots Found ---
-       if (slotsResult.rows.length === 0) { 
-           result = {
-               success: true,
-               status: 200,
-               message: `No available slots found starting from ${startTime}.`,
-               availableSlots: [],
-           };
-           break;
-       }
-       
-       // Transform rows into a clear list of slots
-       const slotsList = slotsResult.rows.map(row => ({  
-        slotId: row.slot_id,  
-        startTime: row.start_time,     
-        endTime: row.end_time,
-        dayOfWeek: row.day_of_week, 
-        serviceType: row.service_type, 
-        status: row.status, 
-        availableCount: row.available_slots, 
-       }));
-       
-       // --- result ---
-       result = {
-           success: true,
-           status: 200,
-           message: `Found ${slotsList.length} available slots starting from ${startTime}.`,
-           availableSlots: slotsList,
-       };
-      }
-      else {  
-        logger.info("STAT mode disabled - skipping capacity check.");
-        result = {
+        if (slotsResult.rows.length === 0) {
+          result = {
             success: true,
             status: 200,
-            message: "Capacity check skipped.",
-            availableSlots: [],  
+            availableSlots: [],
+          };
+          break;
+        }
+
+        // Transform rows and filter for spread
+        const allSlots = slotsResult.rows.map((row) => ({
+          slotId: row.slot_id,
+          startTime: row.start_time,
+          endTime: row.end_time,
+          dayOfWeek: row.day_of_week ? row.day_of_week.trim() : null,
+          serviceType: row.service_type,
+          location: row.location,
+          status: row.status,
+        }));
+
+        // Create spread of slots: morning, afternoon, evening for each day
+        const spreadSlots = [];
+        const slotsByDate = {};
+
+        // Group slots by date
+        allSlots.forEach(slot => {
+          const dateKey = new Date(slot.startTime).toISOString().split('T')[0];
+          if (!slotsByDate[dateKey]) {
+            slotsByDate[dateKey] = [];
+          }
+          slotsByDate[dateKey].push(slot);
+        });
+
+        // Sort dates to process in order
+        const sortedDates = Object.keys(slotsByDate).sort();
+
+        // Process up to 7 days
+        for (let i = 0; i < Math.min(7, sortedDates.length); i++) {
+          const dateKey = sortedDates[i];
+          const daySlots = slotsByDate[dateKey];
+
+          // Sort slots by time for this day
+          daySlots.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+          // Based on available slots in DB, we have UTC hours: 7-9, 11-12, 13-16
+          // These correspond to Florida times:
+          // 7-9 UTC = 2-4 AM EST (early morning)
+          // 11-12 UTC = 6-7 AM EST (early morning)
+          // 13-16 UTC = 8-11 AM EST (morning)
+
+          // Find first early morning slot (6-8 AM EST = 11-13 UTC)
+          const earlyMorningSlot = daySlots.find(slot => {
+            const hour = new Date(slot.startTime).getUTCHours();
+            return hour >= 11 && hour < 13;
+          });
+          if (earlyMorningSlot) spreadSlots.push(earlyMorningSlot);
+
+          // Find first morning slot (8-10 AM EST = 13-15 UTC)
+          const morningSlot = daySlots.find(slot => {
+            const hour = new Date(slot.startTime).getUTCHours();
+            return hour >= 13 && hour < 15;
+          });
+          if (morningSlot) spreadSlots.push(morningSlot);
+
+          // Find first late morning slot (10 AM - 12 PM EST = 15-17 UTC)
+          const lateMorningSlot = daySlots.find(slot => {
+            const hour = new Date(slot.startTime).getUTCHours();
+            return hour >= 15 && hour < 17;
+          });
+          if (lateMorningSlot) spreadSlots.push(lateMorningSlot);
+        }
+
+        // --- result ---
+        result = {
+          success: true,
+          status: 200,
+          availableSlots: spreadSlots,
         };
-   }
-       break; 
+
+        break;
 
       case "book_appointment":
         logger.info("Processing book_appointment function call");
 
         // Extract appointment creation parameters from args
         const {
-          patientId, 
-          appointmentType,
-          startTime: apptStart,
-          endTime, 
-          status = 'booked', 
+          patientId,
+          slotId,  // New: accept slot_id
+          appointmentType,  // For backward compatibility
+          startTime: apptStart,  // For backward compatibility
+          endTime,  // For backward compatibility
+          status = "booked",
           stat: bookStat = false,
         } = args;
 
-        // Only patientId is required 
-        if (!patientId || !apptStart || !endTime) {
-          return res.status(400).json({
-              success: false,
-              error: "Missing required fields for appointment booking: patientId, startTime, or endTime",
-          });
-      }
-     
-        // Check if the patient has reached the max interaction limit (10).
-       logger.info("Checking patient's call_count limit (max 10).", { patientId });
-       
-       const callCountQuery = `
-       SELECT COALESCE(call_count, 0) AS call_count
-       FROM patients 
-       WHERE patient_id = $1;
-   `;
-   const callCountResult = await db.query(callCountQuery, [patientId]);
-   const currentCallCount = callCountResult.rows.length > 0 
-       ? parseInt(callCountResult.rows[0].call_count) 
-       : 0;
-
-   if (currentCallCount >= 10) {
-       return res.status(400).json({
-           success: false,
-           error: "Patient has reached the maximum interaction limit (10) and cannot book an appointment at this time.",
-       });
-   }
-   
-      logger.info("Checking patient_details for existing appointment.", { patientId });
-
-      const patientCheckQueryBook = `
-      SELECT patient_id 
-      FROM patients 
-      WHERE patient_id = $1 AND appointment_status = 'booked'
-      LIMIT 1;
-  `;
-      const patientCheckResultBook = await db.query(patientCheckQueryBook, [patientId]);
-
-      if (patientCheckResultBook.rows.length > 0) { 
+        // Check if we have either slotId OR the old required fields
+        if (!patientId || (!slotId && (!apptStart || !endTime))) {
           return res.status(400).json({
             success: false,
-            error:"You have already booked an appointment",
+            error:
+              "Missing required fields: patientId and either slotId or (startTime and endTime)",
           });
-      }
-       
-      // --- Execution (Update Slot Status & Update Patient Record)/ Slot Booking ---       
-      // Consume Slot (Update status to 'booked')
-              
-      const updateSlotStatusQuery = `
-      UPDATE slots 
-      SET status = $2 
-      WHERE start_time = $1 AND status = 'available'
-      RETURNING slot_id;
-      `;
-      const slotBookingResult = await db.query(updateSlotStatusQuery, [apptStart, 'booked']);
-       
-      if (slotBookingResult.rows.length === 0) {
-        logger.error(`Slot not found or already booked for startTime: ${apptStart}`);
-        return res.status(404).json({
-          success: false,
-          error:"Slot not found or already booked at the specified time.",
+        }
+
+        // Check if the patient has reached the max interaction limit (10).
+        logger.info("Checking patient's call_count limit (max 10).", {
+          patientId,
         });
-   }
 
-   const slotId = slotBookingResult.rows[0].slot_id;
-   logger.info(`Slot status updated to 'booked'. SlotId: ${slotId} start time :${apptStart}`);
+        // we have to change it from patients to patients
+        // for now its for testing table patients
+        const callCountQuery = `
+       SELECT COALESCE(call_count, 0) AS call_count
+       FROM patient_details          
+       WHERE patient_id = $1;
+   `;
+        const callCountResult = await db.query(callCountQuery, [patientId]);
+        const currentCallCount =
+          callCountResult.rows.length > 0
+            ? parseInt(callCountResult.rows[0].call_count)
+            : 0;
 
- // Prepare Patient Update Data: Format date and time from ISO string for patient table.
- const appointmentDateTime = new Date(apptStart);
- const appointmentDate = appointmentDateTime.toISOString().split('T')[0] || call.call_analysis?.custom_analysis_data?.appointment_date; // YYYY-MM-DD
- const appointmentTime = appointmentDateTime.toISOString().split('T')[1].substring(0, 8) || call.call_analysis?.custom_analysis_data?.appointment_time; // HH:MM:SS
+        if (currentCallCount >= 10) {
+          return res.status(400).json({
+            success: false,
+            error:
+              "Patient has reached the maximum interaction limit (10) and cannot book an appointment at this time.",
+          });
+        }
 
- const appointment_location = call.call_analysis?.custom_analysis_data?.appointment_location;
- 
-      // --- Update Patient Details ---
-      const updatePatientQuery = `
-      UPDATE patients 
-      SET appointment_status = $2, 
+        logger.info("Checking patients for existing appointment.", {
+          patientId,
+        });
+
+        const patientCheckQueryBook = `
+      SELECT patient_id 
+      FROM patient_details 
+      WHERE patient_id = $1 AND LOWER(appointment_status) = 'booked'
+      LIMIT 1;
+  `;
+        const patientCheckResultBook = await db.query(patientCheckQueryBook, [
+          patientId,
+        ]);
+
+        if (patientCheckResultBook.rows.length > 0) {
+          return res.status(400).json({
+            success: false,
+            error: "You have already booked an appointment",
+          });
+        }
+
+        // --- Execution (Update Slot Status & Update Patient Record)/ Slot Booking ---
+
+        let slotDetails;
+        let bookedSlotId;
+
+        if (slotId) {
+          // NEW METHOD: Book using slot_id
+          logger.info(`Booking appointment using slot_id: ${slotId}`);
+
+          // First, get slot details
+          const slotQuery = `
+            SELECT slot_id, start_time, end_time, service_type, location, status
+            FROM slots
+            WHERE slot_id = $1 AND LOWER(status) = 'available'
+            FOR UPDATE;
+          `;
+          const slotResult = await db.query(slotQuery, [slotId]);
+
+          if (slotResult.rows.length === 0) {
+            logger.error(`Slot not found or already booked for slotId: ${slotId}`);
+            return res.status(404).json({
+              success: false,
+              error: "Slot not found or already booked.",
+            });
+          }
+
+          slotDetails = slotResult.rows[0];
+          bookedSlotId = slotId;
+
+          // Update slot status to booked
+          const updateSlotQuery = `
+            UPDATE slots
+            SET status = 'booked'
+            WHERE slot_id = $1
+            RETURNING slot_id;
+          `;
+          await db.query(updateSlotQuery, [slotId]);
+
+          logger.info(`Slot ${slotId} marked as booked`);
+
+        } else {
+          // OLD METHOD: Book using start_time (backward compatibility)
+          logger.info(`Booking appointment using startTime: ${apptStart}`);
+
+          const updateSlotStatusQuery = `
+            UPDATE slots
+            SET status = $2
+            WHERE start_time = $1 AND LOWER(status) = 'available'
+            RETURNING slot_id, start_time, end_time, service_type, location;
+          `;
+          const slotBookingResult = await db.query(updateSlotStatusQuery, [
+            apptStart,
+            "booked",
+          ]);
+
+          if (slotBookingResult.rows.length === 0) {
+            logger.error(`Slot not found or already booked for startTime: ${apptStart}`);
+            return res.status(404).json({
+              success: false,
+              error: "Slot not found or already booked at the specified time.",
+            });
+          }
+
+          slotDetails = slotBookingResult.rows[0];
+          bookedSlotId = slotDetails.slot_id;
+
+          logger.info(`Slot status updated to 'booked'. SlotId: ${bookedSlotId}`);
+        }
+
+        // Extract appointment details from the slot
+        const appointmentDateTime = new Date(slotDetails.start_time);
+        const appointmentDate = appointmentDateTime.toISOString().split("T")[0];
+        const appointmentTime = appointmentDateTime.toISOString().split("T")[1].substring(0, 8);
+        const appointment_location = slotDetails.location;
+        const appointment_type = slotDetails.service_type;
+
+        // --- Update Patient Details ---
+        const updatePatientQuery = `
+      UPDATE patient_details
+      SET appointment_booked = TRUE,
+          appointment_status = $2,
           appointment_type = $3,
           appointment_date = $4,
           appointment_time = $5,
-          appointment_location = $6
+          appointment_location = $6,
+          precision_center = $6,
+          updated_at = NOW()
       WHERE patient_id = $1
       RETURNING patient_id;
       `;
-      await db.query(updatePatientQuery, [patientId, status, appointmentType, appointmentDate, appointmentTime, appointment_location]); 
-               
-      logger.info("Patient details updated successfully with new appointment.", { patientId, appointmentType, appointmentDate, appointmentTime });
+        await db.query(updatePatientQuery, [
+          patientId,
+          status,
+          appointment_type,  // Now from slot details
+          appointmentDate,
+          appointmentTime,
+          appointment_location,
+        ]);
 
-      // --- Success Result ---
-      result = {
+        logger.info(
+          "Patient details updated successfully with new appointment.",
+          { patientId, appointmentType: appointment_type, appointmentDate, appointmentTime }
+        );
+
+        // --- Success Result ---
+        result = {
           success: true,
           statusCode: 201,
-          appointment: { 
-            patientId, 
-            slotId: slotId, 
+          message: "Appointment booked successfully",
+          appointment: {
+            patientId,
+            slotId: bookedSlotId,
             date: appointmentDate,
             time: appointmentTime,
-            type: appointmentType,
-            location: appointment_location
+            type: appointment_type,
+            location: appointment_location,
           },
-      };
-      break;  
+        };
+        break;
 
       case "update_appointment":
         logger.info("Processing update_appointment function call");
 
         // Extract appointment update parameters from args
-        const { 
+        const {
           patientId: updatePatientId,
           appointmentType: updateType,
           startTime: updateStart,
           endTime: updateEnd,
           location: updateLocation,
-          status: updateStatus,  
+          status: updateStatus,
         } = args;
 
         // Only appointmentId and patientId are required for update
@@ -607,102 +870,116 @@ router.post("/function-call", async (req, res, next) => {
             error:
               "Missing required fields for appointment update: appointmentId, patientId",
           });
-        }      
+        }
 
         logger.info("Processing update_appointment function call");
-             
-         // Check if the patient has reached the max interaction limit (10).
-       logger.info("Checking patient's call_count limit (max 10).", { patientId });
-       
-       const callCountUpdateQuery = `
+
+        // Check if the patient has reached the max interaction limit (10).
+        logger.info("Checking patient's call_count limit (max 10).", {
+          patientId,
+        });
+
+        const callCountUpdateQuery = `
        SELECT COALESCE(call_count, 0) AS call_count
-       FROM patients 
+       FROM patient_details 
        WHERE patient_id = $1;
    `;
-   const callCountUpdateResult = await db.query(callCountUpdateQuery, [patientId]);
-   const currentCallUpdateCount = callCountUpdateResult.rows.length > 0 
-       ? parseInt(callCountUpdateResult.rows[0].call_count) 
-       : 0;
+        const callCountUpdateResult = await db.query(callCountUpdateQuery, [
+          patientId,
+        ]);
+        const currentCallUpdateCount =
+          callCountUpdateResult.rows.length > 0
+            ? parseInt(callCountUpdateResult.rows[0].call_count)
+            : 0;
 
-   if (currentCallUpdateCount >= 10) {
-       return res.status(400).json({
-           success: false,
-           error: "Patient has reached the maximum interaction limit (10) and cannot book an appointment at this time.",
-       });
-   }
+        if (currentCallUpdateCount >= 10) {
+          return res.status(400).json({
+            success: false,
+            error:
+              "Patient has reached the maximum interaction limit (10) and cannot book an appointment at this time.",
+          });
+        }
 
-       // --- Data Preparation for Patient Table Update ---
-       let updateAppointmentDate = null;
-       let updateAppointmentTime = null;
-       
-       if (updateStart) {
-           // Split the ISO string into date and time parts for the patient table.
-           const updateAppointmentDateTime = new Date(updateStart);
-           updateAppointmentDate = updateAppointmentDateTime.toISOString().split('T')[0];
-           updateAppointmentTime = updateAppointmentDateTime.toISOString().split('T')[1].substring(0, 8);
-       }
-      // ---  Dynamic Query Builder ---
-                // Dynamically build the SET clause based on provided fields for the patients table.
-                const setClauses = [];
-                const queryParams = [updatePatientId];
-                let paramCount = 2; 
+        // --- Data Preparation for Patient Table Update ---
+        let updateAppointmentDate = null;
+        let updateAppointmentTime = null;
 
-                if (updateStatus) {
-                    setClauses.push(`appointment_status = $${paramCount++}`);
-                    queryParams.push(updateStatus);
-                }
-                if (updateType) {
-                    setClauses.push(`appointment_type = $${paramCount++}`);
-                    queryParams.push(updateType);
-                }
-                if (updateLocation) {
-                    setClauses.push(`appointment_location = $${paramCount++}`);
-                    queryParams.push(updateLocation);
-                }
-                if (updateAppointmentDate) {
-                    // Update date and time if a new start time is provided.
-                    setClauses.push(`appointment_date = $${paramCount++}`);
-                    queryParams.push(updateAppointmentDate);
-                    
-                    setClauses.push(`appointment_time = $${paramCount++}`);
-                    queryParams.push(updateAppointmentTime);
-                }
-                
-                if (setClauses.length === 0) {
-                  logger.error("No valid fields provided for appointment update.");
-                    return res.status(400).json({
-                        success: false,
-                        error: "No valid fields provided for appointment update.",
-                    });
-                }
-                
+        if (updateStart) {
+          // Split the ISO string into date and time parts for the patient table.
+          const updateAppointmentDateTime = new Date(updateStart);
+          updateAppointmentDate = updateAppointmentDateTime
+            .toISOString()
+            .split("T")[0];
+          updateAppointmentTime = updateAppointmentDateTime
+            .toISOString()
+            .split("T")[1]
+            .substring(0, 8);
+        }
+        // ---  Dynamic Query Builder ---
+        // Dynamically build the SET clause based on provided fields for the patients table.
+        const setClauses = [];
+        const queryParams = [updatePatientId];
+        let paramCount = 2;
+
+        if (updateStatus) {
+          setClauses.push(`appointment_status = $${paramCount++}`);
+          queryParams.push(updateStatus);
+        }
+        if (updateType) {
+          setClauses.push(`appointment_type = $${paramCount++}`);
+          queryParams.push(updateType);
+        }
+        if (updateLocation) {
+          setClauses.push(`appointment_location = $${paramCount++}`);
+          queryParams.push(updateLocation);
+        }
+        if (updateAppointmentDate) {
+          // Update date and time if a new start time is provided.
+          setClauses.push(`appointment_date = $${paramCount++}`);
+          queryParams.push(updateAppointmentDate);
+
+          setClauses.push(`appointment_time = $${paramCount++}`);
+          queryParams.push(updateAppointmentTime);
+        }
+
+        if (setClauses.length === 0) {
+          logger.error("No valid fields provided for appointment update.");
+          return res.status(400).json({
+            success: false,
+            error: "No valid fields provided for appointment update.",
+          });
+        }
+
         // Update the patient's record using patient_id.
         const updateApptQuery = `
-        UPDATE patients
-        SET ${setClauses.join(', ')}
+        UPDATE patient_details
+        SET ${setClauses.join(", ")}
         WHERE patient_id = $1
         RETURNING patient_id;
     `;
-    
-    await db.query(updateApptQuery, queryParams); 
-    
-    logger.info("Patient appointment details updated successfully.", { patientId: updatePatientId, updateStatus });
+
+        await db.query(updateApptQuery, queryParams);
+
+        logger.info("Patient appointment details updated successfully.", {
+          patientId: updatePatientId,
+          updateStatus,
+        });
 
         // --- Success Result ---
         result = {
-            success: true,
-            status: 200,
-            message: `Appointment ${updatePatientId} updated successfully to start at ${updateStart}.`,
-            appointment: {  
-                patientId: updatePatientId, 
-                status: updateStatus,
-                date: updateAppointmentDate,
-                time: updateAppointmentTime,
-                endTime: updateEnd,
-                type: updateType
-            },
+          success: true,
+          status: 200,
+          message: `Appointment ${updatePatientId} updated successfully to start at ${updateStart}.`,
+          appointment: {
+            patientId: updatePatientId,
+            status: updateStatus,
+            date: updateAppointmentDate,
+            time: updateAppointmentTime,
+            endTime: updateEnd,
+            type: updateType,
+          },
         };
-        break; 
+        break;
 
       case "sort_locations": {
         logger.info("Processing sort_locations function call");
@@ -905,7 +1182,7 @@ router.post("/function-call", async (req, res, next) => {
           symptom_text,
           address,
           serviceType,
-          startTime,  
+          startTime,
           accessToken
         );
 
@@ -1069,9 +1346,9 @@ router.post("/function-call", async (req, res, next) => {
             error: "Failed to verify insurance.",
             details: error.message,
           });
-        } 
+        }
       }
-      
+
       case "check_insurance_eligibility": {
         logger.info("Processing check_insurance_eligibility function call");
 
@@ -1080,56 +1357,62 @@ router.post("/function-call", async (req, res, next) => {
 
         // Validate required fields
         if (!firstName || !lastName || !dateOfBirth || !memberId) {
-          logger.warn("check_insurance_eligibility failed: missing required fields", {
-            firstName: firstName ? 'provided' : 'missing',
-            lastName: lastName ? 'provided' : 'missing',
-            dateOfBirth: dateOfBirth ? 'provided' : 'missing',
-            memberId: memberId ? 'provided' : 'missing'
-          });
+          logger.warn(
+            "check_insurance_eligibility failed: missing required fields",
+            {
+              firstName: firstName ? "provided" : "missing",
+              lastName: lastName ? "provided" : "missing",
+              dateOfBirth: dateOfBirth ? "provided" : "missing",
+              memberId: memberId ? "provided" : "missing",
+            }
+          );
           return res.status(400).json({
             success: false,
-            error: "Missing required fields: firstName, lastName, dateOfBirth, and memberId are required"
+            error:
+              "Missing required fields: firstName, lastName, dateOfBirth, and memberId are required",
           });
         }
 
         try {
           // Make request to Stedi Healthcare API
           const stediResponse = await axios.post(
-            'https://healthcare.us.stedi.com/2024-04-01/change/medicalnetwork/eligibility/v3',
+            "https://healthcare.us.stedi.com/2024-04-01/change/medicalnetwork/eligibility/v3",
             {
               tradingPartnerServiceId: "87726",
               provider: {
                 organizationName: "Provider Name",
-                npi: "1999999984"
+                npi: "1999999984",
               },
               subscriber: {
                 firstName: firstName,
                 lastName: lastName,
                 dateOfBirth: dateOfBirth,
-                memberId: memberId
+                memberId: memberId,
               },
               encounter: {
-                serviceTypeCodes: ["30"]
-              }
+                serviceTypeCodes: ["30"],
+              },
             },
             {
               headers: {
-                'Authorization': 'Key test_YSVA5HJ.7zJoTjyDCZxYeYOsHL7Z0if7',
-                'Content-Type': 'application/json'
-              }
+                Authorization: "Key test_YSVA5HJ.7zJoTjyDCZxYeYOsHL7Z0if7",
+                "Content-Type": "application/json",
+              },
             }
           );
 
           logger.info("Stedi eligibility check completed", {
             status: stediResponse.status,
-            hasData: !!stediResponse.data
+            hasData: !!stediResponse.data,
           });
 
           // Extract simplified eligibility information
           const data = stediResponse.data;
 
           // Check if policy is active
-          const primaryCoverage = data.planStatus ? data.planStatus.find(ps => ps.statusCode === "1") : null;
+          const primaryCoverage = data.planStatus
+            ? data.planStatus.find((ps) => ps.statusCode === "1")
+            : null;
           const isPolicyActive = !!primaryCoverage;
 
           // Extract prior authorization information
@@ -1141,9 +1424,9 @@ router.post("/function-call", async (req, res, next) => {
           // Format copay amounts for response
           const formattedCopays = {};
           for (const [service, value] of Object.entries(copayInfo)) {
-            if (typeof value === 'object' && value.type === 'coinsurance') {
+            if (typeof value === "object" && value.type === "coinsurance") {
               formattedCopays[service] = `${value.percent}% coinsurance`;
-            } else if (typeof value === 'number') {
+            } else if (typeof value === "number") {
               formattedCopays[service] = value > 0 ? `$${value}` : "No copay";
             } else {
               formattedCopays[service] = "Not specified";
@@ -1156,8 +1439,12 @@ router.post("/function-call", async (req, res, next) => {
             eligibility: {
               // 1. Policy Active Status
               isActive: isPolicyActive,
-              policyStatus: primaryCoverage ? primaryCoverage.status : "Unknown",
-              planName: primaryCoverage ? primaryCoverage.planDetails : "Unknown",
+              policyStatus: primaryCoverage
+                ? primaryCoverage.status
+                : "Unknown",
+              planName: primaryCoverage
+                ? primaryCoverage.planDetails
+                : "Unknown",
 
               // 2. Prior Authorization
               priorAuthRequired: priorAuth.required,
@@ -1170,49 +1457,53 @@ router.post("/function-call", async (req, res, next) => {
                 specialist: formattedCopays.specialist || "Not specified",
                 urgentCare: formattedCopays.urgentCare || "Not specified",
                 emergency: formattedCopays.emergency || "Not specified",
-                hospitalInpatient: formattedCopays.hospitalInpatient || "Not specified",
-                hospitalOutpatient: formattedCopays.hospitalOutpatient || "Not specified"
+                hospitalInpatient:
+                  formattedCopays.hospitalInpatient || "Not specified",
+                hospitalOutpatient:
+                  formattedCopays.hospitalOutpatient || "Not specified",
               },
 
               // Member verification info
               member: {
-                name: `${data.subscriber?.firstName || ''} ${data.subscriber?.lastName || ''}`.trim(),
+                name: `${data.subscriber?.firstName || ""} ${
+                  data.subscriber?.lastName || ""
+                }`.trim(),
                 memberId: data.subscriber?.memberId || memberId,
-                groupNumber: data.subscriber?.groupNumber || '',
-                verified: true
+                groupNumber: data.subscriber?.groupNumber || "",
+                verified: true,
               },
 
               // Payer information
               payer: {
                 name: data.payer?.name || "",
-                payerId: data.payer?.payorIdentification || ""
+                payerId: data.payer?.payorIdentification || "",
               },
 
               // Additional coverage details
               coverageDates: {
                 planBeginDate: data.planDateInformation?.planBegin || "",
-                eligibilityBeginDate: data.planDateInformation?.eligibilityBegin || "",
-                serviceDate: data.planDateInformation?.service || ""
-              }
+                eligibilityBeginDate:
+                  data.planDateInformation?.eligibilityBegin || "",
+                serviceDate: data.planDateInformation?.service || "",
+              },
             },
             rawResponse: {
               controlNumber: data.controlNumber,
               traceId: data.meta?.traceId,
-              eligibilitySearchId: data.eligibilitySearchId
-            }
+              eligibilitySearchId: data.eligibilitySearchId,
+            },
           };
 
           logger.info("Eligibility check response simplified", {
             subscriberName: result.eligibility.member.name,
             isPolicyActive: result.eligibility.isActive,
             priorAuthRequired: result.eligibility.priorAuthRequired,
-            payerName: result.eligibility.payer.name
+            payerName: result.eligibility.payer.name,
           });
-
         } catch (error) {
           logger.error("Stedi eligibility check failed", {
             error: error.message,
-            response: error.response?.data
+            response: error.response?.data,
           });
 
           result = {
@@ -1230,15 +1521,18 @@ router.post("/function-call", async (req, res, next) => {
                 urgentCare: "Unable to verify",
                 emergency: "Unable to verify",
                 hospitalInpatient: "Unable to verify",
-                hospitalOutpatient: "Unable to verify"
+                hospitalOutpatient: "Unable to verify",
               },
               member: {
-                name: `${firstName || ''} ${lastName || ''}`.trim(),
+                name: `${firstName || ""} ${lastName || ""}`.trim(),
                 memberId: memberId || "",
-                verified: false
+                verified: false,
               },
-              error: error.response?.data?.error || error.message || "Failed to verify insurance eligibility"
-            }
+              error:
+                error.response?.data?.error ||
+                error.message ||
+                "Failed to verify insurance eligibility",
+            },
           };
         }
         break;
@@ -1327,8 +1621,8 @@ router.post("/call/update", async (req, res, next) => {
     try {
       // ----calling retell for agent id and db to check orgId
       if (event === "call_analyzed") {
-        const orgId = await findOrgIdByAgentId(call.agent_id);    
-       
+        const orgId = await findOrgIdByAgentId(call.agent_id);
+
         // --- Data Extraction ---
         const data = {
           // Dates and IDs
@@ -1419,6 +1713,39 @@ router.post("/call/update", async (req, res, next) => {
           call_id: data.call_id,
           agent_id: data.agent_id,
         });
+
+        // --- Patient Appointment Location Update
+
+        logger.info(`Starting data processing for call: ${call.call_id}`);
+
+        try {
+          await updatePatientAppointmentLocation(call);
+          logger.info(
+            `Finished processing call ${call.call_id}. Location update attempt complete.`
+          );
+        } catch (error) {
+          logger.fatal(
+            `FATAL ERROR processing call ${call.call_id}: ${error.message}`
+          );
+        }
+
+        // --- Store Screening Answers ---
+        try {
+          const patientId = call.retell_llm_dynamic_variables?.patient_id ||
+                           call.retell_llm_dynamic_variables?.patientId;
+
+          if (patientId && call.call_analysis?.custom_analysis_data) {
+            const screeningAnswers = JSON.stringify(call.call_analysis.custom_analysis_data);
+
+            // Use PatientService to update screening answers
+            const patientService = new PatientService();
+            await patientService.updateScreeningAnswers(patientId, screeningAnswers);
+
+            logger.info(`Screening answers stored for patient: ${patientId}`);
+          }
+        } catch (error) {
+          logger.error(`Failed to store screening answers: ${error.message}`);
+        }
 
         //-----Hamming-------------
 
@@ -1847,10 +2174,13 @@ router.post("/call/update", async (req, res, next) => {
 
                 // Fetch patient details from Redox for PDF header
                 let patientDemographics = null;
-               
+
                 // Generate PDF from transcript using ChatGPT with patient demographics
-                const pdfBase64 = await generateIntakeFormPDF(call.transcript, patientDemographics);
-                
+                const pdfBase64 = await generateIntakeFormPDF(
+                  call.transcript,
+                  patientDemographics
+                );
+
                 documentType = "pdf";
 
                 logger.info("PDF intake form generated successfully", {
@@ -1870,8 +2200,6 @@ router.post("/call/update", async (req, res, next) => {
                   .replace(/\r\n/g, "\n")
                   .replace(/\r/g, "\n")
                   .trim();
-
-               
               }
             } else {
               // No transcript available, use text approach
@@ -1884,8 +2212,6 @@ router.post("/call/update", async (req, res, next) => {
                 .replace(/\r\n/g, "\n")
                 .replace(/\r/g, "\n")
                 .trim();
-
-              
             }
 
             logger.info("=== RETELL DOCUMENT CREATION ===", {
@@ -1896,7 +2222,6 @@ router.post("/call/update", async (req, res, next) => {
               bundle_entries: documentBundle.entry?.length,
             });
 
-            
             logger.info("DocumentReference created for patient intake", {
               call_id: call.call_id,
               patient_id: patientId,
@@ -1980,35 +2305,62 @@ router.post("/call/update", async (req, res, next) => {
                   patient_id: patientId,
                   error: docError.message,
                 }
-              );
+              );  
             }
           } else {
-            // is_transfer_attempted is false, store in scheduled_callbacks table
-            try {
-              //  
-              const callbackId = await callbackService.scheduleCallback(
-                 patientId,
-                 agentCallbackNumber,
-                 scheduledCallbackTime,
-                 "User Requested Callback"  
-                 );
 
-              logger.info("Scheduled callback stored in database", {
-                call_id: call.call_id,
-                patient_id: patientId,
-                agent_callback_number: agentCallbackNumber,
-                scheduled_time: scheduledCallbackTime,
-                callback_id: callbackId,
-              });
-       
-            } catch (dbError) {
-              logger.error("Error storing scheduled callback", {
-                call_id: call.call_id,
-                patient_id: patientId,
-                error: dbError.message,
-              });
+            const isCallSuccessful = call.call_analysis?.call_successful === true;
+            const totalDurationSeconds = call.call_cost?.total_duration_seconds || 0;
+        
+            // Condition for Unanswered Callback (Unanswered = Not Successful AND No Duration)
+            const isUnanswered = !isCallSuccessful && totalDurationSeconds === 0;
+            const callId = call.call_id; 
+        
+            // --- Handle Call Status (Unanswered/Success) ---
+            try {
+                if (isUnanswered) {
+                    logger.warn("Call determined as UNANSWERED. Triggering retry logic.", { callId, patientId }); 
+                    await callbackService.handleUnansweredCallback(callId, patientId);
+        
+                } else if (isCallSuccessful) {
+                    logger.info("Call successful. Marking callback as completed.", { callId, patientId }); 
+                    await callbackService.markCallbackCompleted(callId);
+                }
+            } catch (statusError) {
+                logger.error("Error processing call status (retry/completion logic)", {
+                    call_id: callId,
+                    patient_id: patientId,
+                    error: statusError.message,
+                });
+                // Continue processing to see if a new callback needs scheduling
             }
-          }
+            
+            // --- Handle New Callback Scheduling --- 
+            if (patientId && agentCallbackNumber && scheduledCallbackTime) {
+                try {
+                    const callbackId = await callbackService.scheduleCallback(
+                        patientId,
+                        agentCallbackNumber,
+                        scheduledCallbackTime,
+                        "User Requested Callback"
+                    );
+        
+                    logger.info("Scheduled callback stored in database", {
+                        call_id: call.call_id,
+                        patient_id: patientId,
+                        agent_callback_number: agentCallbackNumber,
+                        scheduled_time: scheduledCallbackTime,
+                        callback_id: callbackId,
+                    });
+                } catch (dbError) {
+                    logger.error("Error storing newly requested callback", {
+                        call_id: call.call_id,
+                        patient_id: patientId,
+                        error: dbError.message,
+                    });
+                }
+            }
+        }
         }
       }
 
@@ -2321,7 +2673,7 @@ function renderAppointmentConfirmationHTML(d) {
 </html>`;
 }
 
-router.post("/trigger-intake-call", authMiddleware, async (req, res, next) => {
+router.post("/trigger-intake-call", async (req, res, next) => {
   try {
     const retellService = require("../services/retellService");
     const { patientId } = req.body;
@@ -2338,15 +2690,12 @@ router.post("/trigger-intake-call", authMiddleware, async (req, res, next) => {
 
     // Get access token
     const accessToken = await authService.getAccessToken();
- 
 
-   // Transform patient data
- 
+    // Transform patient data
 
     // Search for appointments
     let appointments = [];
     try {
-      
     } catch (appointmentError) {
       logger.warn("Failed to fetch appointments for intake call", {
         error: appointmentError.message,
@@ -2437,7 +2786,7 @@ router.post("/trigger-intake-call", authMiddleware, async (req, res, next) => {
  *                   format: date-time
  *                   description: Next scheduled cleanup time (midnight PST)
  */
-router.get("/call-storage/stats", authMiddleware, (req, res) => {
+router.get("/call-storage/stats", (req, res) => {
   const stats = callIdStorage.getStats();
   res.json({
     success: true,
@@ -2479,7 +2828,7 @@ router.get("/call-storage/stats", authMiddleware, (req, res) => {
  *                       type: number
  *                       description: Number of callbacks scheduled in next 1 minute
  */
-router.get("/callbacks/stats", authMiddleware, async (req, res, next) => {
+router.get("/callbacks/stats", async (req, res, next) => {
   try {
     const callbackScheduler = require("../services/callbackScheduler");
     const stats = await callbackScheduler.getStats();
@@ -2524,7 +2873,7 @@ router.get("/callbacks/stats", authMiddleware, async (req, res, next) => {
  *                       type: number
  *                       description: Interval in minutes between processing runs
  */
-router.get("/callbacks/scheduler/status", authMiddleware, (req, res) => {
+router.get("/callbacks/scheduler/status", (req, res) => {
   const callbackScheduler = require("../services/callbackScheduler");
   const status = callbackScheduler.getStatus();
   res.json({
@@ -2594,7 +2943,7 @@ router.get("/callbacks/scheduler/status", authMiddleware, (req, res) => {
  *                       error_message:
  *                         type: string
  */
-router.get("/callbacks/list", authMiddleware, async (req, res, next) => {
+router.get("/callbacks/list", async (req, res, next) => {
   try {
     const { status, patient_id, limit = 100 } = req.query;
 
