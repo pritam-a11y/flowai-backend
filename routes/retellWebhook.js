@@ -465,7 +465,7 @@ router.post("/function-call", async (req, res, next) => {
           // Both service type and location provided
           availableSlotsQuery = `
              SELECT slot_id, start_time, end_time,
-                    TO_CHAR(start_time AT TIME ZONE 'America/New_York', 'Day') as day_of_week,
+                    TRIM(TO_CHAR(start_time, 'Day')) as day_of_week,
                     service_type, location, status
              FROM slots
              WHERE
@@ -487,7 +487,7 @@ router.post("/function-call", async (req, res, next) => {
           // Only service type provided
           availableSlotsQuery = `
              SELECT slot_id, start_time, end_time,
-                    TO_CHAR(start_time AT TIME ZONE 'America/New_York', 'Day') as day_of_week,
+                    TRIM(TO_CHAR(start_time, 'Day')) as day_of_week,
                     service_type, location, status
              FROM slots
              WHERE
@@ -507,7 +507,7 @@ router.post("/function-call", async (req, res, next) => {
           // Only location provided
           availableSlotsQuery = `
              SELECT slot_id, start_time, end_time,
-                    TO_CHAR(start_time AT TIME ZONE 'America/New_York', 'Day') as day_of_week,
+                    TRIM(TO_CHAR(start_time, 'Day')) as day_of_week,
                     service_type, location, status
              FROM slots
              WHERE
@@ -527,7 +527,7 @@ router.post("/function-call", async (req, res, next) => {
           // Neither service type nor location provided
           availableSlotsQuery = `
              SELECT slot_id, start_time, end_time,
-                    TO_CHAR(start_time AT TIME ZONE 'America/New_York', 'Day') as day_of_week,
+                    TRIM(TO_CHAR(start_time, 'Day')) as day_of_week,
                     service_type, location, status
              FROM slots
              WHERE
