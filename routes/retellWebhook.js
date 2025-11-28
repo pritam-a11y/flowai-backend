@@ -474,7 +474,7 @@ router.post("/function-call", async (req, res, next) => {
                  AND LOWER(status) = 'available'
                  AND LOWER(service_type) = LOWER($3)
              ORDER BY start_time
-             LIMIT 20
+             LIMIT 10
          `;
           slotQueryParams = [
             searchStartDate.toISOString(),
@@ -492,7 +492,7 @@ router.post("/function-call", async (req, res, next) => {
                  AND start_time <= $2
                  AND LOWER(status) = 'available'
              ORDER BY start_time
-             LIMIT 20
+             LIMIT 10
          `;
           slotQueryParams = [
             searchStartDate.toISOString(),
