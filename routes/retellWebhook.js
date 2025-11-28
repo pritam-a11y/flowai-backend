@@ -466,7 +466,7 @@ router.post("/function-call", async (req, res, next) => {
           availableSlotsQuery = `
              SELECT slot_id, start_time, end_time,
                     TRIM(TO_CHAR(start_time, 'Day')) as day_of_week,
-                    service_type, location, status
+                    service_type, location, status, time_period
              FROM slots
              WHERE
                  start_time >= $1
@@ -488,7 +488,7 @@ router.post("/function-call", async (req, res, next) => {
           availableSlotsQuery = `
              SELECT slot_id, start_time, end_time,
                     TRIM(TO_CHAR(start_time, 'Day')) as day_of_week,
-                    service_type, location, status
+                    service_type, location, status, time_period
              FROM slots
              WHERE
                  start_time >= $1
@@ -508,7 +508,7 @@ router.post("/function-call", async (req, res, next) => {
           availableSlotsQuery = `
              SELECT slot_id, start_time, end_time,
                     TRIM(TO_CHAR(start_time, 'Day')) as day_of_week,
-                    service_type, location, status
+                    service_type, location, status, time_period
              FROM slots
              WHERE
                  start_time >= $1
@@ -528,7 +528,7 @@ router.post("/function-call", async (req, res, next) => {
           availableSlotsQuery = `
              SELECT slot_id, start_time, end_time,
                     TRIM(TO_CHAR(start_time, 'Day')) as day_of_week,
-                    service_type, location, status
+                    service_type, location, status, time_period
              FROM slots
              WHERE
                  start_time >= $1
@@ -597,6 +597,7 @@ router.post("/function-call", async (req, res, next) => {
           serviceType: row.service_type,
           location: row.location,
           status: row.status,
+          timePeriod: row.time_period,
         }));
 
         // Create spread of slots: morning, afternoon, evening for each day
@@ -623,32 +624,22 @@ router.post("/function-call", async (req, res, next) => {
           // Sort slots by time for this day
           daySlots.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
 
-          // Based on available slots in DB, we have UTC hours: 7-9, 11-12, 13-16
-          // These correspond to Florida times:
-          // 7-9 UTC = 2-4 AM EST (early morning)
-          // 11-12 UTC = 6-7 AM EST (early morning)
-          // 13-16 UTC = 8-11 AM EST (morning)
+          // Find slots for each time period using the time_period field
+          // morning: 8 AM - 12 PM EST (UTC 13-17)
+          // afternoon: 12 PM - 3 PM EST (UTC 17-20)
+          // evening: 3 PM - 6 PM EST (UTC 20-23)
 
-          // Find first early morning slot (6-8 AM EST = 11-13 UTC)
-          const earlyMorningSlot = daySlots.find(slot => {
-            const hour = new Date(slot.startTime).getUTCHours();
-            return hour >= 11 && hour < 13;
-          });
-          if (earlyMorningSlot) spreadSlots.push(earlyMorningSlot);
-
-          // Find first morning slot (8-10 AM EST = 13-15 UTC)
-          const morningSlot = daySlots.find(slot => {
-            const hour = new Date(slot.startTime).getUTCHours();
-            return hour >= 13 && hour < 15;
-          });
+          // Find first morning slot
+          const morningSlot = daySlots.find(slot => slot.timePeriod === 'morning');
           if (morningSlot) spreadSlots.push(morningSlot);
 
-          // Find first late morning slot (10 AM - 12 PM EST = 15-17 UTC)
-          const lateMorningSlot = daySlots.find(slot => {
-            const hour = new Date(slot.startTime).getUTCHours();
-            return hour >= 15 && hour < 17;
-          });
-          if (lateMorningSlot) spreadSlots.push(lateMorningSlot);
+          // Find first afternoon slot
+          const afternoonSlot = daySlots.find(slot => slot.timePeriod === 'afternoon');
+          if (afternoonSlot) spreadSlots.push(afternoonSlot);
+
+          // Find first evening slot
+          const eveningSlot = daySlots.find(slot => slot.timePeriod === 'evening');
+          if (eveningSlot) spreadSlots.push(eveningSlot);
         }
 
         // --- result ---
