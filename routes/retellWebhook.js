@@ -16,6 +16,7 @@ const {
 const { findOrgIdByAgentId } = require("../helpers/retellAgentList");
 const { generateIntakeFormPDF } = require("../services/intakeFormGenerator");
 const CallbackService = require("../services/callbackServices");
+const PatientService = require("../services/PatientService");
 const {
   updatePatientAppointmentLocation,
 } = require("../helpers/appointmentLocationUpdate");
@@ -458,20 +459,42 @@ router.post("/function-call", async (req, res, next) => {
 
         // Query
         // Slots Check  ---
-        const availableSlotsQuery = `
-           SELECT slot_id, start_time, end_time, day_of_week, service_type, status
-           FROM slots
-           WHERE 
-               start_time >= $1 
-               AND start_time <= $2
-               AND LOWER(status) = 'available'
-           ORDER BY start_time
-       `;
+        let availableSlotsQuery;
+        let slotQueryParams;
 
-        const slotsResult = await db.query(availableSlotsQuery, [
-          searchStartDate.toISOString(),
-          searchEndDate.toISOString(),
-        ]);
+        if (serviceType) {
+          availableSlotsQuery = `
+             SELECT slot_id, start_time, end_time, day_of_week, service_type, status
+             FROM slots
+             WHERE
+                 start_time >= $1
+                 AND start_time <= $2
+                 AND LOWER(status) = 'available'
+                 AND LOWER(service_type) = LOWER($3)
+             ORDER BY start_time
+         `;
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEndDate.toISOString(),
+            serviceType
+          ];
+        } else {
+          availableSlotsQuery = `
+             SELECT slot_id, start_time, end_time, day_of_week, service_type, status
+             FROM slots
+             WHERE
+                 start_time >= $1
+                 AND start_time <= $2
+                 AND LOWER(status) = 'available'
+             ORDER BY start_time
+         `;
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEndDate.toISOString()
+          ];
+        }
+
+        const slotsResult = await db.query(availableSlotsQuery, slotQueryParams);
 
         // --- Handle No Slots Found ---
         if (slotsResult.rows.length === 0) {
@@ -617,11 +640,14 @@ router.post("/function-call", async (req, res, next) => {
         // --- Update Patient Details ---
         const updatePatientQuery = `
       UPDATE patient_details
-      SET appointment_status = $2,
+      SET appointment_booked = TRUE,
+          appointment_status = $2,
           appointment_type = $3,
           appointment_date = $4,
           appointment_time = $5,
-          appointment_location = $6
+          appointment_location = $6,
+          precision_center = $6,
+          updated_at = NOW()
       WHERE patient_id = $1
       RETURNING patient_id;
       `;
@@ -1531,6 +1557,24 @@ router.post("/call/update", async (req, res, next) => {
           logger.fatal(
             `FATAL ERROR processing call ${call.call_id}: ${error.message}`
           );
+        }
+
+        // --- Store Screening Answers ---
+        try {
+          const patientId = call.retell_llm_dynamic_variables?.patient_id ||
+                           call.retell_llm_dynamic_variables?.patientId;
+
+          if (patientId && call.call_analysis?.custom_analysis_data) {
+            const screeningAnswers = JSON.stringify(call.call_analysis.custom_analysis_data);
+
+            // Use PatientService to update screening answers
+            const patientService = new PatientService();
+            await patientService.updateScreeningAnswers(patientId, screeningAnswers);
+
+            logger.info(`Screening answers stored for patient: ${patientId}`);
+          }
+        } catch (error) {
+          logger.error(`Failed to store screening answers: ${error.message}`);
         }
 
         //-----Hamming-------------
