@@ -543,21 +543,53 @@ router.post("/function-call", async (req, res, next) => {
           ];
         }
 
-        const slotsResult = await db.query(availableSlotsQuery, slotQueryParams);
+        // Modify query to fetch 7 days of data
+        const searchEnd7Days = new Date(searchStartDate);
+        searchEnd7Days.setDate(searchEnd7Days.getDate() + 7);
+
+        // Update the query parameters to use 7 days instead of 30
+        if (serviceType && location) {
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEnd7Days.toISOString(),
+            serviceType,
+            location
+          ];
+        } else if (serviceType) {
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEnd7Days.toISOString(),
+            serviceType
+          ];
+        } else if (location) {
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEnd7Days.toISOString(),
+            location
+          ];
+        } else {
+          slotQueryParams = [
+            searchStartDate.toISOString(),
+            searchEnd7Days.toISOString()
+          ];
+        }
+
+        // Remove LIMIT from query and fetch all slots for 7 days
+        let unlimitedQuery = availableSlotsQuery.replace('LIMIT 10', '');
+        const slotsResult = await db.query(unlimitedQuery, slotQueryParams);
 
         // --- Handle No Slots Found ---
         if (slotsResult.rows.length === 0) {
           result = {
             success: true,
             status: 200,
-            message: `No available slots found for ${normalizedCategory ? normalizedCategory : 'Group 1/Default'} starting from ${searchStartDate.toISOString()}.`,
             availableSlots: [],
           };
           break;
         }
 
-        // Transform rows into a clear list of slots
-        const slotsList = slotsResult.rows.map((row) => ({
+        // Transform rows and filter for spread
+        const allSlots = slotsResult.rows.map((row) => ({
           slotId: row.slot_id,
           startTime: row.start_time,
           endTime: row.end_time,
@@ -567,12 +599,63 @@ router.post("/function-call", async (req, res, next) => {
           status: row.status,
         }));
 
+        // Create spread of slots: morning, afternoon, evening for each day
+        const spreadSlots = [];
+        const slotsByDate = {};
+
+        // Group slots by date
+        allSlots.forEach(slot => {
+          const dateKey = new Date(slot.startTime).toISOString().split('T')[0];
+          if (!slotsByDate[dateKey]) {
+            slotsByDate[dateKey] = [];
+          }
+          slotsByDate[dateKey].push(slot);
+        });
+
+        // Sort dates to process in order
+        const sortedDates = Object.keys(slotsByDate).sort();
+
+        // Process up to 7 days
+        for (let i = 0; i < Math.min(7, sortedDates.length); i++) {
+          const dateKey = sortedDates[i];
+          const daySlots = slotsByDate[dateKey];
+
+          // Sort slots by time for this day
+          daySlots.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+          // Based on available slots in DB, we have UTC hours: 7-9, 11-12, 13-16
+          // These correspond to Florida times:
+          // 7-9 UTC = 2-4 AM EST (early morning)
+          // 11-12 UTC = 6-7 AM EST (early morning)
+          // 13-16 UTC = 8-11 AM EST (morning)
+
+          // Find first early morning slot (6-8 AM EST = 11-13 UTC)
+          const earlyMorningSlot = daySlots.find(slot => {
+            const hour = new Date(slot.startTime).getUTCHours();
+            return hour >= 11 && hour < 13;
+          });
+          if (earlyMorningSlot) spreadSlots.push(earlyMorningSlot);
+
+          // Find first morning slot (8-10 AM EST = 13-15 UTC)
+          const morningSlot = daySlots.find(slot => {
+            const hour = new Date(slot.startTime).getUTCHours();
+            return hour >= 13 && hour < 15;
+          });
+          if (morningSlot) spreadSlots.push(morningSlot);
+
+          // Find first late morning slot (10 AM - 12 PM EST = 15-17 UTC)
+          const lateMorningSlot = daySlots.find(slot => {
+            const hour = new Date(slot.startTime).getUTCHours();
+            return hour >= 15 && hour < 17;
+          });
+          if (lateMorningSlot) spreadSlots.push(lateMorningSlot);
+        }
+
         // --- result ---
         result = {
           success: true,
           status: 200,
-          message: `Found ${slotsList.length} available slots starting from ${startTime}.`,
-          availableSlots: slotsList,
+          availableSlots: spreadSlots,
         };
 
         break;
