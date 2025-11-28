@@ -83,32 +83,69 @@ class LocationSorter {
    */
   locationOffersService(location, appointmentType) {
     const normalizedType = this.normalizeAppointmentType(appointmentType);
-    
+
+    // Special handling for DEXA
+    if (normalizedType === 'dexa' || normalizedType === 'dexa scan') {
+      // Return true if location has DEXA service
+      return location.services.some(service =>
+        service.toLowerCase().includes('dexa')
+      );
+    }
+
     // Special handling for MRI types
     if (normalizedType === 'mri' || normalizedType === 'mri scan') {
       // Return true if location has any MRI service
-      return location.services.some(service => 
+      return location.services.some(service =>
         service.toLowerCase().includes('mri')
       );
     }
-    
+
     if (normalizedType === 'open mri') {
       // Only Jacksonville has Open MRI
-      return location.services.some(service => 
+      return location.services.some(service =>
         service.toLowerCase() === 'open mri'
       );
     }
-    
+
     if (normalizedType === 'open upright mri') {
       // Only Mandarin has Open Upright MRI
-      return location.services.some(service => 
+      return location.services.some(service =>
         service.toLowerCase() === 'open upright mri'
       );
     }
-    
-    // For all other services, do case-insensitive exact match
-    return location.services.some(service => 
-      this.normalizeAppointmentType(service) === normalizedType
+
+    // Special handling for CT/PET variations
+    if (normalizedType === 'ct' || normalizedType === 'cat scan') {
+      return location.services.some(service =>
+        service.toLowerCase().includes('ct scan')
+      );
+    }
+
+    if (normalizedType === 'pet' || normalizedType === 'pet scan') {
+      return location.services.some(service =>
+        service.toLowerCase().includes('pet')
+      );
+    }
+
+    // Special handling for X-Ray variations
+    if (normalizedType === 'xray' || normalizedType === 'x-ray' || normalizedType === 'x ray') {
+      return location.services.some(service =>
+        service.toLowerCase().includes('x-ray') || service.toLowerCase().includes('xray')
+      );
+    }
+
+    // Special handling for mammography variations
+    if (normalizedType === 'mammography' || normalizedType === 'mammogram' || normalizedType === '3d mammogram') {
+      return location.services.some(service =>
+        service.toLowerCase().includes('mammography') || service.toLowerCase().includes('mammogram')
+      );
+    }
+
+    // For all other services, check if the service name contains the normalized type
+    // This makes matching more flexible
+    return location.services.some(service =>
+      service.toLowerCase().includes(normalizedType) ||
+      normalizedType.includes(service.toLowerCase())
     );
   }
 
