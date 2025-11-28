@@ -7,14 +7,13 @@ const rateLimit = require("express-rate-limit");
 const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const { v4: uuidv4 } = require("uuid");
-const authRoutes = require("./routes/auth");
 
 const logger = require("./utils/logger");
 const errorHandler = require("./middleware/errorHandler"); 
 const patientCreateRoutes = require("./routes/patientCreate");
-const slotRoutes = require("./routes/slot"); 
+const slotRoutes = require("./routes/slot");
 const retellWebhookRoutes = require("./routes/retellWebhook");
-const vapiWebhookRoutes = require("./routes/vapiWebhook"); 
+// const vapiWebhookRoutes = require("./routes/vapiWebhook"); // Not used in precision backend
 const retellAgentRoutes = require("./routes/retellAgent"); 
 const oauthRoutes = require("./routes/oauth");
 const callbackScheduler = require("./services/callbackScheduler");
@@ -139,8 +138,8 @@ app.use("/api/v1/patient", patientCreateRoutes);
 app.use("/api/v1/slot", slotRoutes); 
 app.use("/api/v1/retell", retellWebhookRoutes);
 app.use("/api/v1/retell/agent", retellAgentRoutes);
-app.use("/api/v1/vapi", vapiWebhookRoutes);  
-app.use("/auth", authRoutes);
+// app.use("/api/v1/vapi", vapiWebhookRoutes); // Removed - not used in precision backend  
+// Auth routes removed - not needed in precision backend
 app.use("/api/v1/launchpad", launchpadRoutes);
 app.use("/api/v1/sheet", sheetRoutes);
 app.use("/api/v1/customer-support-agent", customerSupportRoutes);
