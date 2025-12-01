@@ -801,10 +801,9 @@ router.post("/function-call", async (req, res, next) => {
           logger.info(`Slot status updated to 'booked'. SlotId: ${bookedSlotId}`);
         }
 
-        // Extract appointment details from the slot
-        const appointmentDateTime = new Date(slotDetails.start_time);
-        const appointmentDate = appointmentDateTime.toISOString().split("T")[0];
-        const appointmentTime = appointmentDateTime.toISOString().split("T")[1].substring(0, 8);
+        // Extract appointment details from the slot 
+        const fullDateTime = slotDetails.start_time.trim();  
+        let [appointmentDate, appointmentTime] = fullDateTime.split(' ');
         const appointment_location = slotDetails.location;
         const appointment_type = slotDetails.service_type;
 
@@ -906,16 +905,10 @@ router.post("/function-call", async (req, res, next) => {
         let updateAppointmentDate = null;
         let updateAppointmentTime = null;
 
-        if (updateStart) {
-          // Split the ISO string into date and time parts for the patient table.
-          const updateAppointmentDateTime = new Date(updateStart);
-          updateAppointmentDate = updateAppointmentDateTime
-            .toISOString()
-            .split("T")[0];
-          updateAppointmentTime = updateAppointmentDateTime
-            .toISOString()
-            .split("T")[1]
-            .substring(0, 8);
+        if (updateStart) { 
+            const fullDateTime = updateStart.trim(); 
+   
+            [updateAppointmentDate, updateAppointmentTime] = fullDateTime.split(' ');
         }
         // ---  Dynamic Query Builder ---
         // Dynamically build the SET clause based on provided fields for the patients table.
