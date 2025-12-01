@@ -801,9 +801,11 @@ router.post("/function-call", async (req, res, next) => {
           logger.info(`Slot status updated to 'booked'. SlotId: ${bookedSlotId}`);
         }
 
-        // Extract appointment details from the slot 
-        const fullDateTime = slotDetails.start_time.trim();  
-        let [appointmentDate, appointmentTime] = fullDateTime.split(' ');
+        // Extract appointment details from the slot
+        // start_time is a Date object from the database
+        const startTimeDate = new Date(slotDetails.start_time);
+        const appointmentDate = startTimeDate.toISOString().split('T')[0]; // YYYY-MM-DD
+        const appointmentTime = startTimeDate.toISOString().split('T')[1].substring(0, 8); // HH:MM:SS
         const appointment_location = slotDetails.location;
         const appointment_type = slotDetails.service_type;
 
