@@ -164,7 +164,7 @@ This document describes all APIs exposed to Retell AI voice agent for handling p
 **Database Operations:**
 ```sql
 -- 1. Check existing appointment
-SELECT appointment_status FROM patient_details WHERE patient_id = $1
+SELECT call_status FROM patient_details WHERE patient_id = $1
 
 -- 2. Check call count
 SELECT COALESCE(call_count, 0) FROM patient_details WHERE patient_id = $1
@@ -177,7 +177,7 @@ RETURNING slot_id
 
 -- 4. Update patient details
 UPDATE patient_details
-SET appointment_status = $2,
+SET call_status = $2,
     appointment_type = $3,
     appointment_date = $4,
     appointment_time = $5,
