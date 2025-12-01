@@ -802,8 +802,6 @@ router.post("/function-call", async (req, res, next) => {
         // Extract appointment details from the slot 
         const fullDateTime = slotDetails.start_time.trim();  
         let [appointmentDate, appointmentTime] = fullDateTime.split(' ');
- 
-
         const appointment_location = slotDetails.location;
         const appointment_type = slotDetails.service_type;
 
@@ -906,7 +904,7 @@ router.post("/function-call", async (req, res, next) => {
         let updateAppointmentTime = null;
 
         if (updateStart) { 
-          const fullDateTime = updateStart.trim(); 
+            const fullDateTime = updateStart.trim(); 
    
             [updateAppointmentDate, updateAppointmentTime] = fullDateTime.split(' ');
         }
