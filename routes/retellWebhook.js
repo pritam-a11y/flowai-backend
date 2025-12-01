@@ -416,7 +416,7 @@ router.post("/function-call", async (req, res, next) => {
           category,
         } = args;
 
-        const normalizedCategory = category ? category.toLowerCase() : null;
+        const normalizedCategory = category ? category.toLowerCase() : null
 
         logger.info("Processing check_availability", {
           location: location,
@@ -426,7 +426,8 @@ router.post("/function-call", async (req, res, next) => {
           appointmentCategory: normalizedCategory,
         });
 
-        // Get date range for appointment search
+       
+        // Get date range for appointment search 
         let searchStartDate;
 
         if (normalizedCategory === "group two") {
@@ -480,7 +481,7 @@ router.post("/function-call", async (req, res, next) => {
             searchStartDate.toISOString(),
             searchEndDate.toISOString(),
             serviceType,
-            location,
+            location
           ];
         } else if (serviceType) {
           // Only service type provided
@@ -500,7 +501,7 @@ router.post("/function-call", async (req, res, next) => {
           slotQueryParams = [
             searchStartDate.toISOString(),
             searchEndDate.toISOString(),
-            serviceType,
+            serviceType
           ];
         } else if (location) {
           // Only location provided
@@ -520,7 +521,7 @@ router.post("/function-call", async (req, res, next) => {
           slotQueryParams = [
             searchStartDate.toISOString(),
             searchEndDate.toISOString(),
-            location,
+            location
           ];
         } else {
           // Neither service type nor location provided
@@ -538,7 +539,7 @@ router.post("/function-call", async (req, res, next) => {
          `;
           slotQueryParams = [
             searchStartDate.toISOString(),
-            searchEndDate.toISOString(),
+            searchEndDate.toISOString()
           ];
         }
 
@@ -552,29 +553,29 @@ router.post("/function-call", async (req, res, next) => {
             searchStartDate.toISOString(),
             searchEnd7Days.toISOString(),
             serviceType,
-            location,
+            location
           ];
         } else if (serviceType) {
           slotQueryParams = [
             searchStartDate.toISOString(),
             searchEnd7Days.toISOString(),
-            serviceType,
+            serviceType
           ];
         } else if (location) {
           slotQueryParams = [
             searchStartDate.toISOString(),
             searchEnd7Days.toISOString(),
-            location,
+            location
           ];
         } else {
           slotQueryParams = [
             searchStartDate.toISOString(),
-            searchEnd7Days.toISOString(),
+            searchEnd7Days.toISOString()
           ];
         }
 
         // Remove LIMIT from query and fetch all slots for 7 days
-        let unlimitedQuery = availableSlotsQuery.replace("LIMIT 10", "");
+        let unlimitedQuery = availableSlotsQuery.replace('LIMIT 10', '');
         const slotsResult = await db.query(unlimitedQuery, slotQueryParams);
 
         // --- Handle No Slots Found ---
@@ -603,8 +604,8 @@ router.post("/function-call", async (req, res, next) => {
         const slotsByDate = {};
 
         // Group slots by date
-        allSlots.forEach((slot) => {
-          const dateKey = new Date(slot.startTime).toISOString().split("T")[0];
+        allSlots.forEach(slot => {
+          const dateKey = new Date(slot.startTime).toISOString().split('T')[0];
           if (!slotsByDate[dateKey]) {
             slotsByDate[dateKey] = [];
           }
@@ -620,9 +621,7 @@ router.post("/function-call", async (req, res, next) => {
           const daySlots = slotsByDate[dateKey];
 
           // Sort slots by time for this day
-          daySlots.sort(
-            (a, b) => new Date(a.startTime) - new Date(b.startTime)
-          );
+          daySlots.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
 
           // Based on available slots in DB, we have UTC hours: 7-9, 11-12, 13-16
           // These correspond to Florida times:
@@ -631,21 +630,21 @@ router.post("/function-call", async (req, res, next) => {
           // 13-16 UTC = 8-11 AM EST (morning)
 
           // Find first early morning slot (6-8 AM EST = 11-13 UTC)
-          const earlyMorningSlot = daySlots.find((slot) => {
+          const earlyMorningSlot = daySlots.find(slot => {
             const hour = new Date(slot.startTime).getUTCHours();
             return hour >= 11 && hour < 13;
           });
           if (earlyMorningSlot) spreadSlots.push(earlyMorningSlot);
 
           // Find first morning slot (8-10 AM EST = 13-15 UTC)
-          const morningSlot = daySlots.find((slot) => {
+          const morningSlot = daySlots.find(slot => {
             const hour = new Date(slot.startTime).getUTCHours();
             return hour >= 13 && hour < 15;
           });
           if (morningSlot) spreadSlots.push(morningSlot);
 
           // Find first late morning slot (10 AM - 12 PM EST = 15-17 UTC)
-          const lateMorningSlot = daySlots.find((slot) => {
+          const lateMorningSlot = daySlots.find(slot => {
             const hour = new Date(slot.startTime).getUTCHours();
             return hour >= 15 && hour < 17;
           });
@@ -667,10 +666,10 @@ router.post("/function-call", async (req, res, next) => {
         // Extract appointment creation parameters from args
         const {
           patientId,
-          slotId, // New: accept slot_id
-          appointmentType, // For backward compatibility
-          startTime: apptStart, // For backward compatibility
-          endTime, // For backward compatibility
+          slotId,  // New: accept slot_id
+          appointmentType,  // For backward compatibility
+          startTime: apptStart,  // For backward compatibility
+          endTime,  // For backward compatibility
           status = "booked",
           stat: bookStat = false,
         } = args;
@@ -750,9 +749,7 @@ router.post("/function-call", async (req, res, next) => {
           const slotResult = await db.query(slotQuery, [slotId]);
 
           if (slotResult.rows.length === 0) {
-            logger.error(
-              `Slot not found or already booked for slotId: ${slotId}`
-            );
+            logger.error(`Slot not found or already booked for slotId: ${slotId}`);
             return res.status(404).json({
               success: false,
               error: "Slot not found or already booked.",
@@ -772,6 +769,7 @@ router.post("/function-call", async (req, res, next) => {
           await db.query(updateSlotQuery, [slotId]);
 
           logger.info(`Slot ${slotId} marked as booked`);
+
         } else {
           // OLD METHOD: Book using start_time (backward compatibility)
           logger.info(`Booking appointment using startTime: ${apptStart}`);
@@ -788,9 +786,7 @@ router.post("/function-call", async (req, res, next) => {
           ]);
 
           if (slotBookingResult.rows.length === 0) {
-            logger.error(
-              `Slot not found or already booked for startTime: ${apptStart}`
-            );
+            logger.error(`Slot not found or already booked for startTime: ${apptStart}`);
             return res.status(404).json({
               success: false,
               error: "Slot not found or already booked at the specified time.",
@@ -800,18 +796,13 @@ router.post("/function-call", async (req, res, next) => {
           slotDetails = slotBookingResult.rows[0];
           bookedSlotId = slotDetails.slot_id;
 
-          logger.info(
-            `Slot status updated to 'booked'. SlotId: ${bookedSlotId}`
-          );
+          logger.info(`Slot status updated to 'booked'. SlotId: ${bookedSlotId}`);
         }
 
         // Extract appointment details from the slot
         const appointmentDateTime = new Date(slotDetails.start_time);
         const appointmentDate = appointmentDateTime.toISOString().split("T")[0];
-        const appointmentTime = appointmentDateTime
-          .toISOString()
-          .split("T")[1]
-          .substring(0, 8);
+        const appointmentTime = appointmentDateTime.toISOString().split("T")[1].substring(0, 8);
         const appointment_location = slotDetails.location;
         const appointment_type = slotDetails.service_type;
 
@@ -832,7 +823,7 @@ router.post("/function-call", async (req, res, next) => {
         await db.query(updatePatientQuery, [
           patientId,
           status,
-          appointment_type, // Now from slot details
+          appointment_type,  // Now from slot details
           appointmentDate,
           appointmentTime,
           appointment_location,
@@ -840,12 +831,7 @@ router.post("/function-call", async (req, res, next) => {
 
         logger.info(
           "Patient details updated successfully with new appointment.",
-          {
-            patientId,
-            appointmentType: appointment_type,
-            appointmentDate,
-            appointmentTime,
-          }
+          { patientId, appointmentType: appointment_type, appointmentDate, appointmentTime }
         );
 
         // --- Success Result ---
@@ -1743,61 +1729,79 @@ router.post("/call/update", async (req, res, next) => {
           );
         }
 
-        // --- update call_status ----
-        const customData = call.call_analysis?.custom_analysis_data;
-
-        // Determine the final status based on the presence of booking data
-        const appointmentBooked =
-          customData?.appointment_date && customData?.appointment_time;
-
-        const patientId =
-          call.retell_llm_dynamic_variables?.patient_id ||
-          call.retell_llm_dynamic_variables?.patientId;
-
-        // Condition for Unanswered Callback (Unanswered = Not Successful AND No Duration)
-
-        const patientService = new PatientService();
-
-        if (appointmentBooked) {
-          await patientService.newCallStats(patientId, "booked");
-        } else {
-          // Then update the status to 'dropped'
-          await patientService.newCallStats(patientId, "dropped");
-        }
-
         // --- Store Screening Answers ---
         try {
-          const patientId =
-            call.retell_llm_dynamic_variables?.patient_id ||
-            call.retell_llm_dynamic_variables?.patientId;
+          const patientId = call.retell_llm_dynamic_variables?.patient_id ||
+                           call.retell_llm_dynamic_variables?.patientId;
 
           if (patientId && call.call_analysis?.custom_analysis_data) {
-            const customData = call.call_analysis.custom_analysis_data;
-            // Map the mri_q keys to the full question and corresponding boolean answer
-            const screeningQuestions = {
-              "1. Do you have metallic implant or devices in the body?":
-                customData.mri_q1,
-              "2. Is there any chance you have metallic fragments in the eye?":
-                customData.mri_q2,
-              "3. Do you have any foreign metallic object in the body like bullet, BB, etc?":
-                customData.mri_q3,
-              "4. Are you claustrophobic?": customData.mri_q4,
-            };
-
-            const screeningAnswers = JSON.stringify(screeningQuestions);
+            const screeningAnswers = JSON.stringify(call.call_analysis.custom_analysis_data);
 
             // Use PatientService to update screening answers
             const patientService = new PatientService();
-            await patientService.updateScreeningAnswers(
-              patientId,
-              screeningAnswers
-            );
+            await patientService.updateScreeningAnswers(patientId, screeningAnswers);
 
             logger.info(`Screening answers stored for patient: ${patientId}`);
           }
         } catch (error) {
           logger.error(`Failed to store screening answers: ${error.message}`);
         }
+
+         // --- update call_status ----
+         const customData = call.call_analysis?.custom_analysis_data;
+
+         // Determine the final status based on the presence of booking data
+         const appointmentBooked =
+           customData?.appointment_date && customData?.appointment_time;
+ 
+         const patientId =
+           call.retell_llm_dynamic_variables?.patient_id ||
+           call.retell_llm_dynamic_variables?.patientId;
+ 
+         // Condition for Unanswered Callback (Unanswered = Not Successful AND No Duration)
+ 
+         const patientService = new PatientService();
+ 
+         if (appointmentBooked) {
+           await patientService.newCallStats(patientId, "booked");
+         } else {
+           // Then update the status to 'dropped'
+           await patientService.newCallStats(patientId, "dropped");
+         }
+ 
+         // --- Store Screening Answers ---
+         try {
+           const patientId =
+             call.retell_llm_dynamic_variables?.patient_id ||
+             call.retell_llm_dynamic_variables?.patientId;
+ 
+           if (patientId && call.call_analysis?.custom_analysis_data) {
+             const customData = call.call_analysis.custom_analysis_data;
+             // Map the mri_q keys to the full question and corresponding boolean answer
+             const screeningQuestions = {
+               "1. Do you have metallic implant or devices in the body?":
+                 customData.mri_q1,
+               "2. Is there any chance you have metallic fragments in the eye?":
+                 customData.mri_q2,
+               "3. Do you have any foreign metallic object in the body like bullet, BB, etc?":
+                 customData.mri_q3,
+               "4. Are you claustrophobic?": customData.mri_q4,
+             };
+ 
+             const screeningAnswers = JSON.stringify(screeningQuestions);
+ 
+             // Use PatientService to update screening answers
+             const patientService = new PatientService();
+             await patientService.updateScreeningAnswers(
+               patientId,
+               screeningAnswers
+             );
+ 
+             logger.info(`Screening answers stored for patient: ${patientId}`);
+           }
+         } catch (error) {
+           logger.error(`Failed to store screening answers: ${error.message}`);
+         }
 
         //-----Hamming-------------
 
@@ -2357,75 +2361,62 @@ router.post("/call/update", async (req, res, next) => {
                   patient_id: patientId,
                   error: docError.message,
                 }
-              );
+              );  
             }
           } else {
-            const isCallSuccessful =
-              call.call_analysis?.call_successful === true;
-            const totalDurationSeconds =
-              call.call_cost?.total_duration_seconds || 0;
 
+            const isCallSuccessful = call.call_analysis?.call_successful === true;
+            const totalDurationSeconds = call.call_cost?.total_duration_seconds || 0;
+        
             // Condition for Unanswered Callback (Unanswered = Not Successful AND No Duration)
-            const isUnanswered =
-              !isCallSuccessful && totalDurationSeconds === 0;
-            const callId = call.call_id;
-
+            const isUnanswered = !isCallSuccessful && totalDurationSeconds === 0;
+            const callId = call.call_id; 
+        
             // --- Handle Call Status (Unanswered/Success) ---
             try {
-              if (isUnanswered) {
-                logger.warn(
-                  "Call determined as UNANSWERED. Triggering retry logic.",
-                  { callId, patientId }
-                );
-                await callbackService.handleUnansweredCallback(
-                  callId,
-                  patientId
-                );
-              } else if (isCallSuccessful) {
-                logger.info("Call successful. Marking callback as completed.", {
-                  callId,
-                  patientId,
-                });
-                await callbackService.markCallbackCompleted(callId);
-              }
-            } catch (statusError) {
-              logger.error(
-                "Error processing call status (retry/completion logic)",
-                {
-                  call_id: callId,
-                  patient_id: patientId,
-                  error: statusError.message,
+                if (isUnanswered) {
+                    logger.warn("Call determined as UNANSWERED. Triggering retry logic.", { callId, patientId }); 
+                    await callbackService.handleUnansweredCallback(callId, patientId);
+        
+                } else if (isCallSuccessful) {
+                    logger.info("Call successful. Marking callback as completed.", { callId, patientId }); 
+                    await callbackService.markCallbackCompleted(callId);
                 }
-              );
-              // Continue processing to see if a new callback needs scheduling
+            } catch (statusError) {
+                logger.error("Error processing call status (retry/completion logic)", {
+                    call_id: callId,
+                    patient_id: patientId,
+                    error: statusError.message,
+                });
+                // Continue processing to see if a new callback needs scheduling
             }
-
-            // --- Handle New Callback Scheduling ---
+            
+            // --- Handle New Callback Scheduling --- 
             if (patientId && agentCallbackNumber && scheduledCallbackTime) {
-              try {
-                const callbackId = await callbackService.scheduleCallback(
-                  patientId,
-                  agentCallbackNumber,
-                  scheduledCallbackTime,
-                  "User Requested Callback"
-                );
-
-                logger.info("Scheduled callback stored in database", {
-                  call_id: call.call_id,
-                  patient_id: patientId,
-                  agent_callback_number: agentCallbackNumber,
-                  scheduled_time: scheduledCallbackTime,
-                  callback_id: callbackId,
-                });
-              } catch (dbError) {
-                logger.error("Error storing newly requested callback", {
-                  call_id: call.call_id,
-                  patient_id: patientId,
-                  error: dbError.message,
-                });
-              }
+                try {
+                    const callbackId = await callbackService.scheduleCallback(
+                        patientId,
+                        agentCallbackNumber,
+                        scheduledCallbackTime,
+                        "User Requested Callback"
+                    );
+        
+                    logger.info("Scheduled callback stored in database", {
+                        call_id: call.call_id,
+                        patient_id: patientId,
+                        agent_callback_number: agentCallbackNumber,
+                        scheduled_time: scheduledCallbackTime,
+                        callback_id: callbackId,
+                    });
+                } catch (dbError) {
+                    logger.error("Error storing newly requested callback", {
+                        call_id: call.call_id,
+                        patient_id: patientId,
+                        error: dbError.message,
+                    });
+                }
             }
-          }
+        }
         }
       }
 
