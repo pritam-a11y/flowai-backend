@@ -125,7 +125,7 @@ router.post("/webhook", async (req, res, next) => {
       dynamicVariables.patient_appointment_type =
         appointment.appointmentType || "";
       dynamicVariables.appointment_start = appointment.startTime || "";
-      dynamicVariables.patient_appointment_status = appointment.status || "";
+      dynamicVariables.patient_call_status = appointment.status || "";
       dynamicVariables.appointment_description = appointment.description || "";
     }
 
@@ -718,7 +718,7 @@ router.post("/function-call", async (req, res, next) => {
         const patientCheckQueryBook = `
       SELECT patient_id 
       FROM patient_details 
-      WHERE patient_id = $1 AND LOWER(appointment_status) = 'booked'
+      WHERE patient_id = $1 AND LOWER(call_status) = 'booked'
       LIMIT 1;
   `;
         const patientCheckResultBook = await db.query(patientCheckQueryBook, [
@@ -812,7 +812,7 @@ router.post("/function-call", async (req, res, next) => {
         const updatePatientQuery = `
       UPDATE patient_details
       SET appointment_booked = TRUE,
-          appointment_status = $2,
+          call_status = $2,
           appointment_type = $3,
           appointment_date = $4,
           appointment_time = $5,
@@ -924,7 +924,7 @@ router.post("/function-call", async (req, res, next) => {
         let paramCount = 2;
 
         if (updateStatus) {
-          setClauses.push(`appointment_status = $${paramCount++}`);
+          setClauses.push(`call_status = $${paramCount++}`);
           queryParams.push(updateStatus);
         }
         if (updateType) {
@@ -1748,6 +1748,62 @@ router.post("/call/update", async (req, res, next) => {
         } catch (error) {
           logger.error(`Failed to store screening answers: ${error.message}`);
         }
+
+         // --- update call_status ----
+         const customData = call.call_analysis?.custom_analysis_data;
+
+         // Determine the final status based on the presence of booking data
+         const appointmentBooked =
+           customData?.appointment_date && customData?.appointment_time;
+ 
+         const patientId =
+           call.retell_llm_dynamic_variables?.patient_id ||
+           call.retell_llm_dynamic_variables?.patientId;
+ 
+         // Condition for Unanswered Callback (Unanswered = Not Successful AND No Duration)
+ 
+         const patientService = new PatientService();
+ 
+         if (appointmentBooked) {
+           await patientService.newCallStats(patientId, "booked");
+         } else {
+           // Then update the status to 'dropped'
+           await patientService.newCallStats(patientId, "dropped");
+         }
+ 
+         // --- Store Screening Answers ---
+         try {
+           const patientId =
+             call.retell_llm_dynamic_variables?.patient_id ||
+             call.retell_llm_dynamic_variables?.patientId;
+ 
+           if (patientId && call.call_analysis?.custom_analysis_data) {
+             const customData = call.call_analysis.custom_analysis_data;
+             // Map the mri_q keys to the full question and corresponding boolean answer
+             const screeningQuestions = {
+               "1. Do you have metallic implant or devices in the body?":
+                 customData.mri_q1,
+               "2. Is there any chance you have metallic fragments in the eye?":
+                 customData.mri_q2,
+               "3. Do you have any foreign metallic object in the body like bullet, BB, etc?":
+                 customData.mri_q3,
+               "4. Are you claustrophobic?": customData.mri_q4,
+             };
+ 
+             const screeningAnswers = JSON.stringify(screeningQuestions);
+ 
+             // Use PatientService to update screening answers
+             const patientService = new PatientService();
+             await patientService.updateScreeningAnswers(
+               patientId,
+               screeningAnswers
+             );
+ 
+             logger.info(`Screening answers stored for patient: ${patientId}`);
+           }
+         } catch (error) {
+           logger.error(`Failed to store screening answers: ${error.message}`);
+         }
 
         //-----Hamming-------------
 
@@ -2730,7 +2786,7 @@ router.post("/trigger-intake-call", async (req, res, next) => {
       patient_appointment_id: appointment?.appointmentId || "",
       patient_appointment_type: appointment?.appointmentType || "",
       appointment_start: appointment?.startTime || "",
-      patient_appointment_status: appointment?.status || "",
+      patient_call_status: appointment?.status || "",
       appointment_description: appointment?.description || "",
     };
 
