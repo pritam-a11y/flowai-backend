@@ -1762,7 +1762,7 @@ router.post("/call/update", async (req, res, next) => {
           await patientService.newCallStats(patientId, "booked");
         } else {
           // Then update the status to 'dropped'
-          await callbackService.newCallStats(patientId, "dropped");
+          await patientService.newCallStats(patientId, "dropped");
         }
 
         // --- Store Screening Answers ---
