@@ -89,7 +89,7 @@ router.get("/export", async (req, res) => {
  *                     appointment_date: { type: string, format: date, example: "2025-12-01" }
  *                     appointment_time: { type: string, example: "14:30:00" }
  *                     appointment_location: { type: string, example: "Office A" }
- *                     appointment_status: { type: string, example: "booked" }
+ *                     call_status: { type: string, example: "booked" }
  *                     call_count:
  *                       type: integer
  *                       example: 0

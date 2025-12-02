@@ -37,7 +37,7 @@ const PATIENT_FIELDS = [
   "appointment_date",
   "appointment_time",
   "appointment_location",
-  "appointment_status",
+  "call_status",
   "call_count",
   "created_at", 
   "referring_physician_name",
@@ -69,7 +69,7 @@ async function exportPatientData() {
           address_street, address_city, zip_code, insurance_id, 
           insurance_name, insurance_verified, appointment_type, 
           appointment_date, appointment_time, appointment_location, 
-          appointment_status, call_count, created_at,
+          call_status, call_count, created_at,
           referring_physician_name, modality_name, procedure_name, procedure_code,
           appointment_booked, precision_center, answers_to_screening_questions, call_config, updated_at
   FROM patient_details
@@ -137,7 +137,7 @@ async function importPatientData(records) {
           address_street, address_city, zip_code, insurance_id, 
           insurance_name, insurance_verified, appointment_type, 
           appointment_date, appointment_time, appointment_location,
-          appointment_status, call_count, created_at, 
+          call_status, call_count, created_at, 
           referring_physician_name, modality_name, procedure_name, procedure_code, 
           appointment_booked, precision_center, answers_to_screening_questions, 
           call_config, updated_at
@@ -162,7 +162,7 @@ async function importPatientData(records) {
           appointment_date = EXCLUDED.appointment_date,
           appointment_time = EXCLUDED.appointment_time,
           appointment_location = EXCLUDED.appointment_location,
-          appointment_status = EXCLUDED.appointment_status,
+          call_status = EXCLUDED.call_status,
           call_count = EXCLUDED.call_count,  
           referring_physician_name = EXCLUDED.referring_physician_name,
           modality_name = EXCLUDED.modality_name,
@@ -193,7 +193,7 @@ async function importPatientData(records) {
         record.appointment_date || null, // $14
         record.appointment_time || null, // $15
         record.appointment_location || null, // $16
-        record.appointment_status || "none", // $17
+        record.call_status || "none", // $17
         parseInt(record.call_count || 0, 10), // $18
         createdAtTimestamp, // $19 - Explicitly set time of import 
         record.referring_physician_name || null, // $20
