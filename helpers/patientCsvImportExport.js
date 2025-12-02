@@ -1,122 +1,122 @@
 const { v4: uuidv4 } = require("uuid");
 const db = require("../db/connection");
 const logger = require("../utils/logger");
-const csv = require("csv-stringify"); 
+const csv = require("csv-stringify");
 const CallbackService = require("../services/callbackServices");
 
 const callbackService = new CallbackService();
-
-/**
- * Helper function to format the current local date as YYYY-MM-DD.
- * @returns {string} The current date string.
- */
-const getTodayDateString = () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  // Month is 0-indexed, so add 1. Use padStart for 2 digits.
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-// Define the canonical list of patient fields for standardization.
+ 
+const TARGET_TIMEZONE = "America/New_York";
+// Canonical CSV headers
 const PATIENT_FIELDS = [
-  "patient_id",
-  "first_name",
-  "last_name",
-  "dob",
-  "email",
-  "phone",
-  "address_street",
-  "address_city",
-  "zip_code",
-  "insurance_id",
-  "insurance_name",
-  "insurance_verified",
-  "appointment_type",
-  "appointment_date",
-  "appointment_time",
-  "appointment_location",
-  "call_status",
-  "call_count",
-  "created_at", 
-  "referring_physician_name",
-  "modality_name",
-  "procedure_name",
-  "procedure_code",
-  "appointment_booked",
-  "precision_center",
-  "answers_to_screening_questions",
-  "call_config",
-  "updated_at",
+  "patient_id", "first_name", "last_name", "dob", "email", "phone",
+  "address_street", "address_city", "zip_code", "insurance_id",
+  "insurance_name", "insurance_verified", "appointment_type",
+  "appointment_date", "appointment_time", "appointment_location",
+  "call_status", "call_count", "created_at",
+  "referring_physician_name", "modality_name", "procedure_name",
+  "procedure_code", "appointment_booked", "precision_center",
+  "answers_to_screening_questions", "call_config", "updated_at"
 ];
 
 /**
- * Retrieves and filters patient data for export, including only future or current appointments.
- * @returns {Promise<string>} CSV content string.
+ * Escape CSV values manually without any library.
  */
-async function exportPatientData() {
-  logger.info("Starting patient data export process...");
-  try {
-    // Get today's date using native JS (YYYY-MM-DD format).
-    const todayDate = getTodayDateString();
+function escapeCSV(value) {
+  if (value === null || value === undefined) return "";
 
-    // SQL query to fetch data where appointment_date is today or in the future
-    // UPDATED: Included all new fields in the SELECT statement
-    const query = `
-  SELECT 
-          patient_id, first_name, last_name, dob, email, phone, 
-          address_street, address_city, zip_code, insurance_id, 
-          insurance_name, insurance_verified, appointment_type, 
-          appointment_date, appointment_time, appointment_location, 
-          call_status, call_count, created_at,
-          referring_physician_name, modality_name, procedure_name, procedure_code,
-          appointment_booked, precision_center, answers_to_screening_questions, call_config, updated_at
-  FROM patient_details
-  WHERE appointment_date >= $1
-  ORDER BY appointment_date ASC, appointment_time ASC
-                `;
+  let str = String(value);
 
-    const result = await db.query(query, [todayDate]);
-    const records = result.rows;
-
-    if (records.length === 0) {
-      logger.warn(
-        "No future or current patient appointments found for export."
-      );
-      // Return CSV headers only if no data
-      return PATIENT_FIELDS.join(",") + "\n";
-    }
-
-    // Use csv-stringify to convert array of objects to CSV string
-    const csvContent = await new Promise((resolve, reject) => { 
-      csv.stringify(
-        records,
-        { header: true, columns: PATIENT_FIELDS },
-        (err, output) => {
-          if (err) return reject(err);
-          resolve(output);
-        }
-      );
-    });
-
-    logger.info(
-      `Successfully exported ${records.length} future patient records.`
-    );
-    return csvContent;
-  } catch (error) {
-    logger.error("Database error during patient data export:", error.message);
-    throw new Error("Failed to retrieve and format patient data for export.");
+  // If contains comma, quote or newline → wrap with quotes
+  if (/[",\n]/.test(str)) {
+    // Escape internal quotes by doubling them
+    str = str.replace(/"/g, '""');
+    return `"${str}"`;
   }
+
+  return str;
 }
 
 /**
+ * Convert JS objects → CSV string manually.
+ */
+function convertToCSV(rows, fields) {
+  let csv = fields.join(",") + "\n"; // header row
+
+  for (const row of rows) {
+    const line = fields.map((field) => escapeCSV(row[field])).join(",");
+    csv += line + "\n";
+  }
+
+  return csv;
+}
+
+/**
+ * Export Patient Data WITHOUT ANY CSV LIBRARY
+ */
+async function exportPatientData() {
+  logger.info("Starting patient data export process...");
+  try { 
+
+    // SQL query to fetch data, converting appointment time/date to TARGET_TIMEZONE (America/New_York). 
+    const query = `
+    SELECT 
+      patient_id, first_name, last_name, dob, email, phone,
+      address_street, address_city, zip_code, insurance_id,
+      insurance_name, insurance_verified, appointment_type,
+      TO_CHAR(
+        (appointment_date::text || ' ' || appointment_time)::timestamp
+            AT TIME ZONE 'UTC' AT TIME ZONE $1,
+        'YYYY-MM-DD'
+      ) AS appointment_date,
+      TO_CHAR(
+        (appointment_date::text || ' ' || appointment_time)::timestamp
+            AT TIME ZONE 'UTC' AT TIME ZONE $1,
+        'HH24:MI:SS'
+      ) AS appointment_time,
+      appointment_location,
+      call_status, call_count, created_at,
+      referring_physician_name, modality_name, procedure_name,
+      procedure_code, appointment_booked, precision_center,
+      answers_to_screening_questions, call_config, updated_at
+    FROM patient_details
+    WHERE 
+      appointment_date IS NOT NULL
+      AND appointment_time IS NOT NULL
+      AND TRIM(appointment_date::text) NOT IN ('', 'null', 'NULL', '[null]', '[NULL]')
+      AND TRIM(appointment_time::text) NOT IN ('', 'null', 'NULL', '[null]', '[NULL]')
+      AND (
+        (appointment_date::text || ' ' || appointment_time)::timestamp
+      ) >= NOW() AT TIME ZONE 'UTC'
+    ORDER BY appointment_date ASC, appointment_time ASC
+    `;
+
+    const result = await db.query(query, [TARGET_TIMEZONE]);
+    const records = result.rows;
+
+    if (records.length === 0) {
+      logger.warn("No patient appointments found for export.");
+      return PATIENT_FIELDS.join(",") + "\n";
+    }
+
+    // Convert result rows → CSV (manual)
+    const csv = convertToCSV(records, PATIENT_FIELDS);
+
+    logger.info(`Successfully exported ${records.length} records.`);
+    return csv;
+
+  } catch (error) {
+    logger.error("Error exporting patient data:", error.message);
+    throw new Error("Failed to export CSV");
+  }
+}
+/**
  * Standardizes and imports an array of patient records, performing an upsert operation.
- * This function now contains the concrete database insertion logic, replacing the placeholder.
  * @param {Array<Object>} records - Array of patient records to import.
  * @returns {Promise<Object>} Summary of the import process.
  */
 async function importPatientData(records) {
+  // ... (importPatientData function remains the same)
   logger.info(`Starting patient data import for ${records.length} records...`);
 
   let importedPatients = 0;
@@ -130,7 +130,6 @@ async function importPatientData(records) {
     const updatedAtTimestamp = createdAtTimestamp; // Set updated_at on initial insert/update
 
     // --- Patient Upsert Logic (Handling all fields) ---
-    // UPDATED: Insert query now includes all 10 new fields.
     const patientUpsertQuery = `
   INSERT INTO patient_details (
           patient_id, first_name, last_name, dob, email, phone, 
@@ -172,7 +171,7 @@ async function importPatientData(records) {
           precision_center = EXCLUDED.precision_center,
           answers_to_screening_questions = EXCLUDED.answers_to_screening_questions,
           call_config = EXCLUDED.call_config,
-          updated_at = EXCLUDED.updated_at -- Use EXCLUDED for the latest timestamp
+          updated_at = EXCLUDED.updated_at
                 `;
 
     try {
@@ -195,7 +194,7 @@ async function importPatientData(records) {
         record.appointment_location || null, // $16
         record.call_status || "none", // $17
         parseInt(record.call_count || 0, 10), // $18
-        createdAtTimestamp, // $19 - Explicitly set time of import 
+        createdAtTimestamp, // $19 - Explicitly set time of import
         record.referring_physician_name || null, // $20
         record.modality_name || null, // $21
         record.procedure_name || null, // $22
