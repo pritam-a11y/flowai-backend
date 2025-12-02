@@ -39,7 +39,7 @@ class PatientService {
                 email: row.email,
                 dateOfBirth: row.dob ? row.dob.toISOString().split('T')[0] : '',
                 zipCode: row.zip_code,
-                address: `${row.address_street || ''}, ${row.address_city || ''}`.trim(),
+                address: [row.address_street, row.address_city, row.zip_code].filter(Boolean).join(', '),
 
                 // Insurance Info
                 insuranceName: row.insurance_name,
@@ -52,8 +52,8 @@ class PatientService {
                 procedureName: row.procedure_name,
                 procedureCode: row.procedure_code,
 
-                // Appointment Details
-                appointmentType: row.appointment_type,
+                // Appointment Details - use modality_name as appointmentType
+                appointmentType: row.modality_name || row.appointment_type,
                 appointmentDate: row.appointment_date,
                 appointmentTime: row.appointment_time,
                 appointmentStatus: row.call_status,

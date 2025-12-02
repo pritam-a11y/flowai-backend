@@ -21,12 +21,9 @@ class CallbackService {
     reason,
     status = "pending"
   ) {
-    // Use a UUID for the primary key
-    const callbackId = uuidv4();
     const createdAt = new Date().toISOString();
 
     logger.info("Scheduling new callback entry (Initial Call).", {
-      callbackId,
       patientId,
       scheduledTime,
       reason,
@@ -34,14 +31,14 @@ class CallbackService {
     });
 
     const insertQuery = `
-        INSERT INTO scheduled_callbacks 
-             (callback_id, patient_id, agent_callback_number, scheduled_time, callback_reason, status, created_at) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7);
+        INSERT INTO scheduled_callbacks
+             (patient_id, agent_callback_number, scheduled_time, callback_reason, status, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           RETURNING id;
         `;
 
     try {
-      await db.query(insertQuery, [
-        callbackId,
+      const result = await db.query(insertQuery, [
         patientId,
         agentCallbackNumber,
         scheduledTime,
@@ -50,6 +47,7 @@ class CallbackService {
         createdAt,
       ]);
 
+      const callbackId = result.rows[0].id;
       logger.info("Callback scheduled successfully.", { callbackId });
       return callbackId;
     } catch (error) {
@@ -105,7 +103,7 @@ class CallbackService {
         patientId,
       });
       await db.query(
-        `UPDATE scheduled_callbacks SET status = 'exhausted', processed_at = CURRENT_TIMESTAMP WHERE callback_id = $1`,
+        `UPDATE scheduled_callbacks SET status = 'exhausted', processed_at = CURRENT_TIMESTAMP WHERE id = $1`,
         [callbackId]
       );
       return;
@@ -117,12 +115,12 @@ class CallbackService {
 
     // Update scheduled_callbacks table with new time and status 'pending'
     await db.query(
-      `UPDATE scheduled_callbacks 
-             SET status = 'pending', 
-                 scheduled_time = $2, 
-                 processed_at = CURRENT_TIMESTAMP, 
+      `UPDATE scheduled_callbacks
+             SET status = 'pending',
+                 scheduled_time = $2,
+                 processed_at = CURRENT_TIMESTAMP,
                  callback_reason = $3
-             WHERE callback_id = $1`,
+             WHERE id = $1`,
       [
         callbackId,
         nextScheduledTime,
@@ -154,11 +152,11 @@ class CallbackService {
     logger.info("Marking callback as completed.", { callbackId });
     try {
       await db.query(
-        `UPDATE scheduled_callbacks 
-                 SET status = 'completed', 
-                     processed_at = CURRENT_TIMESTAMP, 
+        `UPDATE scheduled_callbacks
+                 SET status = 'completed',
+                     processed_at = CURRENT_TIMESTAMP,
                      callback_reason = 'Call successful/answered.'
-                 WHERE callback_id = $1`,
+                 WHERE id = $1`,
         [callbackId]
       );
     } catch (error) {
