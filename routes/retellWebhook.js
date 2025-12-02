@@ -3112,7 +3112,7 @@ router.get("/callbacks/list", async (req, res, next) => {
   try {
     const { status, patient_id, limit = 100 } = req.query;
 
-    let query = "SELECT * FROM scheduled_callbacks WHERE 1=1";
+    let query = "SELECT * FROM precision_scheduled_callbacks WHERE 1=1";
     const params = [];
     let paramCount = 0;
 

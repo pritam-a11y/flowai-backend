@@ -31,7 +31,7 @@ class CallbackService {
     });
 
     const insertQuery = `
-        INSERT INTO scheduled_callbacks
+        INSERT INTO precision_scheduled_callbacks
              (patient_id, agent_callback_number, scheduled_time, callback_reason, status, created_at)
            VALUES ($1, $2, $3, $4, $5, $6)
            RETURNING id;
@@ -103,7 +103,7 @@ class CallbackService {
         patientId,
       });
       await db.query(
-        `UPDATE scheduled_callbacks SET status = 'exhausted', processed_at = CURRENT_TIMESTAMP WHERE id = $1`,
+        `UPDATE precision_scheduled_callbacks SET status = 'exhausted', processed_at = CURRENT_TIMESTAMP WHERE id = $1`,
         [callbackId]
       );
       return;
@@ -113,9 +113,9 @@ class CallbackService {
     const nextScheduledTime = this.calculateNextRetryTime(currentCallCount);
     const nextAttemptNumber = currentCallCount + 1;
 
-    // Update scheduled_callbacks table with new time and status 'pending'
+    // Update precision_scheduled_callbacks table with new time and status 'pending'
     await db.query(
-      `UPDATE scheduled_callbacks
+      `UPDATE precision_scheduled_callbacks
              SET status = 'pending',
                  scheduled_time = $2,
                  processed_at = CURRENT_TIMESTAMP,
@@ -152,7 +152,7 @@ class CallbackService {
     logger.info("Marking callback as completed.", { callbackId });
     try {
       await db.query(
-        `UPDATE scheduled_callbacks
+        `UPDATE precision_scheduled_callbacks
                  SET status = 'completed',
                      processed_at = CURRENT_TIMESTAMP,
                      callback_reason = 'Call successful/answered.'

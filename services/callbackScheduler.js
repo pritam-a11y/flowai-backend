@@ -76,7 +76,7 @@ class CallbackScheduler {
       // Query for pending callbacks within the time window
       const query = `
             SELECT id as callback_id, patient_id, agent_callback_number, scheduled_time, callback_reason
-            FROM scheduled_callbacks
+            FROM precision_scheduled_callbacks
             WHERE status = 'pending'
             AND scheduled_time <= $1
             ORDER BY scheduled_time ASC
@@ -135,7 +135,7 @@ class CallbackScheduler {
           { patientId: patient_id }
         );
         await db.query(
-          `UPDATE scheduled_callbacks
+          `UPDATE precision_scheduled_callbacks
                      SET status = 'failed', processed_at = CURRENT_TIMESTAMP, error_message = $2
                      WHERE id = $1`,
           [callback_id, "Patient data or phone number missing for call."]
@@ -150,7 +150,7 @@ class CallbackScheduler {
           { patientId: patient_id }
         );
         await db.query(
-          `UPDATE scheduled_callbacks SET status = 'exhausted', processed_at = CURRENT_TIMESTAMP WHERE id = $1`,
+          `UPDATE precision_scheduled_callbacks SET status = 'exhausted', processed_at = CURRENT_TIMESTAMP WHERE id = $1`,
           [callback_id]
         );
         return;
@@ -196,7 +196,7 @@ class CallbackScheduler {
           );
 
           await db.query(
-            `UPDATE scheduled_callbacks
+            `UPDATE precision_scheduled_callbacks
                          SET scheduled_time = $2,
                              processed_at = CURRENT_TIMESTAMP,
                              callback_reason = 'Outside business hours, rescheduled.'
@@ -228,9 +228,9 @@ class CallbackScheduler {
           { patientId: patient_id, nextTime: nextDayScheduledTime }
         );
 
-        // Update scheduled_callbacks with the new time
+        // Update precision_scheduled_callbacks with the new time
         await db.query(
-          `UPDATE scheduled_callbacks
+          `UPDATE precision_scheduled_callbacks
                      SET scheduled_time = $2,
                          processed_at = CURRENT_TIMESTAMP,
                          callback_reason = 'Daily limit reached, rescheduled for next day 8AM.'
@@ -262,9 +262,9 @@ class CallbackScheduler {
       );
 
       // --- Call Initiation Success: Update Status and Patient Call Stats ---
-      // Update scheduled_callbacks status to 'call_in_progress'
+      // Update precision_scheduled_callbacks status to 'call_in_progress'
       await db.query(
-        `UPDATE scheduled_callbacks
+        `UPDATE precision_scheduled_callbacks
                  SET status = 'call_in_progress',
                      processed_at = CURRENT_TIMESTAMP
                  WHERE id = $1`,
@@ -299,7 +299,7 @@ class CallbackScheduler {
 
       // Update callback status to failed due to system/API error
       await db.query(
-        `UPDATE scheduled_callbacks
+        `UPDATE precision_scheduled_callbacks
                  SET status = 'failed',
                      processed_at = CURRENT_TIMESTAMP,
                      error_message = $2
@@ -326,16 +326,16 @@ class CallbackScheduler {
   async getStats() {
     try {
       const statsQuery = `
-              SELECT 
+              SELECT
                 status,
                 COUNT(*) as count
-              FROM scheduled_callbacks
+              FROM precision_scheduled_callbacks
               GROUP BY status
             `;
 
       const upcomingQuery = `
               SELECT COUNT(*) as count
-              FROM scheduled_callbacks
+              FROM precision_scheduled_callbacks
               WHERE status = 'pending'
                 AND scheduled_time > CURRENT_TIMESTAMP
                 AND scheduled_time <= CURRENT_TIMESTAMP + INTERVAL '1 minute'
