@@ -5,17 +5,31 @@ const csv = require("csv-stringify");
 const CallbackService = require("../services/callbackServices");
 
 const callbackService = new CallbackService();
- 
+
 const TARGET_TIMEZONE = "America/New_York";
 // Canonical CSV headers
 const PATIENT_FIELDS = [
-  "patient_id", "first_name", "last_name", "dob", "email", "phone",
-  "address_street", "address_city", "zip_code", "insurance_id",
-  "insurance_name", "insurance_verified", "appointment_type",
-  "appointment_date", "appointment_time", "appointment_location",
+  "patient_id",
+  "first_name",
+  "last_name",
+  "dob",
+  "email",
+  "phone",
+  "address_street",
+  "address_city",
+  "zip_code",
+  "insurance_id",
+  "insurance_name",
+  "appointment_type",
+  "appointment_date",
+  "appointment_time",
+  "appointment_location",
   "call_status",
-  "referring_physician_name", "modality_name", "procedure_name",
-  "procedure_code", "appointment_booked", "precision_center",
+  "referring_physician_name",
+  "modality_name",
+  "procedure_name",
+  "appointment_booked",
+  "precision_center",
   "answers_to_screening_questions",
 ];
 
@@ -27,8 +41,8 @@ function escapeCSV(value) {
 
   let str = String(value).trim();
 
-   // Force quotes if the value is numeric-only (prevents Excel auto-formatting)
-   if (/^\d+$/.test(str)) {
+  // Force quotes if the value is numeric-only (prevents Excel auto-formatting)
+  if (/^\d+$/.test(str)) {
     return `"${str}"`;
   }
 
@@ -60,14 +74,13 @@ function convertToCSV(rows, fields) {
  */
 async function exportPatientData() {
   logger.info("Starting patient data export process...");
-  try { 
-
-    // SQL query to fetch data, converting appointment time/date to TARGET_TIMEZONE (America/New_York). 
+  try {
+    // SQL query to fetch data, converting appointment time/date to TARGET_TIMEZONE (America/New_York).
     const query = `
     SELECT 
   patient_id, first_name, last_name, dob, email, phone,
   address_street, address_city, zip_code, insurance_id,
-  insurance_name, insurance_verified, appointment_type,
+  insurance_name, appointment_type,
   TO_CHAR(
     (appointment_date::text || ' ' || appointment_time)::timestamp
         AT TIME ZONE 'UTC' AT TIME ZONE $1,
@@ -81,7 +94,7 @@ async function exportPatientData() {
   appointment_location,
   call_status,
   referring_physician_name, modality_name, procedure_name,
-  procedure_code, appointment_booked, precision_center,
+  appointment_booked, precision_center,
   answers_to_screening_questions
 FROM patient_details
 WHERE 
@@ -92,6 +105,7 @@ WHERE
   AND (
     (appointment_date::text || ' ' || appointment_time)::timestamp
   ) >= NOW() AT TIME ZONE 'UTC'
+  AND call_status = 'booked'
 ORDER BY appointment_date ASC, appointment_time ASC
     `;
 
@@ -108,7 +122,6 @@ ORDER BY appointment_date ASC, appointment_time ASC
 
     logger.info(`Successfully exported ${records.length} records.`);
     return csv;
-
   } catch (error) {
     logger.error("Error exporting patient data:", error.message);
     throw new Error("Failed to export CSV");
