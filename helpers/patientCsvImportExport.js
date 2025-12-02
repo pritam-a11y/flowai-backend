@@ -13,10 +13,10 @@ const PATIENT_FIELDS = [
   "address_street", "address_city", "zip_code", "insurance_id",
   "insurance_name", "insurance_verified", "appointment_type",
   "appointment_date", "appointment_time", "appointment_location",
-  "call_status", "call_count", "created_at",
+  "call_status",
   "referring_physician_name", "modality_name", "procedure_name",
   "procedure_code", "appointment_booked", "precision_center",
-  "answers_to_screening_questions", "call_config", "updated_at"
+  "answers_to_screening_questions",
 ];
 
 /**
@@ -25,11 +25,15 @@ const PATIENT_FIELDS = [
 function escapeCSV(value) {
   if (value === null || value === undefined) return "";
 
-  let str = String(value);
+  let str = String(value).trim();
+
+   // Force quotes if the value is numeric-only (prevents Excel auto-formatting)
+   if (/^\d+$/.test(str)) {
+    return `"${str}"`;
+  }
 
   // If contains comma, quote or newline → wrap with quotes
   if (/[",\n]/.test(str)) {
-    // Escape internal quotes by doubling them
     str = str.replace(/"/g, '""');
     return `"${str}"`;
   }
@@ -61,34 +65,34 @@ async function exportPatientData() {
     // SQL query to fetch data, converting appointment time/date to TARGET_TIMEZONE (America/New_York). 
     const query = `
     SELECT 
-      patient_id, first_name, last_name, dob, email, phone,
-      address_street, address_city, zip_code, insurance_id,
-      insurance_name, insurance_verified, appointment_type,
-      TO_CHAR(
-        (appointment_date::text || ' ' || appointment_time)::timestamp
-            AT TIME ZONE 'UTC' AT TIME ZONE $1,
-        'YYYY-MM-DD'
-      ) AS appointment_date,
-      TO_CHAR(
-        (appointment_date::text || ' ' || appointment_time)::timestamp
-            AT TIME ZONE 'UTC' AT TIME ZONE $1,
-        'HH24:MI:SS'
-      ) AS appointment_time,
-      appointment_location,
-      call_status, call_count, created_at,
-      referring_physician_name, modality_name, procedure_name,
-      procedure_code, appointment_booked, precision_center,
-      answers_to_screening_questions, call_config, updated_at
-    FROM patient_details
-    WHERE 
-      appointment_date IS NOT NULL
-      AND appointment_time IS NOT NULL
-      AND TRIM(appointment_date::text) NOT IN ('', 'null', 'NULL', '[null]', '[NULL]')
-      AND TRIM(appointment_time::text) NOT IN ('', 'null', 'NULL', '[null]', '[NULL]')
-      AND (
-        (appointment_date::text || ' ' || appointment_time)::timestamp
-      ) >= NOW() AT TIME ZONE 'UTC'
-    ORDER BY appointment_date ASC, appointment_time ASC
+  patient_id, first_name, last_name, dob, email, phone,
+  address_street, address_city, zip_code, insurance_id,
+  insurance_name, insurance_verified, appointment_type,
+  TO_CHAR(
+    (appointment_date::text || ' ' || appointment_time)::timestamp
+        AT TIME ZONE 'UTC' AT TIME ZONE $1,
+    'YYYY-MM-DD'
+  ) AS appointment_date,
+  TO_CHAR(
+    (appointment_date::text || ' ' || appointment_time)::timestamp
+        AT TIME ZONE 'UTC' AT TIME ZONE $1,
+    'HH24:MI:SS'
+  ) AS appointment_time,
+  appointment_location,
+  call_status,
+  referring_physician_name, modality_name, procedure_name,
+  procedure_code, appointment_booked, precision_center,
+  answers_to_screening_questions
+FROM patient_details
+WHERE 
+  appointment_date IS NOT NULL
+  AND appointment_time IS NOT NULL
+  AND TRIM(appointment_date::text) NOT IN ('', 'null', 'NULL', '[null]', '[NULL]')
+  AND TRIM(appointment_time::text) NOT IN ('', 'null', 'NULL', '[null]', '[NULL]')
+  AND (
+    (appointment_date::text || ' ' || appointment_time)::timestamp
+  ) >= NOW() AT TIME ZONE 'UTC'
+ORDER BY appointment_date ASC, appointment_time ASC
     `;
 
     const result = await db.query(query, [TARGET_TIMEZONE]);
