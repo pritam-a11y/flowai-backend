@@ -264,7 +264,7 @@ class CallbackScheduler {
         patient_appointment_type: patientData?.appointmentType || "",
         appointment_date: patientData.appointmentDate || "",
         appointment_time: patientData.appointmentTime || "",
-        patient_appointment_status: patientData?.status || "",
+        patient_call_status: patientData?.status || "",
       };
 
       // Create callback call

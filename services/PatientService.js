@@ -13,7 +13,7 @@ class PatientService {
                     first_name, last_name, phone, email, dob,
                     zip_code, address_street, address_city,
                     insurance_name, insurance_id, insurance_verified,
-                    appointment_type, appointment_date, appointment_time, appointment_status,
+                    appointment_type, appointment_date, appointment_time, call_status,
                     appointment_location, appointment_booked, precision_center,
                     referring_physician_name, modality_name, procedure_name, procedure_code,
                     answers_to_screening_questions,
@@ -56,7 +56,7 @@ class PatientService {
                 appointmentType: row.appointment_type,
                 appointmentDate: row.appointment_date,
                 appointmentTime: row.appointment_time,
-                appointmentStatus: row.appointment_status,
+                appointmentStatus: row.call_status,
                 appointmentLocation: row.appointment_location,
                 appointmentBooked: row.appointment_booked,
                 precisionCenter: row.precision_center,
@@ -100,6 +100,27 @@ class PatientService {
     }
 
     /**
+     * Updates the call tracking statistics on the patient_details table.
+     */
+    async newCallStats(patient_id, newStatus) {
+        logger.info("Updating call status", { patient_id, newStatus });
+        const query = `
+             UPDATE patient_details
+             SET call_status = $2,
+             updated_at = NOW()
+             WHERE patient_id = $1;
+         `;
+        try {
+            await db.query(query, [patient_id, newStatus]);
+        } catch (error) {
+            logger.error("Failed to update patient call stats", { patientId, error: error.message });
+            throw error;
+        }
+    }
+    
+    
+
+    /**
      * Updates screening answers after call completion
      */
     async updateScreeningAnswers(patientId, screeningAnswers) {
@@ -131,7 +152,7 @@ class PatientService {
                 appointment_type = $4,
                 appointment_location = $5,
                 precision_center = $6,
-                appointment_status = 'booked',
+                call_status = 'booked',
                 updated_at = NOW()
             WHERE patient_id = $1;
         `;

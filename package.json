@@ -4,8 +4,8 @@
   "description": "A Node.js Express APIs with simplified request/response format",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
+    "start": "TZ=UTC node app.js",
+    "dev": "TZ=UTC nodemon app.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "postman": "node scripts/generate-postman.js"
