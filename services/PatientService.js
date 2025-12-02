@@ -37,7 +37,7 @@ class PatientService {
                 fullName: `${row.first_name || ''} ${row.last_name || ''}`.trim(),
                 phone: row.phone,
                 email: row.email,
-                dateOfBirth: row.dob ? row.dob.toISOString().split('T')[0] : '',
+                dateOfBirth: row.dob ? (row.dob instanceof Date ? row.dob.toISOString().split('T')[0] : row.dob) : '',
                 zipCode: row.zip_code,
                 address: [row.address_street, row.address_city, row.zip_code].filter(Boolean).join(', '),
 
