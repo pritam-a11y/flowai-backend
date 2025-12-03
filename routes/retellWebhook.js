@@ -408,13 +408,18 @@ router.post("/function-call", async (req, res, next) => {
         logger.info("Processing check_availability function call");
 
         // Extract slot search parameters from args
-        const {
+        let {
           location,
           serviceType,
           startTime,
           stat = true,
           category,
         } = args;
+
+        // Normalize serviceType: if it contains "dexa", use just "dexa"
+        if (serviceType && serviceType.toLowerCase().includes('dexa')) {
+          serviceType = 'dexa';
+        }
 
         const normalizedCategory = category ? category.toLowerCase() : null
 

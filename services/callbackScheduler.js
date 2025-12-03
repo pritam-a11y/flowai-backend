@@ -262,10 +262,10 @@ class CallbackScheduler {
       );
 
       // --- Call Initiation Success: Update Status and Patient Call Stats ---
-      // Update precision_scheduled_callbacks status to 'call_in_progress'
+      // Update precision_scheduled_callbacks status to 'completed'
       await db.query(
         `UPDATE precision_scheduled_callbacks
-                 SET status = 'call_in_progress',
+                 SET status = 'completed',
                      processed_at = CURRENT_TIMESTAMP
                  WHERE id = $1`,
         [callback_id]
