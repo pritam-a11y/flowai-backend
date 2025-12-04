@@ -1921,7 +1921,7 @@ router.post("/call/update", async (req, res, next) => {
           const patientId = call_analysis.custom_analysis_data?.patient_id ||
                            call.retell_llm_dynamic_variables?.patientId;
 
-          if (patientId && call.call_analysis?.custom_analysis_data) {
+          if (call.call_analysis?.custom_analysis_data) {
             const screeningAnswers = call.call_analysis.custom_analysis_data;
             
             // Use PatientService to update screening answers

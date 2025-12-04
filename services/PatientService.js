@@ -123,7 +123,7 @@ class PatientService {
     /**
      * Updates screening answers after call completion
      */
-    async updateScreeningAnswers(patientId, customData) {
+    async updateScreeningAnswers(customData) {
 
         const patient_id =  customData.patient_id
 
