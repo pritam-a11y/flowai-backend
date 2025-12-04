@@ -1917,16 +1917,13 @@ router.post("/call/update", async (req, res, next) => {
         }
 
         // --- Store Screening Answers ---
-        try {
-          const patientId = call_analysis.custom_analysis_data?.patient_id ||
-                           call.retell_llm_dynamic_variables?.patientId;
+        try { 
+            const custom_analysis_data = call.call_analysis?.custom_analysis_data;
 
-          if (call.call_analysis?.custom_analysis_data) {
-            const screeningAnswers = call.call_analysis.custom_analysis_data;
-            
+          if (custom_analysis_data) { 
             // Use PatientService to update screening answers
             const patientService = new PatientService();
-            await patientService.updateScreeningAnswers(screeningAnswers);
+            await patientService.updateScreeningAnswers(custom_analysis_data);
 
             logger.info(`Screening answers stored for patient: ${patientId}`);
           }
