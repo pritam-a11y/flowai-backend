@@ -1,11 +1,13 @@
-require("dotenv").config();
-const REDOX_CONFIG = {
-  baseURL: "https://api.redoxengine.com/fhir/R4/redox-fhir-sandbox/Development",
-  loginURL: "https://api.redoxengine.com/auth/authenticate",
-  clientId: process.env.REDOX_CLIENT_ID,
-  clientSecret: process.env.REDOX_CLIENT_SECRET,
-  sourceApp: "Flow AI App",
-  sourceEndpoint: "urn:uuid:84a33958-51a4-48fd-bd92-3b83ccad2972",
-};
+// Dummy Redox config for precision backend
+// Redox is not used in this backend, but some legacy code still references it
 
-module.exports = REDOX_CONFIG;
+module.exports = {
+  CLIENT_ID: process.env.REDOX_CLIENT_ID || 'dummy-client-id',
+  CLIENT_SECRET: process.env.REDOX_CLIENT_SECRET || 'dummy-client-secret',
+  BASE_URL: 'https://api.redoxengine.com',
+  AUTH_URL: 'https://api.redoxengine.com/auth/authenticate',
+  SOURCE_ID: process.env.REDOX_SOURCE_ID || 'dummy-source-id',
+  USE_OAUTH: process.env.REDOX_USE_OAUTH === 'true',
+  STAGING_CLIENT_ID: process.env.REDOX_STAGING_CLIENT_ID || 'dummy-staging-id',
+  PRODUCTION_CLIENT_ID: process.env.REDOX_PRODUCTION_CLIENT_ID || 'dummy-production-id'
+};

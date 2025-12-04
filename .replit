@@ -1,0 +1,18 @@
+run = "npm start"
+entrypoint = "app.js"
+modules = ["nodejs-20"]
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "npm start"]
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 3002
+externalPort = 80
+
+[env]
+NODE_ENV = "production"
+PORT = "3002"

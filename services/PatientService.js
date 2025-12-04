@@ -9,14 +9,18 @@ class PatientService {
         logger.info("Fetching patient data from DB", { patientId });
         try {
             const query = `
-                SELECT 
-                    first_name, last_name, phone, email, dob, 
-                    zip_code, address_street, address_city, 
-                    insurance_name, insurance_id, 
-                    appointment_type, appointment_date, appointment_time, appointment_status, 
-                    call_count, call_config 
-                FROM patients 
-                WHERE patient_id = $1 
+                SELECT
+                    first_name, last_name, phone, email, dob,
+                    zip_code, address_street, address_city,
+                    insurance_name, insurance_id, insurance_verified,
+                    appointment_type, appointment_date, appointment_time, call_status,
+                    appointment_location, appointment_booked, precision_center,
+                    referring_physician_name, modality_name, procedure_name, procedure_code,
+                    answers_to_screening_questions,
+                    call_count, call_config,
+                    created_at, updated_at
+                FROM patient_details
+                WHERE patient_id = $1
                 LIMIT 1;
             `;
             const result = await db.query(query, [patientId]);
@@ -29,24 +33,44 @@ class PatientService {
 
             // Map the flat DB row to a structured object for use in the scheduler
             return {
+                // Basic Info
                 fullName: `${row.first_name || ''} ${row.last_name || ''}`.trim(),
                 phone: row.phone,
                 email: row.email,
-                dateOfBirth: row.dob ? row.dob.toISOString().split('T')[0] : '',
+                dateOfBirth: row.dob ? (row.dob instanceof Date ? row.dob.toISOString().split('T')[0] : row.dob) : '',
                 zipCode: row.zip_code,
-                address: `${row.address_street || ''}, ${row.address_city || ''}`.trim(),
+                address: [row.address_street, row.address_city, row.zip_code].filter(Boolean).join(', '),
+
+                // Insurance Info
                 insuranceName: row.insurance_name,
                 insuranceMemberId: row.insurance_id,
+                insuranceVerified: row.insurance_verified,
 
-                // Active Appointment Details 
-                appointmentType: row.appointment_type,
+                // Medical Info (from Image 1)
+                referringPhysician: row.referring_physician_name,
+                modalityName: row.modality_name,
+                procedureName: row.procedure_name,
+                procedureCode: row.procedure_code,
+
+                // Appointment Details - use modality_name as appointmentType
+                appointmentType: row.modality_name || row.appointment_type,
                 appointmentDate: row.appointment_date,
                 appointmentTime: row.appointment_time,
-                appointmentStatus: row.appointment_status,
+                appointmentStatus: row.call_status,
+                appointmentLocation: row.appointment_location,
+                appointmentBooked: row.appointment_booked,
+                precisionCenter: row.precision_center,
 
-                // Call Tracking Stats
-                call_count: row.call_count || 0,
-                call_config: row.call_config, // JSON string
+                // Screening
+                screeningAnswers: row.answers_to_screening_questions,
+
+                // Call Tracking
+                callCount: row.call_count || 0,
+                callConfig: row.call_config,
+
+                // Timestamps
+                createdAt: row.created_at,
+                updatedAt: row.updated_at
             };
 
         } catch (error) {
@@ -56,22 +80,93 @@ class PatientService {
     }
 
     /**
-     * Updates the call tracking statistics on the patients table.
+     * Updates the call tracking statistics on the patient_details table.
      */
-    async updateCallStats(patientId, newCallCount, newCallConfigJson) {
+    async updateCallStats(patientId, newCallCount, callConfig = null) {
         logger.info("Updating patient call stats", { patientId, newCallCount });
         const query = `
-             UPDATE patients_details
-             SET 
-                 call_count = $2,
-                 call_config = $3,
-                 updated_at = CURRENT_TIMESTAMP 
+             UPDATE patient_details
+             SET call_count = $2,
+                 call_config = COALESCE($3, call_config),
+                 updated_at = NOW()
              WHERE patient_id = $1;
          `;
         try {
-            await db.query(query, [patientId, newCallCount, newCallConfigJson]);
+            await db.query(query, [patientId, newCallCount, callConfig]);
         } catch (error) {
             logger.error("Failed to update patient call stats", { patientId, error: error.message });
+            throw error;
+        }
+    }
+
+    /**
+     * Updates the call tracking statistics on the patient_details table.
+     */
+    async newCallStats(patient_id, newStatus) {
+        logger.info("Updating call status", { patient_id, newStatus });
+        const query = `
+             UPDATE patient_details
+             SET call_status = $2,
+             updated_at = NOW()
+             WHERE patient_id = $1;
+         `;
+        try {
+            await db.query(query, [patient_id, newStatus]);
+        } catch (error) {
+            logger.error("Failed to update patient call stats", { patientId, error: error.message });
+            throw error;
+        }
+    }
+    
+    
+
+    /**
+     * Updates screening answers after call completion
+     */
+    async updateScreeningAnswers(patientId, screeningAnswers) {
+        logger.info("Updating screening answers", { patientId });
+        const query = `
+            UPDATE patient_details
+            SET answers_to_screening_questions = $2,
+                updated_at = NOW()
+            WHERE patient_id = $1;
+        `;
+        try {
+            await db.query(query, [patientId, screeningAnswers]);
+        } catch (error) {
+            logger.error("Failed to update screening answers", { patientId, error: error.message });
+            throw error;
+        }
+    }
+
+    /**
+     * Updates appointment booking status with precision center
+     */
+    async updateAppointmentBooking(patientId, appointmentData) {
+        logger.info("Updating appointment booking", { patientId, appointmentData });
+        const query = `
+            UPDATE patient_details
+            SET appointment_booked = TRUE,
+                appointment_date = $2,
+                appointment_time = $3,
+                appointment_type = $4,
+                appointment_location = $5,
+                precision_center = $6,
+                call_status = 'booked',
+                updated_at = NOW()
+            WHERE patient_id = $1;
+        `;
+        try {
+            await db.query(query, [
+                patientId,
+                appointmentData.date,
+                appointmentData.time,
+                appointmentData.type,
+                appointmentData.location,
+                appointmentData.precisionCenter
+            ]);
+        } catch (error) {
+            logger.error("Failed to update appointment booking", { patientId, error: error.message });
             throw error;
         }
     }

@@ -4,8 +4,8 @@
   "description": "A Node.js Express APIs with simplified request/response format",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
+    "start": "TZ=UTC node app.js",
+    "dev": "cross-env TZ=UTC nodemon app.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "postman": "node scripts/generate-postman.js"
@@ -51,6 +51,7 @@
     "zipcodes": "^8.0.0"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "jest": "^29.7.0",
     "nodemon": "^3.0.1",
     "supertest": "^6.3.3"
