@@ -487,7 +487,7 @@ router.post("/function-call", async (req, res, next) => {
             searchEndDate.toISOString(),
             serviceType,
             location
-          ];
+          ];                    
         } else if (serviceType) {
           // Only service type provided
           availableSlotsQuery = `
@@ -1312,6 +1312,79 @@ router.post("/function-call", async (req, res, next) => {
         break;
       }
 
+      case "get_insurance_carriers": 
+        logger.info("Processing get_insurance_carriers function call");
+
+        const { insurance_name } = args;
+ 
+        try {
+            // Search for the carrier by carrier_code in the insurance_carriers table
+            const carrierQuery = `
+                SELECT 
+                    insurance_name, 
+                    carrier_code, 
+                    payor_group_1 
+                FROM insurance_carriers 
+                WHERE insurance_name = $1
+                LIMIT 1;
+            `;
+            const carrierResult = await db.query(carrierQuery, [insurance_name]);
+
+            if (carrierResult.rows.length > 0) { 
+
+                const carrier = carrierResult.rows[0];
+                // Check if payor_group_1 is 'Y' (case-insensitive check)
+                const isGroup1 = carrier.payor_group_1?.toLowerCase() === 'y';
+                const groupName = isGroup1 ? 'group-1' : 'group-2';
+                
+                logger.info(`Carrier found: ${carrier.insurance_name}, assigned to ${groupName}`);
+
+                result = {
+                    success: true,
+                    statusCode: 200,
+                    message: "Insurance name found.",
+                    data: {
+                        name: carrier.insurance_name,
+                        code: carrier.carrier_code,
+                        group: groupName,
+                    }
+                };
+
+            } else if(!insurance_name) {
+                // insurance name code not found, fall back to "Self Pay"
+                logger.warn(`Insurance name not found: ${insurance_name}. Falling back to 'Self Pay'.`);
+ 
+                     result = {
+                        success: true,
+                        statusCode: 200,
+                        message: "Insurance name found, defaulting to Self Pay.",
+                        data: "Self Pay"
+                  };
+            } else {
+              // insurance name not found, fall back to "Self Pay"
+              logger.warn(`Insurance name not found: ${insurance_name}. Falling back to 'Self Pay'.`);
+
+                   result = {
+                      success: true,
+                      statusCode: 200,
+                      message: "Insurance name not found, defaulting to Self Pay.",
+                      data: "Self Pay"
+                };
+          }
+
+        } catch (error) {
+            logger.error("Error in get_insurance_carriers", {
+                insurance_name,
+                error: error.message,
+            });
+            return res.status(500).json({
+                success: false,
+                error: "Failed to retrieve insurance carrier details.",
+                details: error.message,
+            });
+        }
+         break;
+
       case "get_insurance_providers": {
         logger.info("Processing patient_insurance_verification function call");
 
@@ -1844,18 +1917,20 @@ router.post("/call/update", async (req, res, next) => {
         }
 
         // --- Store Screening Answers ---
-        try {
-          const patientId = call.retell_llm_dynamic_variables?.patient_id ||
-                           call.retell_llm_dynamic_variables?.patientId;
+        try { 
+            const custom_analysis_data = call.call_analysis?.custom_analysis_data;
 
-          if (patientId && call.call_analysis?.custom_analysis_data) {
-            const screeningAnswers = JSON.stringify(call.call_analysis.custom_analysis_data);
+            const patientId =
+            call.retell_llm_dynamic_variables?.patient_id ||
+            call.retell_llm_dynamic_variables?.patientId;
+
+          if (custom_analysis_data && patientId) { 
 
             // Use PatientService to update screening answers
             const patientService = new PatientService();
-            await patientService.updateScreeningAnswers(patientId, screeningAnswers);
+            await patientService.updateScreeningAnswers(patientId, custom_analysis_data);
 
-            logger.info(`Screening answers stored for patient: ${patientId}`);
+            logger.info(`Screening answers stored for patient: ${custom_analysis_data.patient_id}`);
           }
         } catch (error) {
           logger.error(`Failed to store screening answers: ${error.message}`);
@@ -1884,39 +1959,7 @@ router.post("/call/update", async (req, res, next) => {
          }
  
          // --- Store Screening Answers ---
-         try {
-           const patientId =
-             call.retell_llm_dynamic_variables?.patient_id ||
-             call.retell_llm_dynamic_variables?.patientId;
- 
-           if (patientId && call.call_analysis?.custom_analysis_data) {
-             const customData = call.call_analysis.custom_analysis_data;
-             // Map the mri_q keys to the full question and corresponding boolean answer
-             const screeningQuestions = {
-               "1. Do you have metallic implant or devices in the body?":
-                 customData.mri_q1,
-               "2. Is there any chance you have metallic fragments in the eye?":
-                 customData.mri_q2,
-               "3. Do you have any foreign metallic object in the body like bullet, BB, etc?":
-                 customData.mri_q3,
-               "4. Are you claustrophobic?": customData.mri_q4,
-             };
- 
-             const screeningAnswers = JSON.stringify(screeningQuestions);
- 
-             // Use PatientService to update screening answers
-             const patientService = new PatientService();
-             await patientService.updateScreeningAnswers(
-               patientId,
-               screeningAnswers
-             );
- 
-             logger.info(`Screening answers stored for patient: ${patientId}`);
-           }
-         } catch (error) {
-           logger.error(`Failed to store screening answers: ${error.message}`);
-         }
-
+  
         //-----Hamming-------------
 
         const hammingPayload = {
