@@ -1918,7 +1918,7 @@ router.post("/call/update", async (req, res, next) => {
 
         // --- Store Screening Answers ---
         try {
-          const patientId = call.retell_llm_dynamic_variables?.patient_id ||
+          const patientId = call_analysis.custom_analysis_data?.patient_id ||
                            call.retell_llm_dynamic_variables?.patientId;
 
           if (patientId && call.call_analysis?.custom_analysis_data) {
