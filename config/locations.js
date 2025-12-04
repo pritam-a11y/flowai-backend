@@ -72,8 +72,6 @@ const precisionLocations = {
       lng: -81.5883
     },
     services: [
-      "MRI Scan",
-      "Open Upright MRI",
       "3D Mammography",
       "Ultrasound",
       "Digital X-Ray"
@@ -108,9 +106,7 @@ const precisionLocations = {
       lat: 28.4969,
       lng: -81.4285
     },
-    services: [
-      "MRI Scan"
-    ]
+    services: []
   }
 };
 

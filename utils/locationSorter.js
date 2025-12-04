@@ -72,7 +72,14 @@ class LocationSorter {
    * @returns {string} Normalized appointment type
    */
   normalizeAppointmentType(appointmentType) {
-    return appointmentType.toLowerCase().trim();
+    const normalized = appointmentType.toLowerCase().trim();
+
+    // If the type contains "dexa", normalize to just "dexa"
+    if (normalized.includes('dexa')) {
+      return 'dexa';
+    }
+
+    return normalized;
   }
 
   /**
@@ -85,7 +92,7 @@ class LocationSorter {
     const normalizedType = this.normalizeAppointmentType(appointmentType);
 
     // Special handling for DEXA
-    if (normalizedType === 'dexa' || normalizedType === 'dexa scan') {
+    if (normalizedType === 'dexa') {
       // Return true if location has DEXA service
       return location.services.some(service =>
         service.toLowerCase().includes('dexa')
