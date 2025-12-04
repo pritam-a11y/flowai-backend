@@ -1317,13 +1317,6 @@ router.post("/function-call", async (req, res, next) => {
 
         const { carrier_code } = args;
  
-        if (!carrier_code) {
-            return res.status(400).json({
-                success: false,
-                error: "Missing required fields: carrier_code is required",
-            });
-        }
-
         try {
             // Search for the carrier by carrier_code in the insurance_carriers table
             const carrierQuery = `
@@ -1356,7 +1349,7 @@ router.post("/function-call", async (req, res, next) => {
                     }
                 };
 
-            } else {
+            } else if(!carrier_code) {
                 // Carrier code not found, fall back to "Self Pay"
                 logger.warn(`Carrier code not found: ${carrier_code}. Falling back to 'Self Pay'.`);
  
@@ -1366,7 +1359,18 @@ router.post("/function-call", async (req, res, next) => {
                         message: "Carrier not found, defaulting to Self Pay.",
                         data: "Self Pay"
                   };
-            }
+            } else {
+              // Carrier code not found, fall back to "Self Pay"
+              logger.warn(`Carrier code not found: ${carrier_code}. Falling back to 'Self Pay'.`);
+
+                   result = {
+                      success: true,
+                      statusCode: 200,
+                      message: "Carrier not found, defaulting to Self Pay.",
+                      data: "Self Pay"
+                };
+          }
+
         } catch (error) {
             logger.error("Error in get_insurance_carriers", {
                 carrier_code,
