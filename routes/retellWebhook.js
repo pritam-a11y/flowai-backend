@@ -1921,8 +1921,8 @@ router.post("/call/update", async (req, res, next) => {
                            call.retell_llm_dynamic_variables?.patientId;
 
           if (patientId && call.call_analysis?.custom_analysis_data) {
-            const screeningAnswers = JSON.stringify(call.call_analysis.custom_analysis_data);
-
+            const screeningAnswers = call.call_analysis.custom_analysis_data;
+            
             // Use PatientService to update screening answers
             const patientService = new PatientService();
             await patientService.updateScreeningAnswers(patientId, screeningAnswers);
@@ -1956,39 +1956,7 @@ router.post("/call/update", async (req, res, next) => {
          }
  
          // --- Store Screening Answers ---
-         try {
-           const patientId =
-             call.retell_llm_dynamic_variables?.patient_id ||
-             call.retell_llm_dynamic_variables?.patientId;
- 
-           if (patientId && call.call_analysis?.custom_analysis_data) {
-             const customData = call.call_analysis.custom_analysis_data;
-             // Map the mri_q keys to the full question and corresponding boolean answer
-             const screeningQuestions = {
-               "1. Do you have metallic implant or devices in the body?":
-                 customData.mri_q1,
-               "2. Is there any chance you have metallic fragments in the eye?":
-                 customData.mri_q2,
-               "3. Do you have any foreign metallic object in the body like bullet, BB, etc?":
-                 customData.mri_q3,
-               "4. Are you claustrophobic?": customData.mri_q4,
-             };
- 
-             const screeningAnswers = JSON.stringify(screeningQuestions);
- 
-             // Use PatientService to update screening answers
-             const patientService = new PatientService();
-             await patientService.updateScreeningAnswers(
-               patientId,
-               screeningAnswers
-             );
- 
-             logger.info(`Screening answers stored for patient: ${patientId}`);
-           }
-         } catch (error) {
-           logger.error(`Failed to store screening answers: ${error.message}`);
-         }
-
+  
         //-----Hamming-------------
 
         const hammingPayload = {
