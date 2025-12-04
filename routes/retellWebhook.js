@@ -1325,7 +1325,7 @@ router.post("/function-call", async (req, res, next) => {
                     carrier_code, 
                     payor_group_1 
                 FROM insurance_carriers 
-                WHERE insurance_name = $1;
+                WHERE insurance_name = $1
                 LIMIT 1;
             `;
             const carrierResult = await db.query(carrierQuery, [insurance_name]);
