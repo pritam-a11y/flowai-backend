@@ -94,14 +94,12 @@ async function exportPatientData() {
   try {
     const query = `
     SELECT  
-    mrn, -- Map DB's patient_id to CSV's mrn
+    mrn,  
     first_name, last_name, dob, 
     zip_code, address_street, address_city, phone, email, 
     insurance_name, carrier_code, insurance_id, 
     referring_physician_name, modality_name, procedure_name, procedure_code, 
-    
-    NULL AS booked_modality_name, 
-
+    booked_modality_name, 
     -- CONVERTED APPOINTMENT_DATE (from UTC to EST)
     TO_CHAR(
       (appointment_date::text || ' ' || appointment_time)::timestamp AT TIME ZONE 'UTC' AT TIME ZONE $1,
@@ -114,8 +112,7 @@ async function exportPatientData() {
     ) AS appointment_time,
     
     appointment_location, appointment_booked, 
-    
-    -- FIX: Assuming separate columns as requested
+     
     reason, 
     metallic_implant, 
     eye_fragments, 
@@ -125,15 +122,12 @@ async function exportPatientData() {
     reason_for_transfer
     
 FROM patient_details
-WHERE 
-    -- 1. Must have valid appointment time/date data for conversion
+WHERE  
     NULLIF(TRIM(appointment_date::text), '') IS NOT NULL AND 
     NULLIF(TRIM(appointment_time::text), '') IS NOT NULL AND 
-    
-    -- 2. Appointment must be booked
+     
     appointment_booked = TRUE AND
-
-    -- 3. Appointment must be in the future (after NOW(), adjusted to TARGET_TIMEZONE)
+ 
     (appointment_date::text || ' ' || appointment_time)::timestamp AT TIME ZONE 'UTC' AT TIME ZONE $1 >= NOW() AT TIME ZONE $1
 ORDER BY appointment_date ASC, appointment_time ASC
     `;
@@ -173,7 +167,7 @@ async function importPatientData(records) {
     const patientId = uuidv4();
 
     const createdAtTimestamp = new Date().toISOString();
-    const updatedAtTimestamp = createdAtTimestamp; 
+    const updatedAtTimestamp = createdAtTimestamp;
 
     // List of fields we are actually importing/updating (up to procedure_code, plus timestamps)
     const importedFields = [
