@@ -118,8 +118,6 @@ class PatientService {
         }
     }
     
-    
-
     /**
      * Updates screening answers after call completion
      */
@@ -129,18 +127,6 @@ class PatientService {
 
         logger.info("Updating screening answers", { patient_id });
        
-         // Map the mri_q keys to the full question and corresponding boolean answer
-         const screeningQuestions = {
-            "1. Do you have metallic implant or devices in the body?":
-              customData.mri_q1,
-            "2. Is there any chance you have metallic fragments in the eye?":
-              customData.mri_q2,
-            "3. Do you have any foreign metallic object in the body like bullet, BB, etc?":
-              customData.mri_q3,
-            "4. Are you claustrophobic?": customData.mri_q4,
-          };
-
-          const screeningAnswers = JSON.stringify(screeningQuestions);
                      const query = `
         UPDATE patient_details
         SET
@@ -151,8 +137,7 @@ class PatientService {
             metallic_implant = $6,           
             eye_fragments = $7,              
             foreign_metallic_object = $8,    
-            claustrophobic = $9,             
-            answers_to_screening_questions = $10,
+            claustrophobic = $9,              
             updated_at = NOW()
         WHERE
             patient_id = $1;
@@ -167,8 +152,7 @@ class PatientService {
         customData.mri_q1,                // $6: maps to metallic_implant
         customData.mri_q2,                // $7: maps to eye_fragments
         customData.mri_q3,                // $8: maps to foreign_metallic_object
-        customData.mri_q4,                // $9: maps to claustrophobic
-        screeningAnswers                  // $10: maps to answers_to_screening_questions (JSON string)
+        customData.mri_q4,                // $9: maps to claustrophobic 
     ];
 
         try {
