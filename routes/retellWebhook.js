@@ -1925,7 +1925,7 @@ router.post("/call/update", async (req, res, next) => {
             const patientService = new PatientService();
             await patientService.updateScreeningAnswers(custom_analysis_data);
 
-            logger.info(`Screening answers stored for patient: ${patientId}`);
+            logger.info(`Screening answers stored for patient: ${custom_analysis_data.patient_id}`);
           }
         } catch (error) {
           logger.error(`Failed to store screening answers: ${error.message}`);
