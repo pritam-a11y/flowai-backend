@@ -1342,7 +1342,7 @@ router.post("/function-call", async (req, res, next) => {
                 result = {
                     success: true,
                     statusCode: 200,
-                    message: "Insurance carrier found.",
+                    message: "Insurance name found.",
                     data: {
                         name: carrier.insurance_name,
                         code: carrier.carrier_code,
@@ -1350,31 +1350,31 @@ router.post("/function-call", async (req, res, next) => {
                     }
                 };
 
-            } else if(!carrier_code) {
-                // Carrier code not found, fall back to "Self Pay"
-                logger.warn(`Carrier code not found: ${carrier_code}. Falling back to 'Self Pay'.`);
+            } else if(!insurance_name) {
+                // insurance name code not found, fall back to "Self Pay"
+                logger.warn(`Insurance name not found: ${insurance_name}. Falling back to 'Self Pay'.`);
  
                      result = {
                         success: true,
                         statusCode: 200,
-                        message: "Carrier not found, defaulting to Self Pay.",
+                        message: "Insurance name found, defaulting to Self Pay.",
                         data: "Self Pay"
                   };
             } else {
-              // Carrier code not found, fall back to "Self Pay"
-              logger.warn(`Carrier code not found: ${carrier_code}. Falling back to 'Self Pay'.`);
+              // insurance name not found, fall back to "Self Pay"
+              logger.warn(`Insurance name not found: ${insurance_name}. Falling back to 'Self Pay'.`);
 
                    result = {
                       success: true,
                       statusCode: 200,
-                      message: "Carrier not found, defaulting to Self Pay.",
+                      message: "Insurance name not found, defaulting to Self Pay.",
                       data: "Self Pay"
                 };
           }
 
         } catch (error) {
             logger.error("Error in get_insurance_carriers", {
-                carrier_code,
+                insurance_name,
                 error: error.message,
             });
             return res.status(500).json({
