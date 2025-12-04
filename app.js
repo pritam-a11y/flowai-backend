@@ -29,6 +29,7 @@ const callsRoutes = require("./routes/callAnalytics");
 const listAgentRoutes = require("./routes/listAgent");  
 const patientCsvImportExportRoutes = require("./routes/patientCsvImportExport"); 
 const slotsCsvImportRoutes = require("./routes/slotsCsvImport"); 
+const cronEmailScheduler = require("./services/emailScheduler");
 
 const app = express();
 
@@ -203,18 +204,24 @@ app.listen(PORT, () => {
   // Start the callback scheduler
   callbackScheduler.start();
   logger.info("Callback scheduler started");
+
+  // Start the new cron email scheduler (2 PM and 8 PM EST report)
+  cronEmailScheduler.start();
+    logger.info("Cron Email Scheduler started.");
 });
 
 // Graceful shutdown
 process.on("SIGTERM", () => {
   logger.info("SIGTERM signal received: closing HTTP server");
   callbackScheduler.stop();
+  cronEmailScheduler.stop();
   process.exit(0);
 });
 
 process.on("SIGINT", () => {
   logger.info("SIGINT signal received: closing HTTP server");
   callbackScheduler.stop();
+  cronEmailScheduler.stop();
   process.exit(0);
 });
 
