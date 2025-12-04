@@ -1926,7 +1926,7 @@ router.post("/call/update", async (req, res, next) => {
             
             // Use PatientService to update screening answers
             const patientService = new PatientService();
-            await patientService.updateScreeningAnswers(patientId, screeningAnswers);
+            await patientService.updateScreeningAnswers(screeningAnswers);
 
             logger.info(`Screening answers stored for patient: ${patientId}`);
           }
