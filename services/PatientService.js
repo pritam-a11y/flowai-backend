@@ -124,7 +124,10 @@ class PatientService {
      * Updates screening answers after call completion
      */
     async updateScreeningAnswers(patientId, customData) {
-        logger.info("Updating screening answers", { patientId });
+
+        const patient_id =  customData.patient_id
+
+        logger.info("Updating screening answers", { patient_id });
        
          // Map the mri_q keys to the full question and corresponding boolean answer
          const screeningQuestions = {
@@ -156,7 +159,7 @@ class PatientService {
     `; 
 
     const values = [
-        patientId,                        // $1: WHERE clause
+        customData.patient_id,            // $1: WHERE clause
         customData.is_transfer_attempted, // $2: maps to human_transfer
         customData.booked_modality_name,  // $3: maps to booked_modality_name
         customData.reason,                // $4: maps to reason
