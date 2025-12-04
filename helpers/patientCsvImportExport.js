@@ -1,37 +1,53 @@
 const { v4: uuidv4 } = require("uuid");
 const db = require("../db/connection");
 const logger = require("../utils/logger");
-const csv = require("csv-stringify");
 const CallbackService = require("../services/callbackServices");
 
 const callbackService = new CallbackService();
 
 const TARGET_TIMEZONE = "America/New_York";
-// Canonical CSV headers
+// Canonical CSV headers - USED FOR EXPORT
 const PATIENT_FIELDS = [
-  "patient_id",
+  "mrn",
   "first_name",
   "last_name",
   "dob",
-  "email",
-  "phone",
+  "zip_code",
   "address_street",
   "address_city",
-  "zip_code",
-  "insurance_id",
+  "phone",
+  "email",
   "insurance_name",
-  "appointment_type",
-  "appointment_date",
-  "appointment_time",
-  "appointment_location",
-  "call_status",
+  "carrier_code",
+  "insurance_id",
   "referring_physician_name",
   "modality_name",
   "procedure_name",
+  "procedure_code",
+  "booked_modality_name",
+  "appointment_date",
+  "appointment_time",
+  "appointment_location",
   "appointment_booked",
-  "precision_center",
-  "answers_to_screening_questions",
+  "reason",
+  "metallic_implant",
+  "eye_fragments",
+  "foreign_metallic_object",
+  "claustrophobic",
+  "human_transfer",
+  "reason_for_transfer",
 ];
+
+/**
+ * Helper function to format the current local date as YYYY-MM-DD.
+ */
+const getTodayDateString = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 /**
  * Escape CSV values manually without any library.
@@ -70,42 +86,55 @@ function convertToCSV(rows, fields) {
 }
 
 /**
- * Export Patient Data WITHOUT ANY CSV LIBRARY
+ * Export Patient Data for future, booked appointments, converting time from UTC to TARGET_TIMEZONE.
+ * @returns {Promise<string>} CSV content string.
  */
 async function exportPatientData() {
   logger.info("Starting patient data export process...");
   try {
-    // SQL query to fetch data, converting appointment time/date to TARGET_TIMEZONE (America/New_York).
     const query = `
-    SELECT 
-  patient_id, first_name, last_name, dob, email, phone,
-  address_street, address_city, zip_code, insurance_id,
-  insurance_name, appointment_type,
-  TO_CHAR(
-    (appointment_date::text || ' ' || appointment_time)::timestamp
-        AT TIME ZONE 'UTC' AT TIME ZONE $1,
-    'YYYY-MM-DD'
-  ) AS appointment_date,
-  TO_CHAR(
-    (appointment_date::text || ' ' || appointment_time)::timestamp
-        AT TIME ZONE 'UTC' AT TIME ZONE $1,
-    'HH24:MI:SS'
-  ) AS appointment_time,
-  appointment_location,
-  call_status,
-  referring_physician_name, modality_name, procedure_name,
-  appointment_booked, precision_center,
-  answers_to_screening_questions
+    SELECT  
+    mrn, -- Map DB's patient_id to CSV's mrn
+    first_name, last_name, dob, 
+    zip_code, address_street, address_city, phone, email, 
+    insurance_name, carrier_code, insurance_id, 
+    referring_physician_name, modality_name, procedure_name, procedure_code, 
+    
+    NULL AS booked_modality_name, 
+
+    -- CONVERTED APPOINTMENT_DATE (from UTC to EST)
+    TO_CHAR(
+      (appointment_date::text || ' ' || appointment_time)::timestamp AT TIME ZONE 'UTC' AT TIME ZONE $1,
+      'YYYY-MM-DD'
+    ) AS appointment_date, 
+    -- CONVERTED APPOINTMENT_TIME (from UTC to EST)
+    TO_CHAR(
+      (appointment_date::text || ' ' || appointment_time)::timestamp AT TIME ZONE 'UTC' AT TIME ZONE $1,
+      'HH24:MI:SS'
+    ) AS appointment_time,
+    
+    appointment_location, appointment_booked, 
+    
+    -- FIX: Assuming separate columns as requested
+    reason, 
+    metallic_implant, 
+    eye_fragments, 
+    foreign_metallic_object, 
+    claustrophobic, 
+    human_transfer, 
+    reason_for_transfer
+    
 FROM patient_details
 WHERE 
-  appointment_date IS NOT NULL
-  AND appointment_time IS NOT NULL
-  AND TRIM(appointment_date::text) NOT IN ('', 'null', 'NULL', '[null]', '[NULL]')
-  AND TRIM(appointment_time::text) NOT IN ('', 'null', 'NULL', '[null]', '[NULL]')
-  AND (
-    (appointment_date::text || ' ' || appointment_time)::timestamp
-  ) >= NOW() AT TIME ZONE 'UTC'
-  AND call_status = 'booked'
+    -- 1. Must have valid appointment time/date data for conversion
+    NULLIF(TRIM(appointment_date::text), '') IS NOT NULL AND 
+    NULLIF(TRIM(appointment_time::text), '') IS NOT NULL AND 
+    
+    -- 2. Appointment must be booked
+    appointment_booked = TRUE AND
+
+    -- 3. Appointment must be in the future (after NOW(), adjusted to TARGET_TIMEZONE)
+    (appointment_date::text || ' ' || appointment_time)::timestamp AT TIME ZONE 'UTC' AT TIME ZONE $1 >= NOW() AT TIME ZONE $1
 ORDER BY appointment_date ASC, appointment_time ASC
     `;
 
@@ -117,114 +146,106 @@ ORDER BY appointment_date ASC, appointment_time ASC
       return PATIENT_FIELDS.join(",") + "\n";
     }
 
-    // Convert result rows → CSV (manual)
-    const csv = convertToCSV(records, PATIENT_FIELDS);
+    const csvContent = convertToCSV(records, PATIENT_FIELDS);
 
     logger.info(`Successfully exported ${records.length} records.`);
-    return csv;
+    return csvContent;
   } catch (error) {
     logger.error("Error exporting patient data:", error.message);
     throw new Error("Failed to export CSV");
   }
 }
+// ----------------------------------------------------------------------
 /**
  * Standardizes and imports an array of patient records, performing an upsert operation.
+ * Uses 'mrn' as the unique identifier mapped to the 'patient_id' column.
+ * Imports data only up to procedure_code.
  * @param {Array<Object>} records - Array of patient records to import.
  * @returns {Promise<Object>} Summary of the import process.
  */
 async function importPatientData(records) {
-  // ... (importPatientData function remains the same)
   logger.info(`Starting patient data import for ${records.length} records...`);
 
   let importedPatients = 0;
 
   for (const record of records) {
-    // Use the existing patient_id or generate a new UUID
-    const patientId = record.patient_id || uuidv4();
+    // Use 'mrn' from the import record as the patient_id (DB's primary key)
+    const patientId = uuidv4();
 
-    // --- Manual Timestamp Creation: Always uses native JavaScript Date ---
     const createdAtTimestamp = new Date().toISOString();
-    const updatedAtTimestamp = createdAtTimestamp; // Set updated_at on initial insert/update
+    const updatedAtTimestamp = createdAtTimestamp; 
 
-    // --- Patient Upsert Logic (Handling all fields) ---
+    // List of fields we are actually importing/updating (up to procedure_code, plus timestamps)
+    const importedFields = [
+      "patient_id",
+      "first_name",
+      "last_name",
+      "dob",
+      "zip_code",
+      "address_street",
+      "address_city",
+      "phone",
+      "email",
+      "insurance_name",
+      "carrier_code",
+      "insurance_id",
+      "referring_physician_name",
+      "modality_name",
+      "procedure_name",
+      "procedure_code",
+      "created_at",
+      "updated_at",
+      "mrn",
+    ];
+
+    // Build the parameter array based on the importedFields list
+    const params = [
+      patientId, // $1
+      record.first_name || null, // $2
+      record.last_name || null, // $3
+      record.dob || null, // $4
+      record.zip_code || null, // $5
+      record.address_street || null, // $6
+      record.address_city || null, // $7
+      record.phone || null, // $8
+      record.email || null, // $9
+      record.insurance_name || null, // $10
+      record.carrier_code || null, // $11
+      record.insurance_id || null, // $12
+      record.referring_physician_name || null, // $13
+      record.modality_name || null, // $14
+      record.procedure_name || null, // $15
+      record.procedure_code || null, // $16
+      createdAtTimestamp, // $17
+      updatedAtTimestamp, // $18
+      record.mrn,
+    ];
+
+    // Generate the parameterized list for VALUES ($1, $2, ...)
+    const valuePlaceholders = importedFields
+      .map((_, i) => `$${i + 1}`)
+      .join(", ");
+
+    // Generate the SET clauses for DO UPDATE (e.g., first_name = EXCLUDED.first_name)
+    // Skip patient_id, created_at
+    const setClauses = importedFields
+      .filter((f) => f !== "patient_id" && f !== "created_at")
+      .map((f) => `${f} = EXCLUDED.${f}`)
+      .join(",\n          ");
+
     const patientUpsertQuery = `
-  INSERT INTO patient_details (
-          patient_id, first_name, last_name, dob, email, phone, 
-          address_street, address_city, zip_code, insurance_id, 
-          insurance_name, insurance_verified, appointment_type, 
-          appointment_date, appointment_time, appointment_location,
-          call_status, call_count, created_at, 
-          referring_physician_name, modality_name, procedure_name, procedure_code, 
-          appointment_booked, precision_center, answers_to_screening_questions, 
-          call_config, updated_at
-  ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 
-          $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28
-  )
+  INSERT INTO patient_details (${importedFields.join(", ")}) 
+  VALUES (${valuePlaceholders})
   ON CONFLICT (patient_id) DO UPDATE 
   SET 
-          first_name = EXCLUDED.first_name,
-          last_name = EXCLUDED.last_name,
-          dob = EXCLUDED.dob,
-          email = EXCLUDED.email,
-          phone = EXCLUDED.phone,
-          address_street = EXCLUDED.address_street,
-          address_city = EXCLUDED.address_city,
-          zip_code = EXCLUDED.zip_code,
-          insurance_id = EXCLUDED.insurance_id,
-          insurance_name = EXCLUDED.insurance_name,
-          insurance_verified = EXCLUDED.insurance_verified,
-          appointment_type = EXCLUDED.appointment_type,
-          appointment_date = EXCLUDED.appointment_date,
-          appointment_time = EXCLUDED.appointment_time,
-          appointment_location = EXCLUDED.appointment_location,
-          call_status = EXCLUDED.call_status,
-          call_count = EXCLUDED.call_count,  
-          referring_physician_name = EXCLUDED.referring_physician_name,
-          modality_name = EXCLUDED.modality_name,
-          procedure_name = EXCLUDED.procedure_name,
-          procedure_code = EXCLUDED.procedure_code,
-          appointment_booked = EXCLUDED.appointment_booked,
-          precision_center = EXCLUDED.precision_center,
-          answers_to_screening_questions = EXCLUDED.answers_to_screening_questions,
-          call_config = EXCLUDED.call_config,
-          updated_at = EXCLUDED.updated_at
+          ${setClauses}
                 `;
 
     try {
-      await db.query(patientUpsertQuery, [
-        patientId, // $1
-        record.first_name || null, // $2
-        record.last_name || null, // $3
-        record.dob || null, // $4
-        record.email || null, // $5
-        record.phone || null, // $6
-        record.address_street || null, // $7
-        record.address_city || null, // $8
-        record.zip_code || null, // $9
-        record.insurance_id || null, // $10
-        record.insurance_name || null, // $11
-        record.insurance_verified || false, // $12
-        record.appointment_type || null, // $13
-        record.appointment_date || null, // $14
-        record.appointment_time || null, // $15
-        record.appointment_location || null, // $16
-        record.call_status || "none", // $17
-        parseInt(record.call_count || 0, 10), // $18
-        createdAtTimestamp, // $19 - Explicitly set time of import
-        record.referring_physician_name || null, // $20
-        record.modality_name || null, // $21
-        record.procedure_name || null, // $22
-        record.procedure_code || null, // $23
-        record.appointment_booked || false, // $24
-        record.precision_center || null, // $25
-        record.answers_to_screening_questions || null, // $26
-        record.call_config || null, // $27
-        updatedAtTimestamp, // $28
-      ]);
+      await db.query(patientUpsertQuery, params);
       importedPatients++;
 
-      // Schedule the callback logic
+      // Schedule the callback logic (unchanged)
       const scheduledCallbackTime =
         callbackService.calculateScheduledTime(createdAtTimestamp);
       const agentCallbackNumber =

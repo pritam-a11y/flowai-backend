@@ -487,7 +487,7 @@ router.post("/function-call", async (req, res, next) => {
             searchEndDate.toISOString(),
             serviceType,
             location
-          ];
+          ];                    
         } else if (serviceType) {
           // Only service type provided
           availableSlotsQuery = `
