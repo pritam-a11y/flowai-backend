@@ -121,9 +121,9 @@ class PatientService {
     /**
      * Updates screening answers after call completion
      */
-    async updateScreeningAnswers(customData) {
+    async updateScreeningAnswers(patientId, customData) {
 
-        const patient_id =  customData.patient_id
+        const patient_id =  customData.patient_id || patientId
 
         logger.info("Updating screening answers", { patient_id });
        
