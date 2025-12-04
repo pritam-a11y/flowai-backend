@@ -1312,6 +1312,74 @@ router.post("/function-call", async (req, res, next) => {
         break;
       }
 
+      case "get_insurance_carriers": 
+        logger.info("Processing get_insurance_carriers function call");
+
+        const { carrier_code } = args;
+ 
+        if (!carrier_code) {
+            return res.status(400).json({
+                success: false,
+                error: "Missing required fields: carrier_code is required",
+            });
+        }
+
+        try {
+            // Search for the carrier by carrier_code in the insurance_carriers table
+            const carrierQuery = `
+                SELECT 
+                    carrier_name, 
+                    carrier_code, 
+                    payor_group_1 
+                FROM insurance_carriers 
+                WHERE carrier_code = $1;
+            `;
+            const carrierResult = await db.query(carrierQuery, [carrier_code]);
+
+            if (carrierResult.rows.length > 0) { 
+
+                const carrier = carrierResult.rows[0];
+                // Check if payor_group_1 is 'Y' (case-insensitive check)
+                const isGroup1 = carrier.payor_group_1?.toLowerCase() === 'y';
+                const groupName = isGroup1 ? 'group-1' : 'group-2';
+                
+                logger.info(`Carrier found: ${carrier.carrier_name}, assigned to ${groupName}`);
+
+                result = {
+                    success: true,
+                    statusCode: 200,
+                    message: "Insurance carrier found.",
+                    data: {
+                        name: carrier.carrier_name,
+                        code: carrier.carrier_code,
+                        group: groupName,
+                    }
+                };
+
+            } else {
+                // Carrier code not found, fall back to "Self Pay"
+                logger.warn(`Carrier code not found: ${carrier_code}. Falling back to 'Self Pay'.`);
+ 
+                     result = {
+                        success: true,
+                        statusCode: 200,
+                        message: "Carrier not found, defaulting to Self Pay.",
+                        data: "Self Pay"
+                  };
+            }
+        } catch (error) {
+            logger.error("Error in get_insurance_carriers", {
+                carrier_code,
+                error: error.message,
+            });
+            return res.status(500).json({
+                success: false,
+                error: "Failed to retrieve insurance carrier details.",
+                details: error.message,
+            });
+        }
+         break;
+
       case "get_insurance_providers": {
         logger.info("Processing patient_insurance_verification function call");
 
