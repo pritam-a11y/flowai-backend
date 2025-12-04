@@ -1317,13 +1317,6 @@ router.post("/function-call", async (req, res, next) => {
 
         const { carrier_code } = args;
  
-        if (!carrier_code) {
-            return res.status(400).json({
-                success: false,
-                error: "Missing required fields: carrier_code is required",
-            });
-        }
-
         try {
             // Search for the carrier by carrier_code in the insurance_carriers table
             const carrierQuery = `
@@ -1356,7 +1349,7 @@ router.post("/function-call", async (req, res, next) => {
                     }
                 };
 
-            } else {
+            } else if(!carrier_code) {
                 // Carrier code not found, fall back to "Self Pay"
                 logger.warn(`Carrier code not found: ${carrier_code}. Falling back to 'Self Pay'.`);
  
@@ -1366,7 +1359,18 @@ router.post("/function-call", async (req, res, next) => {
                         message: "Carrier not found, defaulting to Self Pay.",
                         data: "Self Pay"
                   };
-            }
+            } else {
+              // Carrier code not found, fall back to "Self Pay"
+              logger.warn(`Carrier code not found: ${carrier_code}. Falling back to 'Self Pay'.`);
+
+                   result = {
+                      success: true,
+                      statusCode: 200,
+                      message: "Carrier not found, defaulting to Self Pay.",
+                      data: "Self Pay"
+                };
+          }
+
         } catch (error) {
             logger.error("Error in get_insurance_carriers", {
                 carrier_code,
@@ -1917,8 +1921,8 @@ router.post("/call/update", async (req, res, next) => {
                            call.retell_llm_dynamic_variables?.patientId;
 
           if (patientId && call.call_analysis?.custom_analysis_data) {
-            const screeningAnswers = JSON.stringify(call.call_analysis.custom_analysis_data);
-
+            const screeningAnswers = call.call_analysis.custom_analysis_data;
+            
             // Use PatientService to update screening answers
             const patientService = new PatientService();
             await patientService.updateScreeningAnswers(patientId, screeningAnswers);
@@ -1952,39 +1956,7 @@ router.post("/call/update", async (req, res, next) => {
          }
  
          // --- Store Screening Answers ---
-         try {
-           const patientId =
-             call.retell_llm_dynamic_variables?.patient_id ||
-             call.retell_llm_dynamic_variables?.patientId;
- 
-           if (patientId && call.call_analysis?.custom_analysis_data) {
-             const customData = call.call_analysis.custom_analysis_data;
-             // Map the mri_q keys to the full question and corresponding boolean answer
-             const screeningQuestions = {
-               "1. Do you have metallic implant or devices in the body?":
-                 customData.mri_q1,
-               "2. Is there any chance you have metallic fragments in the eye?":
-                 customData.mri_q2,
-               "3. Do you have any foreign metallic object in the body like bullet, BB, etc?":
-                 customData.mri_q3,
-               "4. Are you claustrophobic?": customData.mri_q4,
-             };
- 
-             const screeningAnswers = JSON.stringify(screeningQuestions);
- 
-             // Use PatientService to update screening answers
-             const patientService = new PatientService();
-             await patientService.updateScreeningAnswers(
-               patientId,
-               screeningAnswers
-             );
- 
-             logger.info(`Screening answers stored for patient: ${patientId}`);
-           }
-         } catch (error) {
-           logger.error(`Failed to store screening answers: ${error.message}`);
-         }
-
+  
         //-----Hamming-------------
 
         const hammingPayload = {

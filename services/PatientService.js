@@ -123,16 +123,53 @@ class PatientService {
     /**
      * Updates screening answers after call completion
      */
-    async updateScreeningAnswers(patientId, screeningAnswers) {
+    async updateScreeningAnswers(patientId, customData) {
         logger.info("Updating screening answers", { patientId });
-        const query = `
-            UPDATE patient_details
-            SET answers_to_screening_questions = $2,
-                updated_at = NOW()
-            WHERE patient_id = $1;
-        `;
+       
+         // Map the mri_q keys to the full question and corresponding boolean answer
+         const screeningQuestions = {
+            "1. Do you have metallic implant or devices in the body?":
+              customData.mri_q1,
+            "2. Is there any chance you have metallic fragments in the eye?":
+              customData.mri_q2,
+            "3. Do you have any foreign metallic object in the body like bullet, BB, etc?":
+              customData.mri_q3,
+            "4. Are you claustrophobic?": customData.mri_q4,
+          };
+
+          const screeningAnswers = JSON.stringify(screeningQuestions);
+                     const query = `
+        UPDATE patient_details
+        SET
+            human_transfer = $2,              
+            booked_modality_name = $3,
+            reason = $4,
+            reason_for_transfer = $5,
+            metallic_implant = $6,           
+            eye_fragments = $7,              
+            foreign_metallic_object = $8,    
+            claustrophobic = $9,             
+            answers_to_screening_questions = $10,
+            updated_at = NOW()
+        WHERE
+            patient_id = $1;
+    `; 
+
+    const values = [
+        patientId,                        // $1: WHERE clause
+        customData.is_transfer_attempted, // $2: maps to human_transfer
+        customData.booked_modality_name,  // $3: maps to booked_modality_name
+        customData.reason,                // $4: maps to reason
+        customData.reason_for_transfer,   // $5: maps to reason_for_transfer
+        customData.mri_q1,                // $6: maps to metallic_implant
+        customData.mri_q2,                // $7: maps to eye_fragments
+        customData.mri_q3,                // $8: maps to foreign_metallic_object
+        customData.mri_q4,                // $9: maps to claustrophobic
+        screeningAnswers                  // $10: maps to answers_to_screening_questions (JSON string)
+    ];
+
         try {
-            await db.query(query, [patientId, screeningAnswers]);
+            await db.query(query, values);
         } catch (error) {
             logger.error("Failed to update screening answers", { patientId, error: error.message });
             throw error;
