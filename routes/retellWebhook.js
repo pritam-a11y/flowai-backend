@@ -1920,10 +1920,15 @@ router.post("/call/update", async (req, res, next) => {
         try { 
             const custom_analysis_data = call.call_analysis?.custom_analysis_data;
 
-          if (custom_analysis_data) { 
+            const patientId =
+            call.retell_llm_dynamic_variables?.patient_id ||
+            call.retell_llm_dynamic_variables?.patientId;
+
+          if (custom_analysis_data && patientId) { 
+
             // Use PatientService to update screening answers
             const patientService = new PatientService();
-            await patientService.updateScreeningAnswers(custom_analysis_data);
+            await patientService.updateScreeningAnswers(patientId, custom_analysis_data);
 
             logger.info(`Screening answers stored for patient: ${custom_analysis_data.patient_id}`);
           }
