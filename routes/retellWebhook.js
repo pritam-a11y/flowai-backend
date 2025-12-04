@@ -1315,19 +1315,20 @@ router.post("/function-call", async (req, res, next) => {
       case "get_insurance_carriers": 
         logger.info("Processing get_insurance_carriers function call");
 
-        const { carrier_code } = args;
+        const { insurance_name } = args;
  
         try {
             // Search for the carrier by carrier_code in the insurance_carriers table
             const carrierQuery = `
                 SELECT 
-                    description, 
+                    insurance_name, 
                     carrier_code, 
                     payor_group_1 
                 FROM insurance_carriers 
-                WHERE carrier_code = $1;
+                WHERE insurance_name = $1;
+                LIMIT 1;
             `;
-            const carrierResult = await db.query(carrierQuery, [carrier_code]);
+            const carrierResult = await db.query(carrierQuery, [insurance_name]);
 
             if (carrierResult.rows.length > 0) { 
 
@@ -1336,14 +1337,14 @@ router.post("/function-call", async (req, res, next) => {
                 const isGroup1 = carrier.payor_group_1?.toLowerCase() === 'y';
                 const groupName = isGroup1 ? 'group-1' : 'group-2';
                 
-                logger.info(`Carrier found: ${carrier.description}, assigned to ${groupName}`);
+                logger.info(`Carrier found: ${carrier.insurance_name}, assigned to ${groupName}`);
 
                 result = {
                     success: true,
                     statusCode: 200,
                     message: "Insurance carrier found.",
                     data: {
-                        name: carrier.description,
+                        name: carrier.insurance_name,
                         code: carrier.carrier_code,
                         group: groupName,
                     }
