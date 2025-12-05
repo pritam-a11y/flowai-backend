@@ -1,31 +1,30 @@
 const { Resend } = require("resend");
 const logger = require("../utils/logger");
 const moment = require("moment-timezone");
- 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || "re_DXtS219b_C9LEPwDvBsy2ZMmEKZGh8yYx"; 
-const resend = new Resend(RESEND_API_KEY);
 
-  
-const REPORT_RECIPIENT_EMAIL = process.env.REPORT_RECIPIENT_EMAIL || "krishna.kumar@myflowai.com";
-const REPORT_SENDER_EMAIL = process.env.REPORT_SENDER_EMAIL || "patientservices@myflowai.com";
+const resend = new Resend("re_DXtS219b_C9LEPwDvBsy2ZMmEKZGh8yYx");
+
+const REPORT_RECIPIENT_EMAIL = "krishna.kumar@myflowai.com";
+const REPORT_SENDER_EMAIL = "patientservices@myflowai.com";
 
 class EmailService {
-    /**
-     * Sends the patient update report email with the CSV attachment.
-     * @param {string} csvData - The CSV content string.
-     * @param {number} rowCount - The number of rows in the report.
-     * @param {moment.Moment} startTime - The start of the data window (Moment object).
-     * @param {moment.Moment} endTime - The end of the data window (Moment object).
-     */
-    async sendReportEmail(csvData, rowCount, startTime, endTime) {
-        const reportTimeStr = startTime.format('YYYYMMDD_HHmm') + '_' + endTime.format('HHmm');
-        const filename = `patient_updates_${reportTimeStr}.csv`;
-        const timeZone = startTime.tz();
+  /**
+   * Sends the patient update report email with the CSV attachment.
+   * @param {string} csvData - The CSV content string.
+   * @param {number} rowCount - The number of rows in the report.
+   * @param {moment.Moment} startTime - The start of the data window (Moment object).
+   * @param {moment.Moment} endTime - The end of the data window (Moment object).
+   */
+  async sendReportEmail(csvData, rowCount, startTime, endTime) {
+    const reportTimeStr =
+      startTime.format("YYYYMMDD_HHmm") + "_" + endTime.format("HHmm");
+    const filename = `patient_updates_${reportTimeStr}.csv`;
+    const timeZone = startTime.tz();
 
-        const subject = `ACTION REQUIRED: Daily Patient Booking & Update Report (${rowCount} Records)`;
-        
-        // --- HTML BODY TEMPLATE ---
-        const htmlBody = `
+    const subject = `ACTION REQUIRED: Daily Patient Booking & Update Report (${rowCount} Records)`;
+
+    // --- HTML BODY TEMPLATE ---
+    const htmlBody = `
             <!doctype html>
             <html>
             <body style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #333; line-height: 1.6;">
@@ -43,9 +42,13 @@ class EmailService {
                         <div style="background-color: #f7f7f7; padding: 15px; border-radius: 6px; margin: 20px 0;">
                             <p style="margin: 0;">
                                 <strong>Time Window:</strong><br>
-                                ${startTime.format('MMM DD, YYYY h:mm A')} ${timeZone} 
+                                ${startTime.format(
+                                  "MMM DD, YYYY h:mm A"
+                                )} ${timeZone} 
                                 to 
-                                ${endTime.format('MMM DD, YYYY h:mm A')} ${timeZone}
+                                ${endTime.format(
+                                  "MMM DD, YYYY h:mm A"
+                                )} ${timeZone}
                             </p>
                             <p style="margin: 10px 0 0 0;">
                                 <strong>Records Updated:</strong> ${rowCount} patient files.
@@ -77,38 +80,38 @@ class EmailService {
             </body>
             </html>
         `;
-        // --- END HTML BODY TEMPLATE ---
-        
-        const emailData = {
-            from: REPORT_SENDER_EMAIL,
-            to: REPORT_RECIPIENT_EMAIL,
-            subject: subject,
-            html: htmlBody,
-            attachments: [
-                {
-                    content: Buffer.from(csvData),
-                    filename: filename, 
-                    contentType: 'text/csv', 
-                },
-            ],
-        };
+    // --- END HTML BODY TEMPLATE ---
 
-        try {
-            const resp = await resend.emails.send(emailData);
-            logger.info("Report email sent successfully via Resend", {
-                emailId: resp.id,
-                recipient: REPORT_RECIPIENT_EMAIL,
-                rowCount: rowCount
-            });
-            return resp;
-        } catch (emailError) {
-            logger.error("Failed to send report email via Resend", {
-                error: emailError.message,
-                recipient: REPORT_RECIPIENT_EMAIL,
-            });
-            throw new Error(`Email sending failed: ${emailError.message}`);
-        }
+    const emailData = {
+      from: REPORT_SENDER_EMAIL,
+      to: REPORT_RECIPIENT_EMAIL,
+      subject: subject,
+      html: htmlBody,
+      attachments: [
+        {
+          content: Buffer.from(csvData),
+          filename: filename,
+          contentType: "text/csv",
+        },
+      ],
+    };
+
+    try {
+      const resp = await resend.emails.send(emailData);
+      logger.info("Report email sent successfully via Resend", {
+        emailId: resp.id,
+        recipient: REPORT_RECIPIENT_EMAIL,
+        rowCount: rowCount,
+      });
+      return resp;
+    } catch (emailError) {
+      logger.error("Failed to send report email via Resend", {
+        error: emailError.message,
+        recipient: REPORT_RECIPIENT_EMAIL,
+      });
+      throw new Error(`Email sending failed: ${emailError.message}`);
     }
+  }
 }
 
 module.exports = EmailService;
