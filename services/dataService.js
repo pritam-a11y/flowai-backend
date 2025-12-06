@@ -2,7 +2,7 @@ const db = require("../db/connection");
 
 // Canonical CSV headers - USED FOR EXPORT
 const PATIENT_FIELDS = [
-  "mrn",
+  "MRN",
   "first_name",
   "last_name",
   "dob",
@@ -138,10 +138,10 @@ class DataService {
                 (reason_for_transfer IS NOT NULL AND TRIM(reason_for_transfer) != '')
                 OR
             ( 
-                (metallic_implant = TRUE) OR (metallic_implant = FALSE) OR 
-                (eye_fragments = TRUE) OR (eye_fragments = FALSE) OR
-                (foreign_metallic_object = TRUE) OR (foreign_metallic_object = FALSE) OR
-                (claustrophobic = TRUE) OR (claustrophobic = FALSE)
+                (metallic_implant IS NOT NULL AND TRIM(metallic_implant) != '') OR
+              (eye_fragments IS NOT NULL AND TRIM(eye_fragments) != '') OR
+             (foreign_metallic_object IS NOT NULL AND TRIM(foreign_metallic_object) != '') OR
+             (claustrophobic = TRUE) OR (claustrophobic = FALSE)
             )
             ORDER BY 
             updated_at ASC;

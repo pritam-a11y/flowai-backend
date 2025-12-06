@@ -8,7 +8,7 @@ const callbackService = new CallbackService();
 const TARGET_TIMEZONE = "America/New_York";
 // Canonical CSV headers - USED FOR EXPORT
 const PATIENT_FIELDS = [
-  "mrn",
+  "MRN",
   "first_name",
   "last_name",
   "dob",
@@ -135,6 +135,16 @@ WHERE
         appointment_time IS NULL OR
         (appointment_date::text || ' ' || appointment_time)::timestamp AT TIME ZONE 'UTC' AT TIME ZONE $1 >= NOW() AT TIME ZONE $1
     )
+    OR 
+    (reason IS NOT NULL AND TRIM(reason) != '') OR
+    (reason_for_transfer IS NOT NULL AND TRIM(reason_for_transfer) != '')
+    OR
+    ( 
+         (metallic_implant IS NOT NULL AND TRIM(metallic_implant) != '') OR
+         (eye_fragments IS NOT NULL AND TRIM(eye_fragments) != '') OR
+         (foreign_metallic_object IS NOT NULL AND TRIM(foreign_metallic_object) != '') OR
+         (claustrophobic = TRUE) OR (claustrophobic = FALSE)
+        )
 ORDER BY
     appointment_date ASC NULLS LAST,
     appointment_time ASC NULLS LAST
@@ -180,6 +190,7 @@ async function importPatientData(records) {
     // List of fields we are actually importing/updating (up to procedure_code, plus timestamps)
     const importedFields = [
       "patient_id",
+      "MRN",
       "first_name",
       "last_name",
       "dob",
@@ -197,12 +208,12 @@ async function importPatientData(records) {
       "procedure_code",
       "created_at",
       "updated_at",
-      "mrn",
     ];
 
     // Build the parameter array based on the importedFields list
     const params = [
       patientId, // $1
+      record.mrn,
       record.first_name || null, // $2
       record.last_name || null, // $3
       record.dob || null, // $4
@@ -220,7 +231,6 @@ async function importPatientData(records) {
       record.procedure_code || null, // $16
       createdAtTimestamp, // $17
       updatedAtTimestamp, // $18
-      record.mrn,
     ];
 
     // Generate the parameterized list for VALUES ($1, $2, ...)
