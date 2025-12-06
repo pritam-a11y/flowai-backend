@@ -123,7 +123,7 @@ class PatientService {
      */
     async updateScreeningAnswers(patientId, customData) {
 
-        const patient_id =  customData.patient_id || patientId
+        const patient_id = patientId || customData.patient_id 
 
         logger.info("Updating screening answers", { patient_id });
        
