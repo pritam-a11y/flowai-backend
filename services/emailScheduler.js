@@ -1,3 +1,4 @@
+// schedulers/EmailScheduler.js
 const logger = require("../utils/logger");
 const moment = require("moment-timezone");
 const DataService = require("../services/dataService");
@@ -5,10 +6,9 @@ const EmailService = require("../services/emailService");
 
 const TIMEZONE = process.env.TIMEZONE || "America/New_York";
 
-// Setting the default check interval to 5 minutes (300,000 ms) to reduce load,
-// but the export logic only runs at 2:00 PM and 8:00 PM EST.
+// 1. UPDATED: Set the default check interval back to 1 minute (60,000 ms)
 const CRON_CHECK_INTERVAL_MS =
-  parseInt(process.env.CRON_CHECK_INTERVAL) || 300000;
+  parseInt(process.env.CRON_CHECK_INTERVAL) || 60000;
 
 const dataService = new DataService();
 const emailService = new EmailService();
@@ -18,7 +18,8 @@ class CronEmailScheduler {
     this.intervalId = null;
     this.isProcessing = false;
     this.intervalMs = CRON_CHECK_INTERVAL_MS;
-    this.scheduledHours = [14, 20]; // 2 PM (14:00) and 8 PM (20:00) EST/EDT
+    // Keeping this defined, but it is ignored in checkAndRunCron() below.
+    this.scheduledHours = [14, 20]; 
   }
 
   start() {
@@ -27,12 +28,11 @@ class CronEmailScheduler {
       return;
     }
 
-    logger.info("Starting email scheduler", {
+    logger.info("Starting email scheduler (TEMPORARY: Running every minute)", {
       intervalMinutes: this.intervalMs / 60000,
-      scheduledHours: this.scheduledHours,
     });
 
-    // Run the checker every N milliseconds (5 minutes by default)
+    // Run the checker every 60000 milliseconds (1 minute)
     this.intervalId = setInterval(() => {
       this.checkAndRunCron();
     }, this.intervalMs);
@@ -47,8 +47,7 @@ class CronEmailScheduler {
   }
 
   /**
-   * Checks if the current time is one of the scheduled hours (2 PM or 8 PM EST)
-   * and runs the data export if it is.
+   * RUNS EVERY MINUTE: Fetches data updated in the last minute.
    */
   async checkAndRunCron() {
     if (this.isProcessing) {
@@ -56,87 +55,54 @@ class CronEmailScheduler {
       return;
     }
 
-    const now = moment().tz(TIMEZONE);
-    const currentHour = now.hour();
-    const currentMinute = now.minute();
+    // NOTE: The conditional check based on scheduledHours and currentMinute has been REMOVED.
+    this.isProcessing = true;
 
-    // We only want to run exactly at the top of the scheduled hour (2:00 PM)
-    if (this.scheduledHours.includes(currentHour) && currentMinute === 0) {
-      this.isProcessing = true;
-
-      try {
-        logger.info(
-          `Cron trigger at ${currentHour}:00 ${TIMEZONE}. Initiating data export and email.`
-        );
-
-        let startTime;
-        const endTime = now.clone(); // 2 PM or 8 PM EST
-
-        if (currentHour === 14) {
-          // 2 PM Run: Covers updates from MIDNIGHT EST up to 2 PM EST.
-          startTime = endTime.clone().startOf("day");
-          logger.info(
-            "2 PM run: Fetching data from start of day (Midnight EST).",
-            { startTime: startTime.format() }
-          );
-        } else if (currentHour === 20) {
-          // 8 PM Run: Covers updates from 2 PM EST up to 8 PM EST.
-          startTime = endTime
-            .clone()
-            .hour(14)
-            .minute(0)
-            .second(0)
-            .millisecond(0);
-          logger.info("8 PM run: Fetching data from 2:00 PM EST.", {
-            startTime: startTime.format(),
-          });
-        } else {
-          // Should not happen
-          return;
-        }
+    try {
+        const endTime = moment().tz(TIMEZONE);
+        // Define the time window as the last 1 minute
+        const startTime = endTime.clone().subtract(1, "minute"); 
+        
+        logger.info(`Cron trigger (Every Minute TEMP Run). Fetching data from the last minute.`);
 
         // Convert times to UTC ISO strings for the database query
         const startDateISO = startTime.toISOString();
         const endDateISO = endTime.toISOString();
 
         logger.info("Database query range (UTC ISO)", {
-          startDateISO: startDateISO,
-          endDateISO: endDateISO,
+            startDateISO: startDateISO,
+            endDateISO: endDateISO,
         });
 
-        // Fetch data and generate CSV using the time window
+        // Fetch data and generate CSV using the 1-minute time window
         const { csvData, rowCount } = await dataService.fetchAndGenerateCSV(
-          startDateISO,
-          endDateISO
+            startDateISO,
+            endDateISO
         );
 
         if (rowCount === 0) {
-          logger.info(
-            "No updated patient data found in the current window. Skipping email.",
-            {
-              window: `${startTime.format("LT")} - ${endTime.format("LT")}`,
-            }
-          );
-          return;
+            logger.info(
+                "No updated patient data found in the current minute. Skipping email."
+            );
+            return;
         }
 
         // Send email with CSV attachment
         await emailService.sendReportEmail(
-          csvData,
-          rowCount,
-          startTime,
-          endTime
+            csvData,
+            rowCount,
+            startTime,
+            endTime
         );
 
-        logger.info("Data export and email successful.", { rowCount });
-      } catch (error) {
-        logger.error("Error running cron email job", {
-          error: error.message,
-          stack: error.stack,
+        logger.info("Data export and email successful (TEMP Run).", { rowCount });
+    } catch (error) {
+        logger.error("Error running cron email job (TEMP Run)", {
+            error: error.message,
+            stack: error.stack,
         });
-      } finally {
+    } finally {
         this.isProcessing = false;
-      }
     }
   }
 }
