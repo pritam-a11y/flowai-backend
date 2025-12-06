@@ -4,7 +4,7 @@ const moment = require("moment-timezone");
 
 const resend = new Resend("re_DXtS219b_C9LEPwDvBsy2ZMmEKZGh8yYx");
 
-const REPORT_RECIPIENT_EMAIL = "pritamsamaddar840@gmail.com";
+const REPORT_RECIPIENT_EMAIL = "krishna.kumar@myflowai.com";
 const REPORT_SENDER_EMAIL = "patientservices@myflowai.com";
 
 class EmailService {

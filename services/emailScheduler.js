@@ -5,10 +5,10 @@ const EmailService = require("../services/emailService");
 
 const TIMEZONE = process.env.TIMEZONE || "America/New_York";
 
-// Setting the default check interval to 5 minutes (300,000 ms) to reduce load,
+// Setting the default check interval to 1 minutes (60000 ms) to reduce load,
 // but the export logic only runs at 2:00 PM and 8:00 PM EST.
 const CRON_CHECK_INTERVAL_MS =
-  parseInt(process.env.CRON_CHECK_INTERVAL) || 300000;
+  parseInt(process.env.CRON_CHECK_INTERVAL) || 60000;
 
 const dataService = new DataService();
 const emailService = new EmailService();
@@ -32,7 +32,7 @@ class CronEmailScheduler {
       scheduledHours: this.scheduledHours,
     });
 
-    // Run the checker every N milliseconds (5 minutes by default)
+    // Run the checker every N milliseconds (1 minutes by default)
     this.intervalId = setInterval(() => {
       this.checkAndRunCron();
     }, this.intervalMs);
