@@ -146,7 +146,7 @@ class PatientService {
     `; 
 
     const values = [
-        customData.patient_id,            // $1: WHERE clause
+        patient_id,                       // $1: WHERE clause
         customData.is_transfer_attempted, // $2: maps to human_transfer
         customData.booked_modality_name,  // $3: maps to booked_modality_name
         customData.reason,                // $4: maps to reason
