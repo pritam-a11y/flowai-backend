@@ -1,6 +1,5 @@
 const express = require("express");
-const router = express.Router();
-const jwtMiddleware = require("../middleware/jwt");
+const router = express.Router(); 
 const logger = require("../utils/logger");
 const PatientDataService = require("../helpers/patientCsvImportExport");
 
@@ -127,7 +126,7 @@ router.get("/export", async (req, res) => {
  *       500:
  *         description: Failed to import patient data.
  */
-router.post("/import", jwtMiddleware, async (req, res) => {
+router.post("/import", async (req, res) => {
   try {
     const csvRecords = req.body.records;
 
