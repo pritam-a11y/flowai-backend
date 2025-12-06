@@ -126,6 +126,8 @@ class PatientService {
         const patient_id = patientId || customData.patient_id 
 
         logger.info("Updating screening answers", { patient_id });
+        logger.info("Custom data", { customData });
+
        
                      const query = `
         UPDATE patient_details
