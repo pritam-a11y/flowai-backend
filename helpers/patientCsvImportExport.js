@@ -8,7 +8,7 @@ const callbackService = new CallbackService();
 const TARGET_TIMEZONE = "America/New_York";
 // Canonical CSV headers - USED FOR EXPORT
 const PATIENT_FIELDS = [
-  "mrn",
+  "MRN",
   "first_name",
   "last_name",
   "dob",
@@ -93,43 +93,61 @@ async function exportPatientData() {
   logger.info("Starting patient data export process...");
   try {
     const query = `
-    SELECT  
-    mrn,  
-    first_name, last_name, dob, 
-    zip_code, address_street, address_city, phone, email, 
-    insurance_name, carrier_code, insurance_id, 
-    referring_physician_name, modality_name, procedure_name, procedure_code, 
-    booked_modality_name, 
-    -- CONVERTED APPOINTMENT_DATE (from UTC to EST)
-    TO_CHAR(
-      (appointment_date::text || ' ' || appointment_time)::timestamp AT TIME ZONE 'UTC' AT TIME ZONE $1,
-      'YYYY-MM-DD'
-    ) AS appointment_date, 
-    -- CONVERTED APPOINTMENT_TIME (from UTC to EST)
-    TO_CHAR(
-      (appointment_date::text || ' ' || appointment_time)::timestamp AT TIME ZONE 'UTC' AT TIME ZONE $1,
-      'HH24:MI:SS'
-    ) AS appointment_time,
-    
-    appointment_location, appointment_booked, 
-     
-    reason, 
-    metallic_implant, 
-    eye_fragments, 
-    foreign_metallic_object, 
-    claustrophobic, 
-    human_transfer, 
+    SELECT
+    mrn,
+    first_name, last_name, dob,
+    zip_code, address_street, address_city, phone, email,
+    insurance_name, carrier_code, insurance_id,
+    referring_physician_name, modality_name, procedure_name, procedure_code,
+    booked_modality_name,
+    -- Handle NULL appointment_date/time with COALESCE
+    CASE
+        WHEN appointment_date IS NULL OR appointment_time IS NULL THEN ''
+        ELSE TO_CHAR(
+            (appointment_date::text || ' ' || appointment_time)::timestamp AT TIME ZONE 'UTC' AT TIME ZONE $1,
+            'YYYY-MM-DD'
+        )
+    END AS appointment_date,
+    CASE
+        WHEN appointment_date IS NULL OR appointment_time IS NULL THEN ''
+        ELSE TO_CHAR(
+            (appointment_date::text || ' ' || appointment_time)::timestamp AT TIME ZONE 'UTC' AT TIME ZONE $1,
+            'HH24:MI:SS'
+        )
+    END AS appointment_time,
+    appointment_location, appointment_booked,
+    reason,
+    metallic_implant,
+    eye_fragments,
+    foreign_metallic_object,
+    claustrophobic,
+    human_transfer,
     reason_for_transfer
-    
 FROM patient_details
-WHERE  
-    NULLIF(TRIM(appointment_date::text), '') IS NOT NULL AND 
-    NULLIF(TRIM(appointment_time::text), '') IS NOT NULL AND 
-     
-    appointment_booked = TRUE AND
- 
-    (appointment_date::text || ' ' || appointment_time)::timestamp AT TIME ZONE 'UTC' AT TIME ZONE $1 >= NOW() AT TIME ZONE $1
-ORDER BY appointment_date ASC, appointment_time ASC
+WHERE
+    (
+        appointment_booked = TRUE OR
+        LOWER(call_status) IN ('dropped', 'booked')
+    ) AND
+    (
+        -- Include rows with NULL dates, or rows with future dates
+        appointment_date IS NULL OR
+        appointment_time IS NULL OR
+        (appointment_date::text || ' ' || appointment_time)::timestamp AT TIME ZONE 'UTC' AT TIME ZONE $1 >= NOW() AT TIME ZONE $1
+    )
+    OR 
+    (reason IS NOT NULL AND TRIM(reason) != '') OR
+    (reason_for_transfer IS NOT NULL AND TRIM(reason_for_transfer) != '')
+    OR
+    ( 
+         (metallic_implant IS NOT NULL AND TRIM(metallic_implant) != '') OR
+         (eye_fragments IS NOT NULL AND TRIM(eye_fragments) != '') OR
+         (foreign_metallic_object IS NOT NULL AND TRIM(foreign_metallic_object) != '') OR
+         (claustrophobic = TRUE) OR (claustrophobic = FALSE)
+        )
+ORDER BY
+    appointment_date ASC NULLS LAST,
+    appointment_time ASC NULLS LAST
     `;
 
     const result = await db.query(query, [TARGET_TIMEZONE]);
@@ -172,6 +190,7 @@ async function importPatientData(records) {
     // List of fields we are actually importing/updating (up to procedure_code, plus timestamps)
     const importedFields = [
       "patient_id",
+      "MRN",
       "first_name",
       "last_name",
       "dob",
@@ -189,12 +208,12 @@ async function importPatientData(records) {
       "procedure_code",
       "created_at",
       "updated_at",
-      "mrn",
     ];
 
     // Build the parameter array based on the importedFields list
     const params = [
       patientId, // $1
+      record.mrn,
       record.first_name || null, // $2
       record.last_name || null, // $3
       record.dob || null, // $4
@@ -212,7 +231,6 @@ async function importPatientData(records) {
       record.procedure_code || null, // $16
       createdAtTimestamp, // $17
       updatedAtTimestamp, // $18
-      record.mrn,
     ];
 
     // Generate the parameterized list for VALUES ($1, $2, ...)
