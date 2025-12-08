@@ -130,31 +130,37 @@ class PatientService {
 
        
                      const query = `
-        UPDATE patient_details
-        SET
-            human_transfer = $2,              
-            booked_modality_name = $3,
-            reason = $4,
-            reason_for_transfer = $5,
-            metallic_implant = $6,           
-            eye_fragments = $7,              
-            foreign_metallic_object = $8,    
-            claustrophobic = $9,              
-            updated_at = NOW()
-        WHERE
-            patient_id = $1;
-    `; 
-
-    const values = [
-        patient_id,                       // $1: WHERE clause
-        customData.is_transfer_attempted, // $2: maps to human_transfer
-        customData.booked_modality_name,  // $3: maps to booked_modality_name
-        customData.reason,                // $4: maps to reason
-        customData.reason_for_transfer,   // $5: maps to reason_for_transfer
-        customData.mri_q1,                // $6: maps to metallic_implant
-        customData.mri_q2,                // $7: maps to eye_fragments
-        customData.mri_q3,                // $8: maps to foreign_metallic_object
-        customData.mri_q4,                // $9: maps to claustrophobic 
+                     UPDATE patient_details
+                     SET
+                         human_transfer = $2,
+                         booked_modality_name = $3,
+                         reason = $4,
+                         reason_for_transfer = $5,
+                         metallic_implant = $6,
+                         eye_fragments = $7,
+                         foreign_metallic_object = $8,
+                         claustrophobic = $9,
+                         is_metallic_implant = $10,          
+                         is_eye_fragments = $11,       
+                         is_foreign_bodies = $12,            
+                         updated_at = NOW()
+                     WHERE
+                         patient_id = $1;
+                 `; 
+             
+                 const values = [
+                     patient_id,                                 // $1: WHERE clause
+                     customData.is_transfer_attempted,           // $2: maps to human_transfer
+                     customData.booked_modality_name,            // $3: maps to booked_modality_name
+                     customData.reason,                          // $4: maps to reason
+                     customData.reason_for_transfer,             // $5: maps to reason_for_transfer
+                     customData.mri_q1,                          // $6: maps to metallic_implant
+                     customData.mri_q2,                          // $7: maps to eye_fragments
+                     customData.mri_q3,                          // $8: maps to foreign_metallic_object
+                     customData.mri_q4,                          // $9: maps to claustrophobic
+                     customData.bool_mri_q1,                     // $10: maps to is_metallic_implant 
+                     customData.bool_mri_q2,                     // $11: maps to is_eye_fragments
+                     customData.bool_mri_q3,                     // $12: maps to is_foreign_bodies
     ];
 
         try {

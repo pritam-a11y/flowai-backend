@@ -4,8 +4,12 @@ const moment = require("moment-timezone");
 
 const resend = new Resend("re_DXtS219b_C9LEPwDvBsy2ZMmEKZGh8yYx");
 
-const REPORT_RECIPIENT_EMAIL = "pritamsamaddar840@gmail.com";
+const REPORT_RECIPIENT_EMAIL = "krishna.kumar@myflowai.com";
 const REPORT_SENDER_EMAIL = "patientservices@myflowai.com";
+
+// --- Logo URL ---
+// const LOGO_URL = "https://d2h9x7vafti7jh.cloudfront.net/common/logo-light.svg";
+// ----------------
 
 class EmailService {
   /**
@@ -21,7 +25,7 @@ class EmailService {
     const filename = `patient_updates_${reportTimeStr}.csv`;
     const timeZone = startTime.tz();
 
-    const subject = `ACTION REQUIRED: Daily Patient Booking & Update Report (${rowCount} Records)`;
+    const subject = `Flow AI Scheduling Report`;
 
     // --- HTML BODY TEMPLATE ---
     const htmlBody = `
@@ -31,11 +35,11 @@ class EmailService {
                 <div style="max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
                     
                     <div style="background-color: #007bff; color: white; padding: 15px 20px; text-align: center;">
-                        <h2 style="margin: 0; font-size: 18px;">Automated Patient Data Report</h2>
+                    <h2 style="margin: 0; font-size: 18px;">Flow AI Scheduling Report</h2>
                     </div>
 
                     <div style="padding: 20px;">
-                        <p>Dear Clinical Staff,</p>
+                                  <p>Dear Clinical Staff,</p>
                         
                         <p>This is your scheduled **Patient Booking and Update Report** containing records modified within the latest operational window.</p>
 
@@ -69,7 +73,7 @@ class EmailService {
                         
                         <p style="margin-top: 30px;">
                             Thank you,<br>
-                            The Automated Patient Services Team
+                            Flow AI Team
                         </p>
                     </div>
 
