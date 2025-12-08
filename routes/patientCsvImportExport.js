@@ -1,5 +1,5 @@
 const express = require("express");
-const router = express.Router(); 
+const router = express.Router();
 const logger = require("../utils/logger");
 const PatientDataService = require("../helpers/patientCsvImportExport");
 
@@ -33,10 +33,19 @@ const PatientDataService = require("../helpers/patientCsvImportExport");
  */
 router.get("/export", async (req, res) => {
   try {
-    const csvContent = await PatientDataService.exportPatientData();
-    res.header("Content-Type", "text/csv");
-    res.attachment("patient_data_future.csv");
-    res.send(csvContent);
+    const { zipBuffer, fileName } =
+      await PatientDataService.exportPatientData();
+    // Check if there was any data
+    if (!zipBuffer) {
+      logger.warn("Export attempt returned no data.");
+      return res.status(204).send();
+    }
+
+    logger.info(`Sending secured file: ${fileName}`);
+
+    res.header("Content-Type", "application/zip");
+    res.attachment(fileName);
+    res.send(zipBuffer);
   } catch (error) {
     logger.error("Error exporting patient data:", error.message);
     res
@@ -44,7 +53,6 @@ router.get("/export", async (req, res) => {
       .json({ success: false, error: "Failed to export patient data." });
   }
 });
-
 
 /**
  * @swagger
@@ -131,12 +139,10 @@ router.post("/import", async (req, res) => {
     const csvRecords = req.body.records;
 
     if (!Array.isArray(csvRecords)) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: "Invalid data format. Expected 'records' array in body.",
-        });
+      return res.status(400).json({
+        success: false,
+        error: "Invalid data format. Expected 'records' array in body.",
+      });
     }
 
     const summary = await PatientDataService.importPatientData(csvRecords);

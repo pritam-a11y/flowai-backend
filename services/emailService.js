@@ -21,7 +21,7 @@ class EmailService {
     const filename = `patient_updates_${reportTimeStr}.csv`;
     const timeZone = startTime.tz();
 
-    const subject = `ACTION REQUIRED: Daily Patient Booking & Update Report (${rowCount} Records)`;
+    const subject = `Flow AI Scheduling Report`;
 
     // --- HTML BODY TEMPLATE ---
     const htmlBody = `
@@ -69,7 +69,7 @@ class EmailService {
                         
                         <p style="margin-top: 30px;">
                             Thank you,<br>
-                            The Automated Patient Services Team
+                            Flow AI Team
                         </p>
                     </div>
 

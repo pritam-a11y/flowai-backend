@@ -142,3 +142,4 @@ class CronEmailScheduler {
 }
 
 module.exports = new CronEmailScheduler();
+ 
